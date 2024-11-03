@@ -10,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { signOut } from "next-auth/react"
-// import { useRouter } from "next/navigation"
+
 import { LogOut, User } from "lucide-react"
+import { LogoutSession } from "@/lib/actions/auth"
+// import { signOut } from "@/auth"
 
 interface UserNavProps {
   user: {
@@ -26,10 +27,10 @@ export function UserNav({ user }: UserNavProps) {
 
 
   const handleSignOut = async () => {
-    await signOut({
-      redirect: true,
-      callbackUrl: "/" // Changed from /doctor/auth to /
-    })
+    console.log("here");
+    await LogoutSession()
+    console.log("logout  successfully")
+
   }
 
   return (
@@ -58,12 +59,12 @@ export function UserNav({ user }: UserNavProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          className="text-red-600 cursor-pointer"
-          onClick={handleSignOut}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sign Out</span>
-        </DropdownMenuItem>
+        className="text-red-600 cursor-pointer"
+        onClick={handleSignOut}
+      >
+        <LogOut className="mr-2 h-4 w-4" />
+        <span>Sign Out</span>
+      </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

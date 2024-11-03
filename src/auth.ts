@@ -9,12 +9,12 @@ export const {
   auth,
   signIn,
   signOut,
-  // No need to destructure handlers anymore
-  GET,
-  POST
+  handlers,
+
 } = NextAuth({
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
+  
   pages: {
     signIn: '/',
     error: '/',
@@ -33,14 +33,14 @@ export const {
         }
 
         const doctor = await db.doctor.findUnique({
-          where: { email: credentials.email.toLowerCase() }
+          where: { email: credentials.email.toString().toLowerCase() }
         })
 
         if (!doctor || !doctor.password) {
           throw new Error("Email not found")
         }
 
-        const isPasswordValid = await compare(credentials.password, doctor.password)
+        const isPasswordValid = await compare(credentials.password as string, doctor.password)
 
         if (!isPasswordValid) {
           throw new Error("Invalid password")
@@ -59,7 +59,7 @@ export const {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id as string
         token.role = user.role
         token.email = user.email
         token.name = user.name
@@ -71,10 +71,11 @@ export const {
       if (token) {
         session.user = {
           id: token.id,
-          role: token.role,
-          email: token.email,
-          name: token.name,
-          image: token.picture,
+          role: token.role as "DOCTOR" | "PATIENT",
+          email: token.email as string,
+          name: token.name as string,
+          image: token.picture as string,
+          emailVerified: null
         }
       }
       return session
