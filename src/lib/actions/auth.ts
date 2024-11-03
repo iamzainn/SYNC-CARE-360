@@ -3,7 +3,7 @@
 import { AuthError } from "next-auth"
 import { compare } from "bcryptjs"
 import { db } from "@/lib/db"
-import { signIn } from "@/auth"
+import { signIn,signOut } from "@/auth"
 
 
 export async function doctorLogin(email: string, password: string) {
@@ -41,4 +41,8 @@ export async function doctorLogin(email: string, password: string) {
     }
     throw error
   }
+}
+//logout function
+export async function LogoutSession() {
+  await signOut()
 }

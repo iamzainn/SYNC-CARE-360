@@ -1,3 +1,4 @@
+// src/app/(auth)/doctor/auth/page.tsx
 'use client'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -5,13 +6,30 @@ import { DoctorLoginForm } from "@/components/auth/doctor-login-form"
 import { DoctorSignUpForm } from "@/components/auth/doctor-signup-form"
 import { Card, CardHeader } from "@/components/ui/card"
 import Image from "next/image"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export default function DoctorAuthPage() {
-
   const searchParams = useSearchParams()
-  const defaultTab = searchParams.get('tab') || 'login'
-  console.log('defaultTab', defaultTab)
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'login')
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    // Update URL without navigation
+    const params = new URLSearchParams(searchParams)
+    params.set('tab', value)
+    router.push(`/doctor/auth?${params.toString()}`, { scroll: false })
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-[450px] p-6">
@@ -28,7 +46,7 @@ export default function DoctorAuthPage() {
             Please enter your details to get started
           </p>
         </CardHeader>
-        <Tabs defaultValue={defaultTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
