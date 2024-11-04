@@ -12,25 +12,27 @@ import {
   
   export function DesktopNav() {
     return (
-      <NavigationMenu className="hidden lg:flex">
-        <NavigationMenuList>
+      <NavigationMenu>
+        <NavigationMenuList className="flex gap-6">
           {navigationItems.map((item) => (
-            <NavigationMenuItem key={item.href}>
+            <NavigationMenuItem key={item.href} className="flex-shrink-0">
               {item.dropdownItems.length > 0 ? (
                 <>
-                  <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+                  <NavigationMenuTrigger 
+                    className="text-sm font-medium bg-transparent hover:bg-transparent px-2 h-9"
+                  >
+                    {item.title}
+                  </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4">
+                    <ul className="grid w-[400px] gap-2 p-4">
                       {item.dropdownItems.map((dropdownItem) => (
                         <li key={dropdownItem.href}>
                           <NavigationMenuLink asChild>
                             <Link
                               href={dropdownItem.href}
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              className="block select-none rounded-md p-2 text-sm hover:bg-accent hover:text-accent-foreground"
                             >
-                              <div className="text-sm font-medium leading-none">
-                                {dropdownItem.title}
-                              </div>
+                              {dropdownItem.title}
                             </Link>
                           </NavigationMenuLink>
                         </li>
@@ -41,10 +43,9 @@ import {
               ) : (
                 <Link href={item.href} legacyBehavior passHref>
                   <NavigationMenuLink className={cn(
-                    "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2",
-                    "text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                    "focus:bg-accent focus:text-accent-foreground focus:outline-none",
-                    "disabled:pointer-events-none disabled:opacity-50"
+                    "inline-flex h-9 items-center justify-center rounded-md px-2",
+                    "text-sm font-medium transition-colors hover:text-primary",
+                    "whitespace-nowrap"
                   )}>
                     {item.title}
                   </NavigationMenuLink>
