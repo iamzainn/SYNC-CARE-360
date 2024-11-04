@@ -1,24 +1,24 @@
-// src/auth.ts
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "@/lib/db"
 import { compare } from "bcryptjs"
+import { JWT } from "next-auth/jwt"
 
 export const {
   auth,
   signIn,
   signOut,
-  handlers,
-
+  handlers
 } = NextAuth({
   adapter: PrismaAdapter(db),
-  session: { strategy: "jwt" },
-  
+  session: { 
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
+  },
   pages: {
     signIn: '/',
-    error: '/',
-    signOut: '/',
   },
   providers: [
     CredentialsProvider({
@@ -29,7 +29,7 @@ export const {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials")
+          return null
         }
 
         const doctor = await db.doctor.findUnique({
@@ -37,48 +37,52 @@ export const {
         })
 
         if (!doctor || !doctor.password) {
-          throw new Error("Email not found")
+          return null
         }
 
         const isPasswordValid = await compare(credentials.password as string, doctor.password)
 
         if (!isPasswordValid) {
-          throw new Error("Invalid password")
+          return null
         }
 
         return {
           id: doctor.id,
           email: doctor.email,
           name: doctor.name,
-          role: "DOCTOR" as const,
+          role: "DOCTOR",
           image: "/default-avatar.png"
         }
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }): Promise<JWT> {
+      if (trigger === "update" && session?.name) {
+        token.name = session.name
+      }
+      
       if (user) {
         token.id = user.id as string
         token.role = user.role
-        token.email = user.email
-        token.name = user.name
-        token.picture = user.image
+        token.email = user.email as string
+        token.name = user.name as string
+        token.picture = user.image as string
       }
       return token
     },
     async session({ session, token }) {
-      if (token) {
-        session.user = {
+      return {
+        ...session,
+        user: {
           id: token.id,
-          role: token.role as "DOCTOR" | "PATIENT",
-          email: token.email as string,
-          name: token.name as string,
-          image: token.picture as string,
+          role: token.role,
+          email: token.email,
+          name: token.name,
+          image: token.picture,
           emailVerified: null
         }
       }
-      return session
     }
   }
 })
