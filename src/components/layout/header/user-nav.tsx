@@ -12,8 +12,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 import { LogOut, User } from "lucide-react"
-import { LogoutSession } from "@/lib/actions/auth"
-// import { signOut } from "@/auth"
+// import { LogoutAction } from "@/lib/actions/auth"
+import { useRouter } from "next/navigation"
+import { signOut } from "next-auth/react"
+
 
 interface UserNavProps {
   user: {
@@ -24,13 +26,18 @@ interface UserNavProps {
 }
 
 export function UserNav({ user }: UserNavProps) {
-
+  const router = useRouter()
 
   const handleSignOut = async () => {
-    console.log("here");
-    await LogoutSession()
-    console.log("logout  successfully")
-
+    try {
+      await signOut({
+        redirect: false
+      })
+      router.push('/')
+      router.refresh()
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
   }
 
   return (

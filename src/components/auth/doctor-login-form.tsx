@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { signIn } from "next-auth/react" // Change this import
+import { useSession } from "next-auth/react"
 
 import { useRouter } from "next/navigation"
 import { doctorLogin } from "@/lib/actions/auth"
@@ -19,6 +21,7 @@ const formSchema = z.object({
 
 export function DoctorLoginForm() {
   const [isPending, setIsPending] = useState(false)
+  const { data: session, update } = useSession()
   const { toast } = useToast()
   const router = useRouter()
 
@@ -33,7 +36,11 @@ export function DoctorLoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsPending(true)
     try {
-      const result = await doctorLogin(values.email, values.password)
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      })
       
       if (result?.error) {
         toast({
@@ -43,6 +50,9 @@ export function DoctorLoginForm() {
         })
         return
       }
+
+      // Update session
+      await update()
 
       toast({
         title: "Success!",
@@ -62,6 +72,7 @@ export function DoctorLoginForm() {
       setIsPending(false)
     }
   }
+
 
   return (
     <Form {...form}>
