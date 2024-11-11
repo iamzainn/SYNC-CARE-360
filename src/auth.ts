@@ -37,33 +37,59 @@ export const {
       name: 'credentials',
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        role: { label: "Role", type: "text" } // Add role to differentiate
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email || !credentials?.password || !credentials?.role) {
           return null
         }
-
-        const doctor = await db.doctor.findUnique({
-          where: { email: credentials.email.toString().toLowerCase() }
-        })
-
-        if (!doctor || !doctor.password) {
-          return null
-        }
-
-        const isPasswordValid = await compare(credentials.password as string, doctor.password)
-
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: doctor.id,
-          email: doctor.email,
-          name: doctor.name,
-          role: "DOCTOR",
-          image: "/default-avatar.png"
+    
+        const email = credentials.email.toString().toLowerCase()
+        const role = credentials.role
+    
+        if (role === 'DOCTOR') {
+          const doctor = await db.doctor.findUnique({
+            where: { email }
+          })
+    
+          if (!doctor || !doctor.password) return null
+    
+          const isPasswordValid = await compare(
+            credentials.password as string,
+            doctor.password
+          )
+    
+          if (!isPasswordValid) return null
+    
+          return {
+            id: doctor.id,
+            email: doctor.email,
+            name: doctor.name,
+            role: "DOCTOR",
+            image: "/default-avatar.png"
+          }
+        } else {
+          const patient = await db.patient.findUnique({
+            where: { email }
+          })
+    
+          if (!patient || !patient.password) return null
+    
+          const isPasswordValid = await compare(
+            credentials.password as string,
+            patient.password
+          )
+    
+          if (!isPasswordValid) return null
+    
+          return {
+            id: patient.id,
+            email: patient.email,
+            name: patient.name,
+            role: "PATIENT",
+            image: "/default-avatar.png"
+          }
         }
       }
     })
