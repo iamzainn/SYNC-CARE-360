@@ -75,7 +75,7 @@ export const ServiceSection = () => {
               className="group transition-all duration-300 hover:shadow-lg rounded-2xl bg-white overflow-hidden cursor-pointer"
             >
               <div className="flex flex-col h-full">
-                {/* Image Container */}
+               
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
                   <div className="absolute inset-0">
                     {/* Image placeholder - replace with actual image */}
