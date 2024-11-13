@@ -1,9 +1,8 @@
 'use client'
 import { Button } from "@/components/ui/button"
-import { MapPin } from "lucide-react"
+// import { MapPin } from "lucide-react"
 import { useLocationStore } from "@/store/useLocationStore"
 import { determineMainCity } from "@/utils/cityHelper"
-
 
 export const LocationDetectButton = () => {
   const { setLocation, setCoordinates, setError, setLoading } = useLocationStore()
@@ -22,30 +21,17 @@ export const LocationDetectButton = () => {
           const { latitude, longitude } = position.coords
           setCoordinates(latitude, longitude)
           
-          // Reverse geocoding using OpenStreetMap Nominatim API
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           )
           const data = await response.json()
           
-          // Log the full response for debugging
-          console.log('Full location data:', data)
-          
-          // Determine main city from address data
           const mainCity = determineMainCity(data.address)
-          console.log('Main city:', mainCity)
           
           if (mainCity) {
             setLocation(mainCity)
             setError(null)
           } else {
-            console.log('Location details:', {
-              city: data.address.city,
-              town: data.address.town,
-              village: data.address.village,
-              district: data.address.district,
-              state: data.address.state
-            })
             setError("Please select Lahore, Karachi, or Islamabad")
           }
         } catch (error) {
@@ -65,12 +51,11 @@ export const LocationDetectButton = () => {
 
   return (
     <Button 
-      variant="outline" 
+      variant="ghost" 
       size="sm" 
       onClick={detectLocation}
-      className="flex items-center gap-2"
+      className="text-[#39B7FF] hover:text-[#2da8f0] hover:bg-transparent px-2"
     >
-      <MapPin className="h-4 w-4" />
       Detect
     </Button>
   )
