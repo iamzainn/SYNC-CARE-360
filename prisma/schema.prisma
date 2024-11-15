@@ -16,22 +16,23 @@ datasource db {
 
 
 model Doctor {
-  id              String    @id @default(cuid())
-  title           String    // Mr./Ms./Dr./Prof.
-  name            String
-  email           String    @unique
-  phone           String    @unique
-  password        String
-  city            String
-  specialization  String
-  gender          Gender
-  emailVerified   DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  title                 String    
+  name                  String
+  email                 String    @unique
+  phone                 String    @unique
+  password              String
+  city                  String
+  specialization        String
+  gender                Gender
+  emailVerified         DateTime?
+  resetToken            String?   // Add this
+  resetTokenExpiry      DateTime? // Add this
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@map("doctors")
 }
-
 enum Gender {
   MALE
   FEMALE
