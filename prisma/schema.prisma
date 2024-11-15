@@ -52,3 +52,54 @@ model Patient {
 
   @@map("patients")
 }
+
+
+model MedicineOrder {
+  id              String          @id @default(cuid())
+  medicines       String?         // For manual medicine entry
+  prescriptionUrl String?        // For prescription upload
+  address         String
+  phoneNumber     String
+  patientName     String
+  pharmacyName    String?
+  amount          Float?
+  paymentMethod   PaymentMethod
+  orderStatus     OrderStatus     @default(PENDING)
+  paymentStatus   PaymentStatus   @default(PENDING)
+  transaction     Transaction?    // Optional relation for payment details
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("medicine_orders")
+}
+
+model Transaction {
+  id              String         @id @default(cuid())
+  amount          Float
+  paymentDate     DateTime       @default(now())
+  stripePaymentId String?        // Stripe payment intent ID
+  status          PaymentStatus
+  medicineOrder   MedicineOrder  @relation(fields: [orderId], references: [id])
+  orderId         String         @unique // One-to-one relation
+  metadata        Json?          // For any additional payment details
+
+  @@map("transactions")
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  CARD
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
