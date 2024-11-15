@@ -14,14 +14,12 @@ export default function DoctorAuthPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'login')
 
-  // Update active tab when URL changes
   useEffect(() => {
     const tab = searchParams.get('tab')
     if (tab) {
       setActiveTab(tab)
     }
   }, [searchParams])
-
   const handleTabChange = (value: string) => {
     setActiveTab(value)
     // Update URL without navigation
@@ -29,7 +27,6 @@ export default function DoctorAuthPage() {
     params.set('tab', value)
     router.push(`/doctor/auth?${params.toString()}`, { scroll: false })
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-[450px] p-6">

@@ -35,10 +35,10 @@ export default function PatientAuthPage() {
       <Card className="w-full max-w-[450px] p-6">
         <CardHeader className="space-y-1 flex flex-col items-center mb-4">
           <Image
-            src="/logo.png"
+            src="/logo.jpeg"
             alt="Care Sync 360"
-            width={50}
-            height={50}
+            width={120}
+            height={120}
             className="mb-2"
           />
           <h2 className="text-2xl font-semibold text-center">Welcome</h2>
