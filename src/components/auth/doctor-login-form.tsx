@@ -11,8 +11,9 @@ import { signIn } from "next-auth/react" // Change this import
 import { useSession } from "next-auth/react"
 
 import { useRouter } from "next/navigation"
-import { doctorLogin } from "@/lib/actions/auth"
+
 import { useToast } from "@/hooks/use-toast"
+import Link from "next/link"
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -103,6 +104,14 @@ export function DoctorLoginForm() {
             </FormItem>
           )}
         />
+        <div className="flex items-center justify-end">
+  <Link 
+    href="/doctor/auth/forgot-password"
+    className="text-sm text-blue-600 hover:text-blue-700"
+  >
+    Forgot password?
+  </Link>
+</div>
         <Button type="submit" className="w-full" disabled={isPending}>
           Login
         </Button>
