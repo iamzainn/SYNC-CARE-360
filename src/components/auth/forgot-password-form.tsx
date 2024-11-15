@@ -1,6 +1,4 @@
 "use client"
-
-
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -11,10 +9,13 @@ import { useToast } from "@/hooks/use-toast"
 import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/types/reset-password"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export function ForgotPasswordForm() {
   const [isPending, setIsPending] = useState(false)
   const { toast } = useToast()
+  
+const router = useRouter()
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -59,10 +60,10 @@ export function ForgotPasswordForm() {
     <Card className="w-full max-w-[450px] p-6">
       <CardHeader className="space-y-1 flex flex-col items-center mb-4">
         <Image
-          src="/logo.png"
+          src="/logo.jpeg"
           alt="Care Sync 360"
-          width={50}
-          height={50}
+          width={120}
+          height={120}
           className="mb-2"
         />
         <h2 className="text-2xl font-semibold text-center">Forgot Password</h2>
@@ -89,6 +90,15 @@ export function ForgotPasswordForm() {
             <Button type="submit" className="w-full" disabled={isPending}>
               Send Reset Instructions
             </Button>
+            <p className="text-sm text-center text-muted-foreground">
+              <Button 
+                variant="link" 
+                className="text-primary p-0 h-auto font-normal"
+                onClick={() => router.push('/doctor/auth?tab=login')}
+              >
+                Back to login
+              </Button>
+            </p>
           </form>
         </Form>
       </CardContent>

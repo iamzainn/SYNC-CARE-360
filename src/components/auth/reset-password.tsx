@@ -13,9 +13,13 @@ import { useToast } from "@/hooks/use-toast"
 import { resetPasswordSchema, type ResetPasswordFormData } from "@/types/reset-password"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import Image from "next/image"
+import { Eye, EyeOff } from "lucide-react"
 
 export function ResetPasswordForm() {
+  
   const [isPending, setIsPending] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -77,10 +81,10 @@ export function ResetPasswordForm() {
     <Card className="w-full max-w-[450px] p-6">
       <CardHeader className="space-y-1 flex flex-col items-center mb-4">
         <Image
-          src="/logo.png"
+          src="/logo.jpeg"
           alt="Care Sync 360"
-          width={50}
-          height={50}
+          width={120}
+          height={120}
           className="mb-2"
         />
         <h2 className="text-2xl font-semibold text-center">Reset Password</h2>
@@ -97,9 +101,24 @@ export function ResetPasswordForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>New Password</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" disabled={isPending} />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type={showPassword ? "text" : "password"} 
+                        disabled={isPending} 
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -110,9 +129,24 @@ export function ResetPasswordForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" disabled={isPending} />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type={showConfirmPassword ? "text" : "password"} 
+                        disabled={isPending} 
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

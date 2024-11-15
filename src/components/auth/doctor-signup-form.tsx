@@ -27,6 +27,7 @@ import { doctorSignUp } from "@/lib/actions/doctor"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { doctorSignUpSchema } from "@/lib/schemas/doctor"
+import { Eye, EyeOff } from "lucide-react"
 
 
 
@@ -60,6 +61,7 @@ const cities = [
 export function DoctorSignUpForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isPending, setIsPending] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -186,15 +188,30 @@ export function DoctorSignUpForm() {
           )}
         />
 
-        <FormField
+<FormField
           control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" disabled={isLoading} />
-              </FormControl>
+              <div className="relative">
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    type={showPassword ? "text" : "password"} 
+                    disabled={isLoading} 
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -292,6 +309,12 @@ export function DoctorSignUpForm() {
         <Button type="submit" className="w-full mt-6" disabled={isPending || isLoading}>
           Sign Up
         </Button>
+        <p className="text-sm text-center text-muted-foreground">
+          Already have an account?{" "}
+          <Link href="/doctor/auth?tab=login" className="text-primary hover:underline">
+            Sign in
+          </Link>
+        </p>
       </form>
     </Form>
   )
