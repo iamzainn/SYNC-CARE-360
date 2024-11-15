@@ -11,12 +11,12 @@ import {
 } from '@react-email/components'
 
 interface ResetPasswordEmailProps {
-  doctorName: string
+  name: string
   resetLink: string
 }
 
 export const ResetPasswordEmail = ({
-  doctorName,
+  name,
   resetLink,
 }: ResetPasswordEmailProps): ReactElement => {
   return (
@@ -26,7 +26,7 @@ export const ResetPasswordEmail = ({
       <Body style={{ backgroundColor: '#f6f9fc', padding: '40px 0' }}>
         <Container style={{ backgroundColor: '#ffffff', padding: '40px', borderRadius: '5px' }}>
           <Heading as="h1">Reset Your Password</Heading>
-          <Text>Dear {doctorName},</Text>
+          <Text>Dear {name},</Text>
           <Text>
             We received a request to reset your Care Sync 360 password. Click the link below to set a new password:
           </Text>

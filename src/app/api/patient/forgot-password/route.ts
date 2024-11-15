@@ -1,8 +1,6 @@
-
-import { ResetPasswordEmail } from "@/components/auth/ResetPasswordTemplate"
-import  {db} from "@/lib/db"
+import { db } from "@/lib/db"
 import { resend } from "@/lib/email/resend"
-
+import { ResetPasswordEmail } from "@/components/auth/ResetPasswordTemplate"
 import crypto from "crypto"
 import { NextResponse } from "next/server"
 
@@ -10,46 +8,38 @@ export async function POST(req: Request) {
   try {
     const { email } = await req.json()
 
-   
-    const doctor = await db.doctor.findUnique({
+    const patient = await db.patient.findUnique({
       where: { email: email.toLowerCase() }
     })
 
-    // If no doctor found, return success anyway for security
-    if (!doctor) {
+    if (!patient) {
       return NextResponse.json({
         message: "If an account exists with this email, you will receive password reset instructions."
       })
     }
 
-    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex')
-    const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour from now
+    const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour
 
-    // Save reset token to database
-    await db.doctor.update({
-      where: { email: doctor.email },
+    await db.patient.update({
+      where: { email: patient.email },
       data: {
         resetToken,
         resetTokenExpiry
       }
     })
 
-    // Generate reset link
-    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/doctor/auth/reset-password?token=${resetToken}`
+    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/patient/auth/reset-password?token=${resetToken}`
 
-    // Send email
-    const r= await resend.emails.send({
-      from:'onboarding@resend.dev',
-      to: doctor.email,
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: patient.email,
       subject: 'Reset Your Care Sync 360 Password',
       react: ResetPasswordEmail({
-        name: doctor.name,
+        name: patient.name,
         resetLink
       }) as React.ReactElement
     })
-
-    console.log("response from resend", r)
 
     return NextResponse.json({
       message: "If an account exists with this email, you will receive password reset instructions."
@@ -63,6 +53,3 @@ export async function POST(req: Request) {
     )
   }
 }
-
-
-

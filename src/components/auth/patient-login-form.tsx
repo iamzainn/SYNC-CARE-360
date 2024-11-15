@@ -12,9 +12,12 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { patientLoginSchema } from "@/lib/schemas/patient"
+import { Eye, EyeOff } from "lucide-react"
+import Link from "next/link"
 
 export function PatientLoginForm() {
   const [isPending, setIsPending] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const { data: session, update } = useSession()
   const { toast } = useToast()
   const router = useRouter()
@@ -41,18 +44,16 @@ export function PatientLoginForm() {
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.error
+          description: "Invalid email or password"
         })
         return
       }
 
       await update()
-
       toast({
         title: "Success!",
         description: "Logged in successfully.",
       })
-
       router.push("/")
       router.refresh()
       
@@ -89,13 +90,36 @@ export function PatientLoginForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" disabled={isPending} />
-              </FormControl>
+              <div className="relative">
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    type={showPassword ? "text" : "password"} 
+                    disabled={isPending} 
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
               <FormMessage />
             </FormItem>
           )}
         />
+        <div className="flex items-center justify-end">
+          <Link 
+            href="/patient/auth/forgot-password"
+            className="text-sm text-blue-600 hover:text-blue-700"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <Button type="submit" className="w-full" disabled={isPending}>
           Login
         </Button>
