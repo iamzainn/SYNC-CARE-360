@@ -11,6 +11,7 @@ import Link from "next/link"
 
 export default function PatientAuthPage() {
   const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl')
   
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'login')
@@ -57,7 +58,7 @@ export default function PatientAuthPage() {
           </TabsList>
           
           <TabsContent value="login">
-            <PatientLoginForm />
+            <PatientLoginForm callbackUrl={callbackUrl??''} />
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
               <button
@@ -70,7 +71,7 @@ export default function PatientAuthPage() {
           </TabsContent>
           
           <TabsContent value="signup">
-            <PatientSignUpForm />
+            <PatientSignUpForm callback={callbackUrl??''} />
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <button
