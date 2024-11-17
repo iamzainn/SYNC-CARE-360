@@ -9,8 +9,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { signIn } from "next-auth/react"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+
 import { useToast } from "@/hooks/use-toast"
+
 import { patientLoginSchema } from "@/lib/schemas/patient"
 import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
@@ -21,6 +23,8 @@ export function PatientLoginForm() {
   const { data: session, update } = useSession()
   const { toast } = useToast()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl')
 
   const form = useForm<z.infer<typeof patientLoginSchema>>({
     resolver: zodResolver(patientLoginSchema),
@@ -54,7 +58,7 @@ export function PatientLoginForm() {
         title: "Success!",
         description: "Logged in successfully.",
       })
-      router.push("/")
+      router.push(callbackUrl || '/')
       router.refresh()
       
     } catch (error) {
