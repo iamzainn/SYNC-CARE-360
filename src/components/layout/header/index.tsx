@@ -2,7 +2,7 @@ import Link from "next/link"
 import { DesktopNav } from "./desktop-nav"
 import { AuthStatus } from "./auth-status"
 import { MobileNav } from "./mobile-nav"
-import { LoginDropdown } from "./login-dropdown"
+import Image from 'next/image';
 import { headers } from "next/headers"
 import { Button } from "@/components/ui/button"
 import { Phone } from "lucide-react"
@@ -11,20 +11,20 @@ export async function Header() {
   headers()
   
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background">
+    <header className="sticky  top-0 z-50 w-full border-b bg-background">
       <div className="max-w-full px-4 sm:px-6 lg:px-8 mx-auto flex h-16 items-center justify-between">
         {/* Left side - Logo */}
         <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-          <div className="relative h-8 w-8">
-            {/* <Image
+          <div className="relative">
+            <Image
               src="/logo.png"
               alt="Care Sync 360 Logo"
-              width={32}
-              height={32}
-              className="object-contain"
-            /> */}
+              width={50}
+              height={50}
+              className="object-cover "
+            />
           </div>
-          <span className="font-semibold text-lg whitespace-nowrap">Care Sync 360</span>
+          <span className="font-semibold text-lg whitespace-nowrap hidden sm:flex">Care Sync 360</span>
         </Link>
 
         {/* Center - Navigation */}

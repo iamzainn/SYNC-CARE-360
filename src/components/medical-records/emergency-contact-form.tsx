@@ -59,7 +59,7 @@ export function EmergencyContactForm() {
         description: "Please login as a patient to submit your medical records.",
         variant: "destructive",
       })
-      router.push(`/patient/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`)
+      router.push(`/patient/auth/?callbackUrl=${encodeURIComponent(window.location.href)}`)
       return
     }
 

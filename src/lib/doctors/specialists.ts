@@ -1,7 +1,8 @@
 // /lib/doctors/specialists.ts
-import { BrainCog, Baby, Stethoscope, Eye, Bone, LucideIcon } from 'lucide-react'
-import {  FaBone, FaChild,FaLungs as Lung } from 'react-icons/fa'
+import { BrainCog, Baby, Stethoscope, Eye, Bone, LucideIcon, Heart, UserRound, Droplets } from 'lucide-react'
+import {  FaBone, FaBrain, FaChild,FaTooth,FaLungs as Lung } from 'react-icons/fa'
 import { IconType } from 'react-icons'
+import { MdHearing } from 'react-icons/md'
 
 export interface Specialty {
   id: string
@@ -58,5 +59,43 @@ export const SPECIALTIES: Specialty[] = [
     title: 'Child Specialist',
     urlPath: 'pediatrician',
     icon: FaChild
+  },
+  {
+    id: '9',
+    title: 'ENT Specialist',
+    urlPath: 'ent-specialist',
+    icon: MdHearing
+  },
+  {
+    id: '10',
+    title: 'Cardiologist',
+    urlPath: 'cardiologist',
+    icon: Heart
+  },
+  {
+    id: '11',
+    title: 'General Physician',
+    urlPath: 'general-physician',
+    icon: UserRound
+  },
+  
+  {
+    id: '12',
+    title: 'Neurologist',
+    urlPath: 'neurologist',
+    icon: FaBrain
+  },
+  {
+    id: '13',
+    title: 'Diabetologist',
+    urlPath: 'diabetologist',
+    icon: Droplets
+  },
+  
+  {
+    id: '14',
+    title: 'Dentist',
+    urlPath: 'dentist',
+    icon: FaTooth
   }
 ]
