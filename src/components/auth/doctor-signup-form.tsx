@@ -58,7 +58,7 @@ const cities = [
   "Sialkot"
 ]
 
-export function DoctorSignUpForm() {
+export function DoctorSignUpForm({callbackUrl}: {callbackUrl?: string}) {
   const [isLoading, setIsLoading] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const [showPassword, setShowPassword] = useState(false)

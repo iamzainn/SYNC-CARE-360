@@ -11,6 +11,7 @@ import { useEffect, useState } from "react"
 
 export default function DoctorAuthPage() {
   const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl')
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'login')
 
@@ -49,10 +50,10 @@ export default function DoctorAuthPage() {
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <DoctorLoginForm />
+            <DoctorLoginForm callbackUrl={callbackUrl??''} />
           </TabsContent>
           <TabsContent value="signup">
-            <DoctorSignUpForm />
+            <DoctorSignUpForm callbackUrl={callbackUrl??''} />
           </TabsContent>
         </Tabs>
       </Card>
