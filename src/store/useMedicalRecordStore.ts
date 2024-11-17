@@ -1,6 +1,18 @@
 // store/useMedicalRecordStore.ts
+import { BloodType } from '@prisma/client'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
+const BLOOD_TYPES = [
+  "A_POSITIVE",
+  "A_NEGATIVE",
+  "B_POSITIVE",
+  "B_NEGATIVE",
+  "O_POSITIVE",
+  "O_NEGATIVE",
+  "AB_POSITIVE",
+  "AB_NEGATIVE",
+] as const
 
 interface MedicalRecord {
   // Required Information
@@ -19,10 +31,10 @@ interface MedicalRecord {
   // Health Metrics
   height: number | null
   weight: number | null
-  bloodType: string | null
+  bloodType: BloodType | null
   bloodPressure: {
-    systolic: number | null
-    diastolic: number | null
+    systolic: number | null | undefined
+    diastolic: number | null | undefined
   }
   heartRate: number | null
 
@@ -61,7 +73,7 @@ const initialState: MedicalRecord = {
   currentMedications: [],
   height: null,
   weight: null,
-  bloodType: null,
+  bloodType: BLOOD_TYPES[0],
   bloodPressure: {
     systolic: null,
     diastolic: null

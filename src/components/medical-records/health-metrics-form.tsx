@@ -52,9 +52,9 @@ export function HealthMetricsForm() {
       height: store.height || undefined,
       weight: store.weight || undefined,
       bloodType: store.bloodType  || undefined,
-      bloodPressure: store.bloodPressure || {
-        systolic: undefined,
-        diastolic: undefined,
+      bloodPressure: {
+        systolic: store.bloodPressure.systolic || undefined,
+        diastolic: store.bloodPressure.diastolic || undefined
       },
       heartRate: store.heartRate || undefined,
     },
