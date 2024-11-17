@@ -18,7 +18,7 @@ const formSchema = z.object({
   password: z.string().min(1, "Password is required"),
 })
 
-export function DoctorLoginForm() {
+export function DoctorLoginForm({callbackUrl}:{callbackUrl:string}) {
   const [isPending, setIsPending] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { data: session, update } = useSession()
@@ -60,7 +60,7 @@ export function DoctorLoginForm() {
         description: "Logged in successfully.",
       })
 
-      router.push("/")
+      router.push(callbackUrl || '/')
       router.refresh()
       
     } catch (error) {
