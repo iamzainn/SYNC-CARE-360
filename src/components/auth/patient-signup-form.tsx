@@ -42,7 +42,7 @@ const cities = [
   "Sialkot"
 ]
 
-export function PatientSignUpForm() {
+export function PatientSignUpForm({callback}:{callback?:string}) {
   const [isLoading, setIsLoading] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -85,7 +85,17 @@ export function PatientSignUpForm() {
       
       const params = new URLSearchParams(searchParams.toString())
       params.set('tab', 'login')
-      router.push(`/patient/auth?${params.toString()}`)
+      if (callback) {
+        console.log("callback exist");
+        
+
+      }
+     else{
+      console.log("callback not exist")
+     }
+     router.push(`/patient/auth?${params.toString()}`)
+
+      
       
     } catch (error) {
       toast({

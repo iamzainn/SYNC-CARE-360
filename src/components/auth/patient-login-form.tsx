@@ -17,14 +17,15 @@ import { patientLoginSchema } from "@/lib/schemas/patient"
 import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 
-export function PatientLoginForm() {
+export function PatientLoginForm({callbackUrl}: {callbackUrl?: string}) {
+
   const [isPending, setIsPending] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { data: session, update } = useSession()
   const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl')
+  // const callbackUrl = searchParams.get('callbackUrl')
 
   const form = useForm<z.infer<typeof patientLoginSchema>>({
     resolver: zodResolver(patientLoginSchema),

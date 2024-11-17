@@ -14,7 +14,6 @@ datasource db {
 }
 
 
-
 model Doctor {
   id                    String    @id @default(cuid())
   title                 String    
@@ -26,18 +25,64 @@ model Doctor {
   specialization        String
   gender                Gender
   emailVerified         DateTime?
-  resetToken            String?   // Add this
-  resetTokenExpiry      DateTime? // Add this
+  resetToken            String?   
+  resetTokenExpiry      DateTime? 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  
+  // Add this relation
+  verification         DoctorVerification?
 
   @@map("doctors")
 }
+
+model DoctorVerification {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  status        VerificationStatus @default(PENDING)
+  fullName      String
+  email         String      @unique
+  phoneNumber   String
+  cnic          String      @unique  // Format: xxxxx-xxxxxxx-x
+  
+  // Professional Information
+  pmcNumber     String      @unique  // PMC/PMDC Registration Number
+  graduationYear Int
+  specialization String[]   // Array of specializations
+  expertise     String[]    // Array of expertise areas
+  experienceYears Int
+  
+  medicalSchool String      // Name of medical college/university
+  
+  // Documents (Store URLs/paths to cloud storage)
+  profilePhoto  String      // Passport size photo URL
+  degreeImage   String      // MBBS degree scan URL
+  pmcImage      String      // PMC registration certificate URL
+  cnicImage     String      // CNIC scan URL
+  currentCity   String
+
+  // Add these fields for the relation
+  doctorId      String      @unique  // Foreign key
+  doctor        Doctor      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId])
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  UNDER_REVIEW
+}
+
 enum Gender {
   MALE
   FEMALE
-  
 }
+
+
+
 
 model Patient {
   id            String    @id @default(cuid())
