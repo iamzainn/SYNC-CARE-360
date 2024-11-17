@@ -9,11 +9,11 @@ import { SponsorsSection } from "@/components/sponsors/SponsorsSection";
 export default function Home() {
   return (
     <main>
-      {/* <HeroSection />
+      <HeroSection />
       <ServiceSection/>
       <SponsorsSection />
       <SpecialistsSection />
-      <ConditionsSection /> */}
+      <ConditionsSection />
     
    
   </main>
