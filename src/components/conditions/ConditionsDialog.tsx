@@ -1,34 +1,32 @@
-// components/TelemedicineDialog.tsx
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Search, X } from 'lucide-react'
-import { SPECIALTIES } from '@/lib/doctors/specialists'
 import { useLocationStore } from '@/store/useLocationStore'
-
-interface TelemedicineDialogProps {
+import { CONDITIONS } from '@/lib/conditions/data'
+interface ConditionsDialogProps {
   isOpen: boolean
   onClose: () => void
 }
 
-export const TelemedicineDialog = ({ isOpen, onClose }: TelemedicineDialogProps) => {
+export const ConditionsDialog = ({ isOpen, onClose }: ConditionsDialogProps) => {
   const router = useRouter()
   const location = useLocationStore(state => state.location)
   const [searchTerm, setSearchTerm] = useState('')
-  const [filteredSpecialties, setFilteredSpecialties] = useState(SPECIALTIES)
+  const [filteredConditions, setFilteredConditions] = useState(CONDITIONS)
 
   useEffect(() => {
-    const filtered = SPECIALTIES.filter(specialty =>
-      specialty.title.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = CONDITIONS.filter(condition =>
+      condition.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    setFilteredSpecialties(filtered)
+    setFilteredConditions(filtered)
   }, [searchTerm])
 
-  const handleSpecialtyClick = (urlPath: string) => {
+  const handleConditionClick = (urlPath: string) => {
     const currentLocation = location || 'lahore'
-    router.push(`/pakistan/${currentLocation}/video-consultation/${urlPath}?online-now=true`)
+    router.push(`/pakistan/${currentLocation}/condition/${urlPath}`)
     onClose()
   }
 
@@ -39,7 +37,7 @@ export const TelemedicineDialog = ({ isOpen, onClose }: TelemedicineDialogProps)
         <div className="p-4 border-b">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              Find a doctor online
+              Find doctors by condition
             </h2>
             <button
               onClick={onClose}
@@ -55,28 +53,28 @@ export const TelemedicineDialog = ({ isOpen, onClose }: TelemedicineDialogProps)
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search for specialization"
+              placeholder="Search for condition"
               className="pl-10 h-12 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
 
-        {/* Specialties Grid */}
+        {/* Conditions Grid */}
         <div className="p-4 overflow-y-auto max-h-[60vh]">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {filteredSpecialties.map((specialty) => {
-              const Icon = specialty.icon
+            {filteredConditions.map((condition) => {
+              const Icon = condition.icon
               return (
                 <button
-                  key={specialty.id}
-                  onClick={() => handleSpecialtyClick(specialty.urlPath)}
+                  key={condition.id}
+                  onClick={() => handleConditionClick(condition.urlPath)}
                   className="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
                 >
                   <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                     <Icon className="w-6 h-6 text-blue-600" />
                   </div>
                   <span className="text-base text-gray-900 font-medium">
-                    {specialty.title}
+                    {condition.title}
                   </span>
                 </button>
               )}
