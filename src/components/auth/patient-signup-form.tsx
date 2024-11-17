@@ -27,6 +27,7 @@ import { patientSignUp } from "@/lib/actions/patient"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { patientSignUpSchema } from "@/lib/schemas/patient"
+import { Eye, EyeOff } from "lucide-react"
 
 const cities = [
   "Karachi",
@@ -42,7 +43,9 @@ const cities = [
 ]
 
 export function PatientSignUpForm() {
+  const [isLoading, setIsLoading] = useState(false)
   const [isPending, setIsPending] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -140,15 +143,30 @@ export function PatientSignUpForm() {
           )}
         />
 
-        <FormField
+     <FormField
           control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" disabled={isPending} />
-              </FormControl>
+              <div className="relative">
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    type={showPassword ? "text" : "password"} 
+                    disabled={isLoading} 
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
               <FormMessage />
             </FormItem>
           )}

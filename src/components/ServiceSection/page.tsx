@@ -32,7 +32,7 @@ const services = [
     title: "Healthcare Data Management",
     description: "Secure management of patient health data and records",
     imagePath: "/data-management.png",
-    path: "/Services/Healthcare-Data"
+    path: "/Services/DataManagement"
   },
   {
     id: 5,

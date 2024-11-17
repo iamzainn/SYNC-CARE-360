@@ -36,6 +36,7 @@ model Doctor {
 enum Gender {
   MALE
   FEMALE
+  
 }
 
 model Patient {
@@ -51,6 +52,7 @@ model Patient {
   resetTokenExpiry DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  medicalRecords    PatientMedicalRecord[]
 
   @@map("patients")
 }
@@ -104,4 +106,61 @@ enum PaymentStatus {
   PENDING
   COMPLETED
   FAILED
+}
+
+
+model PatientMedicalRecord {
+  id                  String    @id @default(cuid())
+  // Required Information
+  firstName           String
+  lastName            String
+  dateOfBirth         DateTime
+  gender              Gender
+  email              String
+  phoneNumber        String
+
+  // Medical Information
+  medicalConditions   String[]  @default([])
+  allergies           String[]  @default([])
+  currentMedications  String[]  @default([])
+
+  // Health Metrics
+  height              Float?    // in feet
+  weight              Float?    // in kg
+  bloodType           BloodType?
+  bloodPressure       Json?     // { systolic: number, diastolic: number }
+  heartRate           Int?
+
+  // Medical Reports
+  medicalReportUrl    String?
+
+  // Emergency Contact
+  emergencyContactName    String
+  emergencyContactPhone   String
+
+  // Consent
+  consentToStore     Boolean   @default(false)
+
+  // Timestamps
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  patient            Patient   @relation(fields: [patientId], references: [id])
+  patientId          String
+
+  @@map("patient_medical_records")
+}
+
+
+
+enum BloodType {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
 }

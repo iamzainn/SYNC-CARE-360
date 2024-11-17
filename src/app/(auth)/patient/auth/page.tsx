@@ -11,6 +11,7 @@ import Link from "next/link"
 
 export default function PatientAuthPage() {
   const searchParams = useSearchParams()
+  
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'login')
 
