@@ -6,9 +6,30 @@ import Image from 'next/image';
 import { headers } from "next/headers"
 import { Button } from "@/components/ui/button"
 import { Phone } from "lucide-react"
+import { auth } from "@/auth";
 
 export async function Header() {
+  const session = await auth()
+  console.log("session header", session?.user)
   headers()
+
+
+  const renderActionButton = () => {
+    if (!session?.user) return null
+    
+    if (session.user.role === 'DOCTOR') {
+      return session.user.isVerifiedDoctor ? (
+        <Button variant="outline" className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" asChild>
+          <Link  href="/doctor/dashboard">Dashboard</Link>
+        </Button>
+      ) : (
+        <Button variant="outline" className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" asChild>
+          <Link href="/join-as-doctor">Join As Doctor</Link>
+        </Button>
+      )
+    }
+    return null
+  }
   
   return (
     <header className="sticky  top-0 z-50 w-full border-b bg-background">
@@ -39,13 +60,7 @@ export async function Header() {
 
           {/* Join Doctor button - Hidden on smallest screens */}
           <div className="hidden sm:block xl:flex">
-            <Button 
-              variant="outline"
-              className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" 
-              asChild
-            >
-              <Link href="/join-as-doctor">Join As Doctor</Link>
-            </Button>
+            {renderActionButton()}
           </div>
 
           {/* Phone number - Only visible on desktop */}

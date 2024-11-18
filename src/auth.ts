@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { compare } from "bcryptjs"
 import { JWT } from "next-auth/jwt"
 
+
 export const {
   auth,
   signIn,
@@ -67,7 +68,10 @@ export const {
             email: doctor.email,
             name: doctor.name,
             role: "DOCTOR",
-            image: "/default-avatar.png"
+            image: "/default-avatar.png",
+            isVerifiedDoctor: doctor.isVerifiedDoctor
+            
+            
           }
         } else {
           const patient = await db.patient.findUnique({
@@ -88,7 +92,8 @@ export const {
             email: patient.email,
             name: patient.name,
             role: "PATIENT",
-            image: "/default-avatar.png"
+            image: "/default-avatar.png",
+            isVerifiedDoctor:false
           }
         }
       }
@@ -106,6 +111,10 @@ export const {
         token.email = user.email as string
         token.name = user.name as string
         token.picture = user.image as string
+        token.isVerifiedDoctor = user.isVerifiedDoctor
+        
+        
+
       }
       return token
     },
@@ -118,8 +127,8 @@ export const {
           email: token.email,
           name: token.name,
           image: token.picture,
-          emailVerified: null
-        }
+          emailVerified: "no",
+          isVerifiedDoctor: token.isVerifiedDoctor   }
       }
     }
   }

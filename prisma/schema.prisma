@@ -29,11 +29,13 @@ model Doctor {
   resetTokenExpiry      DateTime? 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  isVerifiedDoctor      Boolean @default(false)
   
   // Add this relation
   verification         DoctorVerification?
 
   @@map("doctors")
+  Services Services?
 }
 
 model DoctorVerification {
@@ -208,4 +210,96 @@ enum BloodType {
   O_NEGATIVE
   AB_POSITIVE
   AB_NEGATIVE
+}
+
+
+model Services {
+  id          String        @id @default(cuid())
+  doctorId    String        @unique
+  doctor      Doctor        @relation(fields: [doctorId], references: [id])
+  homeService HomeService?
+}
+
+model HomeService {
+  id          String   @id @default(cuid())
+  serviceId   String   @unique
+  service     Services @relation(fields: [serviceId], references: [id])
+  isActive    Boolean  @default(false)
+  
+  // Specializations with prices
+  specializations HomeServiceSpecialization[]
+  
+  // Availability slots
+  slots      HomeServiceSlot[]
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model HomeServiceSpecialization {
+  id            String      @id @default(cuid())
+  homeServiceId String
+  homeService   HomeService @relation(fields: [homeServiceId], references: [id])
+  type          SpecializationType
+  price         Float
+  priceHistory  PriceHistory[]
+}
+
+model HomeServiceSlot {
+  id            String      @id @default(cuid())
+  homeServiceId String
+  homeService   HomeService @relation(fields: [homeServiceId], references: [id])
+  dayOfWeek     DayOfWeek   // Monday to Saturday
+  startTime     DateTime
+  endTime       DateTime
+  status        SlotStatus  @default(AVAILABLE)
+  bookingHistory BookingHistory[]
+}
+
+model PriceHistory {
+  id                    String                  @id @default(cuid())
+  specializationId      String
+  specialization       HomeServiceSpecialization @relation(fields: [specializationId], references: [id])
+  price                Float
+  effectiveFrom        DateTime
+  createdAt            DateTime                @default(now())
+}
+
+model BookingHistory {
+  id            String          @id @default(cuid())
+  slotId        String
+  slot          HomeServiceSlot @relation(fields: [slotId], references: [id])
+  patientId     String
+  bookedAt      DateTime       @default(now())
+  status        BookingStatus  @default(CONFIRMED)
+}
+
+enum SpecializationType {
+  GENERAL_CHECKUP
+  WOUND_DRESSING
+  PHYSICAL_THERAPY
+  ELDERLY_CARE
+  POST_SURGERY_CARE
+  EMERGENCY_CARE
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum SlotStatus {
+  AVAILABLE
+  BOOKED
+  CANCELLED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }
