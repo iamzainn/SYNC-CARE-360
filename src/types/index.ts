@@ -16,3 +16,18 @@ export interface SponsorCard {
     title: string;
     urlPath: string;
   }
+
+
+  export interface HomeServiceData {
+    id?: string
+    isActive: boolean
+    specializations: {
+      type: string
+      price: number
+    }[]
+    slots: {
+      dayOfWeek: string
+      startTime: string
+      endTime: string
+    }[]
+  }

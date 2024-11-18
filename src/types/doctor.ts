@@ -8,3 +8,15 @@ export interface Specialty {
     location: string
     specialty?: string
   }
+
+ export  interface DoctorProfile {
+    id: string
+    name: string
+    email: string
+    phone: string
+    currentCity: string
+    profilePhoto: string | null
+    specialization: string[]
+    experienceYears: number
+    expertise: string[]
+  }

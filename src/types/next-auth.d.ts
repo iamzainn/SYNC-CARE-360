@@ -10,6 +10,7 @@ declare module "next-auth" {
       name: string
       image?: string
       emailVerified: Date | null
+      isVerifiedDoctor: boolean
     }
   }
 
@@ -19,6 +20,7 @@ declare module "next-auth" {
     email: string
     name: string
     image?: string
+    isVerifiedDoctor: boolean
   }
 }
 
@@ -28,6 +30,7 @@ declare module "next-auth/jwt" {
     role: "DOCTOR" | "PATIENT"
     email: string
     name: string
+    isVerifiedDoctor: boolean
     picture?: string
   }
 }
