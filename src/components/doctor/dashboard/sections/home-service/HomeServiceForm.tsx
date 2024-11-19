@@ -13,37 +13,10 @@ interface HomeServiceFormProps {
   }
   
   export function HomeServiceForm({ onCancel }: { onCancel: () => void }) {
-    const store = useHomeServiceStore()
-    const { toast } = useToast()
-    const [isPending, setIsPending] = useState(false)
+   
     const [activeTab, setActiveTab] = useState<"specializations" | "slots">("specializations")
 
-    const handleComplete = async () => {
-      setIsPending(true)
-      try {
-        const response = await updateHomeService({
-          isActive: true,
-          specializations: store.specializations,
-          slots: store.slots
-        })
-  
-        if (response.error) throw new Error(response.error)
-  
-        toast({
-          title: "Success",
-          description: "Home service settings saved successfully"
-        })
-        onCancel()
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "Failed to save settings",
-          variant: "destructive"
-        })
-      } finally {
-        setIsPending(false)
-      }
-    }
+    
   
     return (
       <div className="space-y-6">
