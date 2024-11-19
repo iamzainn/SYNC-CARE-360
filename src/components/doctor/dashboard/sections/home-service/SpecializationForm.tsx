@@ -247,7 +247,7 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
               Saving...
             </>
           ) : (
-            "Next: Set Availability"
+            "Save & Move next: Set Availability"
           )}
         </Button>
       </div>
