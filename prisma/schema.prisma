@@ -259,23 +259,7 @@ model HomeServiceSlot {
   updatedAt     DateTime    @updatedAt
 }
 
-// model PriceHistory {
-//   id                    String                  @id @default(cuid())
-//   specializationId      String
-//   specialization       HomeServiceSpecialization @relation(fields: [specializationId], references: [id])
-//   price                Float
-//   effectiveFrom        DateTime
-//   createdAt            DateTime                @default(now())
-// }
 
-// model BookingHistory {
-//   id            String          @id @default(cuid())
-//   slotId        String
-//   slot          HomeServiceSlot @relation(fields: [slotId], references: [id])
-//   patientId     String
-//   bookedAt      DateTime       @default(now())
-//   status        BookingStatus  @default(CONFIRMED)
-// }
 
 enum SpecializationType {
   GENERAL_CHECKUP
@@ -295,14 +279,4 @@ enum DayOfWeek {
   SATURDAY
 }
 
-// enum SlotStatus {
-//   AVAILABLE
-//   BOOKED
-//   CANCELLED
-// }
 
-// enum BookingStatus {
-//   CONFIRMED
-//   CANCELLED
-//   COMPLETED
-// }

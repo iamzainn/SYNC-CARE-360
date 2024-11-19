@@ -18,18 +18,15 @@ export interface ServiceSlot {
 }
 interface HomeServiceState {
   isActive: boolean
-
   specializations: ServiceSpecialization[]
   slots: ServiceSlot[]
   setIsActive: (status: boolean) => void
-  addSpecialization: (spec: Omit<ServiceSpecialization, 'id'>) => void
-  removeSpecialization: (type: string) => void
+  addSpecialization: (spec: ServiceSpecialization) => void
+  removeSpecialization: (type: SpecializationType) => void
   setSpecializations: (specs: ServiceSpecialization[]) => void
-  
-  addSlot: (slot: Omit<ServiceSlot, 'id'>) => void
+  addSlot: (slot: ServiceSlot) => void
   removeSlot: (dayOfWeek: DayOfWeek, startTime: string) => void
   setSlots: (slots: ServiceSlot[]) => void
-  
   resetStore: () => void
 }
 
@@ -47,19 +44,13 @@ export const useHomeServiceStore = create<HomeServiceState>()(
 
       // Actions
       setIsActive: (status) => set({ isActive: status }),
-      
-      addSpecialization: (spec) => 
-        set((state) => ({
-          specializations: [...state.specializations, spec]
-        })),
-      
-      removeSpecialization: (type) =>
-        set((state) => ({
-          specializations: state.specializations.filter(s => s.type !== type)
-        })),
-
-      setSpecializations: (specs) => 
-        set({ specializations: specs }),
+  addSpecialization: (spec) => set((state) => ({
+    specializations: [...state.specializations, spec]
+  })),
+  removeSpecialization: (type) => set((state) => ({
+    specializations: state.specializations.filter(s => s.type !== type)
+  })),
+  setSpecializations: (specs) => set({ specializations: specs }),
       
       addSlot: (slot) =>
         set((state) => ({

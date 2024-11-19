@@ -17,34 +17,53 @@ export function HomeServicesSection() {
   const store = useHomeServiceStore()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
- 
+  const [shouldRefetch, setShouldRefetch] = useState(false)
   const { toast } = useToast()
 
-  useEffect(() => {
-    const fetchHomeService = async () => {
-      try {
-        const response = await getHomeService()
-        if (response.data) {
-          store.setIsActive(response.data.homeService?.isActive ?? false)
-          store.setSpecializations(response.data.homeService?.specializations ?? [])
-          store.setSlots(response.data.homeService?.slots ?? [])
-        }
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load home service details",
-          variant: "destructive"
-        })
-      } finally {
-        setIsLoading(false)
+
+  const fetchHomeService = async () => {
+    try {
+      const response = await getHomeService()
+      if (response.data) {
+        store.setIsActive(response.data.homeService?.isActive ?? false)
+        store.setSpecializations(response.data.homeService?.specializations ?? [])
+        store.setSlots(response.data.homeService?.slots ?? [])
       }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load home service details",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
     }
+  }
+
+  const handleFormComplete = () => {
+    setShouldRefetch(true)
+    setIsEditing(false)
+  }
+
+  
+
+  useEffect(() => {
+    
     fetchHomeService()
   }, [])
+
+
+  useEffect(() => {
+    if (shouldRefetch) {
+      fetchHomeService()
+      setShouldRefetch(false)
+    }
+  }, [shouldRefetch])
 
   if (isLoading) {
     return <HomeServiceSkeleton />
   }
+
 
   const toggleService = async (enabled: boolean) => {
     setIsLoading(true)
@@ -117,12 +136,12 @@ export function HomeServicesSection() {
       </CardHeader>
       
       <CardContent>
-        {store.isActive ? (
-          isEditing ? (
-            <HomeServiceForm onCancel={() => setIsEditing(false)} />
-          ) : (
-            <HomeServiceDetails />
-          )
+      {store.isActive ? (
+        isEditing ? (
+          <HomeServiceForm onCancel={handleFormComplete} />
+        ) : (
+          <HomeServiceDetails />
+        )
         ) : (
           <div className="text-center py-6 text-muted-foreground">
             Enable home services to start accepting home visit appointments

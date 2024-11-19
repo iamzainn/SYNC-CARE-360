@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
@@ -26,8 +26,9 @@ import { HOME_SPECIALIZATIONS } from "@/lib/constants/home-services"
 import { useHomeServiceStore } from "@/store/useHomeServiceStore"
 import { useToast } from "@/hooks/use-toast"
 import * as z from "zod"
-import { updateHomeService } from "@/lib/actions/home-service"
+import { getHomeService, updateHomeService } from "@/lib/actions/home-service"
 import { SpecializationType } from "@prisma/client"
+import { HomeServiceData } from "@/types"
 
 const specializationSchema = z.object({
   type: z.nativeEnum(SpecializationType),
@@ -44,6 +45,7 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
   const store = useHomeServiceStore()
   const { toast } = useToast()
   const [isPending, setIsPending] = useState(false)
+  const [homeServiceData, setHomeServiceData] = useState<HomeServiceData | null>(null)
 
   const form = useForm<SpecializationFormValues>({
     resolver: zodResolver(specializationSchema),
@@ -53,33 +55,45 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
     }
   })
 
-  // Get available specializations (not already selected)
-  // const availableSpecializations = HOME_SPECIALIZATIONS.filter(
-  //   spec => !store.specializations.find(s => s.type === spec.id)
-  // )
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await getHomeService()
+      if (response.data?.homeService) {
+        setHomeServiceData(response.data.homeService)
+        // Update store for form operations
+        store.setSpecializations(response.data.homeService.specializations)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const availableSpecializations = HOME_SPECIALIZATIONS.filter(
+    spec => !store.specializations.some(s => s.type === spec.id)
+  )
+
+  
 
   const onSubmitSpecialization = (values: SpecializationFormValues) => {
-    // Add to store with proper typing
+    // Check if specialization already exists
+    if (store.specializations.some(s => s.type === values.type)) {
+      toast({
+        title: "Error",
+        description: "This specialization is already added",
+        variant: "destructive"
+      })
+      return
+    }
+
     store.addSpecialization({
-      type: values.type as SpecializationType,
+      type: values.type,
       price: values.price
     })
-    
-    // Reset form with proper types
-    form.reset({
-      type: undefined,
-      price: 0
-    })
-    
-    // Clear touched states and errors
-    Object.keys(values).forEach(key => {
-      form.clearErrors(key as keyof SpecializationFormValues)
-      form.resetField(key as keyof SpecializationFormValues)
-    })
 
+    form.reset()
     toast({
       title: "Success",
-      description: "Specialization added successfully"
+      description: "Service added to list"
     })
   }
 
@@ -193,29 +207,27 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
         <div className="space-y-4">
           <h4 className="font-medium">Added Services</h4>
           <div className="grid gap-2">
-            {store.specializations.map((spec) => {
-              const specData = HOME_SPECIALIZATIONS.find(s=>s.id === spec.id)
-              return (
-                <div key={spec.type} 
-                  className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-                >
-                  <span className="font-medium">{specData?.label}</span>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="secondary">
-                      Rs. {spec.price}
-                    </Badge>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => store.removeSpecialization(spec.type)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )
-            })}
+          {store.specializations.map((spec) => {
+     const specData = HOME_SPECIALIZATIONS.find(s => s.id === spec.type)
+     return (
+       <div key={spec.type} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+         <span className="font-medium">{specData?.label}</span>
+         <div className="flex items-center gap-3">
+           <Badge variant="secondary">
+             Rs. {spec.price}
+           </Badge>
+           <Button
+             type="button"
+             variant="ghost"
+             size="sm"
+             onClick={() => store.removeSpecialization(spec.type)}
+           >
+             <X className="h-4 w-4" />
+           </Button>
+         </div>
+       </div>
+     )
+   })}
           </div>
         </div>
       </div>

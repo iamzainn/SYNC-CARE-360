@@ -1,10 +1,29 @@
 import { Badge } from "@/components/ui/badge";
+import { getHomeService } from "@/lib/actions/home-service";
 import { DAYS, HOME_SPECIALIZATIONS } from "@/lib/constants/home-services";
 import { HomeServiceData } from "@/types";
+import { useEffect, useState } from "react";
 
 
-export function HomeServiceDetails({ data }: { data?: HomeServiceData }) {
-    if (!data) return null;
+export function HomeServiceDetails() {
+  const [data, setData] = useState<HomeServiceData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true)
+      const response = await getHomeService()
+      if (response.data?.homeService) {
+        setData(response.data.homeService)
+      }
+      setIsLoading(false)
+    }
+    fetchData()
+  }, [])
+
+  if (isLoading) return <div>Loading...</div>
+  if (!data) return null
+    
   
     return (
       <div className="space-y-6">
