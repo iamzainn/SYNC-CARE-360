@@ -11,7 +11,7 @@ import { auth } from "@/auth";
 export async function Header() {
   const session = await auth()
   console.log("session header", session?.user)
-  headers()
+  // headers()
 
 
   const renderActionButton = () => {

@@ -59,6 +59,7 @@ interface MedicalRecordState extends MedicalRecord {
   nextStep: () => void
   previousStep: () => void
   resetForm: () => void
+  
 }
 
 const initialState: MedicalRecord = {
