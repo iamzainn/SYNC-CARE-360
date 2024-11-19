@@ -21,60 +21,96 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { X } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { HOME_SPECIALIZATIONS } from "@/lib/constants/home-services"
+import { useHomeServiceStore } from "@/store/useHomeServiceStore"
+import { useToast } from "@/hooks/use-toast"
 import * as z from "zod"
+import { updateHomeService } from "@/lib/actions/home-service"
+import { SpecializationType } from "@prisma/client"
 
 const specializationSchema = z.object({
-  type: z.string(),
+  type: z.nativeEnum(SpecializationType),
   price: z.number().min(100, "Minimum price is Rs. 100")
 })
 
 type SpecializationFormValues = z.infer<typeof specializationSchema>
 
 interface HomeServiceSpecializationFormProps {
-  initialData?: { type: string; price: number }[]
   onNext: () => void
 }
 
-export function HomeServiceSpecializationForm({ 
-  initialData = [], 
-  onNext 
-}: HomeServiceSpecializationFormProps) {
-  const [specializations, setSpecializations] = useState(initialData)
+export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializationFormProps) {
+  const store = useHomeServiceStore()
+  const { toast } = useToast()
   const [isPending, setIsPending] = useState(false)
 
   const form = useForm<SpecializationFormValues>({
     resolver: zodResolver(specializationSchema),
     defaultValues: {
-      type: "",
+      type: undefined,
       price: undefined
     }
   })
 
-  const availableSpecializations = HOME_SPECIALIZATIONS.filter(
-    spec => !specializations.find(s => s.type === spec.id)
-  )
+  // Get available specializations (not already selected)
+  // const availableSpecializations = HOME_SPECIALIZATIONS.filter(
+  //   spec => !store.specializations.find(s => s.type === spec.id)
+  // )
 
   const onSubmitSpecialization = (values: SpecializationFormValues) => {
-    setSpecializations(prev => [...prev, values])
-    form.reset()
+    // Add to store with proper typing
+    store.addSpecialization({
+      type: values.type as SpecializationType,
+      price: values.price
+    })
+    
+    // Reset form with proper types
+    form.reset({
+      type: undefined,
+      price: 0
+    })
+    
+    // Clear touched states and errors
+    Object.keys(values).forEach(key => {
+      form.clearErrors(key as keyof SpecializationFormValues)
+      form.resetField(key as keyof SpecializationFormValues)
+    })
+
+    toast({
+      title: "Success",
+      description: "Specialization added successfully"
+    })
   }
 
-  const removeSpecialization = (type: string) => {
-    setSpecializations(prev => prev.filter(s => s.type !== type))
-  }
 
-  const handleSave = async () => {
-    if (specializations.length === 0) {
+
+ const handleNext = async () => {
+    if (store.specializations.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please add at least one specialization",
+        variant: "destructive"
+      })
       return
     }
+
     setIsPending(true)
     try {
-      // Save specializations
+      const response = await updateHomeService({
+        isActive: true,
+        specializations: store.specializations,
+        slots: store.slots
+      })
+
+      if (response.error) throw new Error(response.error)
       onNext()
     } catch (error) {
-      console.error(error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save specializations",
+        variant: "destructive"
+      })
     } finally {
       setIsPending(false)
     }
@@ -95,7 +131,7 @@ export function HomeServiceSpecializationForm({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={availableSpecializations.length === 0}
+                      
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -103,7 +139,7 @@ export function HomeServiceSpecializationForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {availableSpecializations.map((spec) => (
+                        {HOME_SPECIALIZATIONS.map((spec) => (
                           <SelectItem key={spec.id} value={spec.id}>
                             {spec.label}
                           </SelectItem>
@@ -135,42 +171,68 @@ export function HomeServiceSpecializationForm({
               />
             </div>
 
-            <Button type="submit" variant="outline">Add Service</Button>
+            <Button 
+            type="submit" 
+            variant="outline" 
+            className="w-full"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Adding...
+              </>
+            ) : (
+              "Add Service"
+            )}
+          </Button>
           </form>
         </Form>
 
+        {/* Display added specializations */}
         <div className="space-y-4">
           <h4 className="font-medium">Added Services</h4>
-          <div className="flex flex-wrap gap-2">
-            {specializations.map((spec) => {
-              const specData = HOME_SPECIALIZATIONS.find(s => s.id === spec.type)
+          <div className="grid gap-2">
+            {store.specializations.map((spec) => {
+              const specData = HOME_SPECIALIZATIONS.find(s=>s.id === spec.id)
               return (
-                <Badge
-                  key={spec.type}
-                  variant="secondary"
-                  className="px-3 py-1 space-x-2"
+                <div key={spec.type} 
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
                 >
-                  <span>{specData?.label} - Rs.{spec.price}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeSpecialization(spec.type)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
+                  <span className="font-medium">{specData?.label}</span>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="secondary">
+                      Rs. {spec.price}
+                    </Badge>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => store.removeSpecialization(spec.type)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               )
             })}
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end space-x-2">
-        <Button
-          onClick={handleSave}
-          disabled={isPending || specializations.length === 0}
+      <div className="flex justify-end">
+      <Button
+          onClick={handleNext}
+          disabled={isPending || store.specializations.length === 0}
         >
-          Next: Set Availability
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Next: Set Availability"
+          )}
         </Button>
       </div>
     </div>

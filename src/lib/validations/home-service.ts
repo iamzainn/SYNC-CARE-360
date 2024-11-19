@@ -1,14 +1,34 @@
-import { DAYS } from "@/components/doctor/dashboard/sections/home-service/SlotsForm";
+
 import { z } from "zod";
 
+
+export const SpecializationType = z.enum([
+  "GENERAL_CHECKUP",
+  "WOUND_DRESSING",
+  "PHYSICAL_THERAPY",
+  "ELDERLY_CARE",
+  "POST_SURGERY",
+  "EMERGENCY_CARE"
+])
+
+export const DayOfWeek = z.enum([
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY"
+])
+
+export const specializationSchema = z.object({
+  type: SpecializationType,  // Using the enum
+  price: z.number().min(100)
+})
+
 export const slotSchema = z.object({
-    dayOfWeek: z.enum(DAYS),
-    startTime: z.string(),
-    endTime: z.string(),
-  }).refine((data) => {
-    const [startHour, startMinute] = data.startTime.split(':').map(Number)
-    const [endHour, endMinute] = data.endTime.split(':').map(Number)
-    const startMinutes = startHour * 60 + startMinute
-    const endMinutes = endHour * 60 + endMinute
-    return endMinutes > startMinutes
-  }, "End time must be after start time");
+  dayOfWeek: DayOfWeek,     // Using the enum
+  startTime: z.string(),
+  endTime: z.string()
+})
+
+

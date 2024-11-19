@@ -236,50 +236,53 @@ model HomeService {
   updatedAt  DateTime @updatedAt
 }
 
+
 model HomeServiceSpecialization {
-  id            String      @id @default(cuid())
+  id            String             @id @default(cuid())
   homeServiceId String
-  homeService   HomeService @relation(fields: [homeServiceId], references: [id])
-  type          SpecializationType
+  homeService   HomeService        @relation(fields: [homeServiceId], references: [id])
+  type          SpecializationType // Changed from String to enum
   price         Float
-  priceHistory  PriceHistory[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }
+
 
 model HomeServiceSlot {
   id            String      @id @default(cuid())
   homeServiceId String
   homeService   HomeService @relation(fields: [homeServiceId], references: [id])
-  dayOfWeek     DayOfWeek   // Monday to Saturday
-  startTime     DateTime
-  endTime       DateTime
-  status        SlotStatus  @default(AVAILABLE)
-  bookingHistory BookingHistory[]
+  dayOfWeek     DayOfWeek   // Changed from String to enum
+  startTime     String
+  endTime       String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
-model PriceHistory {
-  id                    String                  @id @default(cuid())
-  specializationId      String
-  specialization       HomeServiceSpecialization @relation(fields: [specializationId], references: [id])
-  price                Float
-  effectiveFrom        DateTime
-  createdAt            DateTime                @default(now())
-}
+// model PriceHistory {
+//   id                    String                  @id @default(cuid())
+//   specializationId      String
+//   specialization       HomeServiceSpecialization @relation(fields: [specializationId], references: [id])
+//   price                Float
+//   effectiveFrom        DateTime
+//   createdAt            DateTime                @default(now())
+// }
 
-model BookingHistory {
-  id            String          @id @default(cuid())
-  slotId        String
-  slot          HomeServiceSlot @relation(fields: [slotId], references: [id])
-  patientId     String
-  bookedAt      DateTime       @default(now())
-  status        BookingStatus  @default(CONFIRMED)
-}
+// model BookingHistory {
+//   id            String          @id @default(cuid())
+//   slotId        String
+//   slot          HomeServiceSlot @relation(fields: [slotId], references: [id])
+//   patientId     String
+//   bookedAt      DateTime       @default(now())
+//   status        BookingStatus  @default(CONFIRMED)
+// }
 
 enum SpecializationType {
   GENERAL_CHECKUP
   WOUND_DRESSING
   PHYSICAL_THERAPY
   ELDERLY_CARE
-  POST_SURGERY_CARE
+  POST_SURGERY
   EMERGENCY_CARE
 }
 
@@ -292,14 +295,14 @@ enum DayOfWeek {
   SATURDAY
 }
 
-enum SlotStatus {
-  AVAILABLE
-  BOOKED
-  CANCELLED
-}
+// enum SlotStatus {
+//   AVAILABLE
+//   BOOKED
+//   CANCELLED
+// }
 
-enum BookingStatus {
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
+// enum BookingStatus {
+//   CONFIRMED
+//   CANCELLED
+//   COMPLETED
+// }

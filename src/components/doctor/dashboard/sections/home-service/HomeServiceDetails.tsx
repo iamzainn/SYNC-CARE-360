@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import { HOME_SPECIALIZATIONS } from "@/lib/constants/home-services";
+import { DAYS, HOME_SPECIALIZATIONS } from "@/lib/constants/home-services";
 import { HomeServiceData } from "@/types";
-import { DAYS } from "./SlotsForm";
+
 
 export function HomeServiceDetails({ data }: { data?: HomeServiceData }) {
     if (!data) return null;
