@@ -45,7 +45,7 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
   const store = useHomeServiceStore()
   const { toast } = useToast()
   const [isPending, setIsPending] = useState(false)
-  const [homeServiceData, setHomeServiceData] = useState<HomeServiceData | null>(null)
+  // const [homeServiceData, setHomeServiceData] = useState<HomeServiceData | null>(null)
 
   const form = useForm<SpecializationFormValues>({
     resolver: zodResolver(specializationSchema),
@@ -56,17 +56,17 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
   })
 
   // Fetch initial data
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await getHomeService()
-      if (response.data?.homeService) {
-        setHomeServiceData(response.data.homeService)
-        // Update store for form operations
-        store.setSpecializations(response.data.homeService.specializations)
-      }
-    }
-    fetchData()
-  }, [])
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const response = await getHomeService()
+  //     if (response.data?.homeService) {
+  //       setHomeServiceData(response.data.homeService)
+  //       // Update store for form operations
+  //       store.setSpecializations(response.data.homeService.specializations)
+  //     }
+  //   }
+  //   fetchData()
+  // }, [])
 
   const availableSpecializations = HOME_SPECIALIZATIONS.filter(
     spec => !store.specializations.some(s => s.type === spec.id)
@@ -90,7 +90,11 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
       price: values.price
     })
 
-    form.reset()
+    form.reset(
+    {
+      price:0
+    }
+    )
     toast({
       title: "Success",
       description: "Service added to list"
@@ -235,7 +239,7 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
       <div className="flex justify-end">
       <Button
           onClick={handleNext}
-          disabled={isPending || store.specializations.length === 0}
+          disabled={isPending}
         >
           {isPending ? (
             <>
