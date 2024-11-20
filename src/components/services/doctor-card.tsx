@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { DoctorWithServices } from "@/types"
 import Image from "next/image"
 import { User } from "lucide-react"
+import { useState } from "react"
+import { BookingDialog } from "./booking-dialogue"
 
 interface DoctorCardProps {
   doctor: DoctorWithServices
@@ -12,6 +14,7 @@ interface DoctorCardProps {
 
 export function DoctorCard({ doctor }: DoctorCardProps) {
   const isAvailable = doctor.Services?.homeService?.isActive ?? false
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
 
   return (
     <Card className="overflow-hidden">
@@ -37,7 +40,7 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
               {isAvailable ? "Available" : "Not Available"}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">{doctor.specialization}</p>
+          
         </div>
 
         {doctor.Services?.homeService?.specializations.length as number > 0 && (
@@ -56,10 +59,19 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
         <Button 
           className="w-full" 
           disabled={!isAvailable}
+          onClick={() => setIsBookingOpen(true)}
         >
           Book Now
         </Button>
+
+        <BookingDialog 
+doctor={doctor}
+isOpen={isBookingOpen}
+onClose={() => setIsBookingOpen(false)}
+/>
       </div>
     </Card>
+
+
   )
 }
