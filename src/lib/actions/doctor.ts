@@ -148,12 +148,11 @@ export async function getDoctors({
   city 
 }: GetDoctorsParams): Promise<GetDoctorsResponse> {
   try {
-    // Base query for verified doctors in specific city
     const whereClause: any = {
       isVerifiedDoctor: true,
       city: {
         equals: city,
-        mode: 'insensitive' // Case insensitive matching
+        mode: 'insensitive'
       },
       Services: {
         homeService: {
@@ -166,21 +165,41 @@ export async function getDoctors({
       }
     }
 
-    // Get total count for pagination
     const total = await db.doctor.count({
       where: whereClause
     })
 
-    // Get paginated doctors with their services
     const doctors = await db.doctor.findMany({
       where: whereClause,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        specialization: true,
+        city: true,
+        verification: {
+          select: {
+            profilePhoto: true
+          }
+        },
         Services: {
-          include: {
+          select: {
             homeService: {
-              include: {
-                specializations: true,
-                slots: true
+              select: {
+                isActive: true,
+                specializations: {
+                  select: {
+                    type: true,
+                    price: true
+                  }
+                },
+                slots: {
+                  select: {
+                    dayOfWeek: true,
+                    startTime: true,
+                    endTime: true
+                  }
+                }
               }
             }
           }

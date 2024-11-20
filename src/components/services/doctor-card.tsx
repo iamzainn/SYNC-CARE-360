@@ -3,29 +3,37 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DoctorWithServices } from "@/types"
 import Image from "next/image"
+import { User } from "lucide-react"
 
 interface DoctorCardProps {
   doctor: DoctorWithServices
 }
+
 
 export function DoctorCard({ doctor }: DoctorCardProps) {
   const isAvailable = doctor.Services?.homeService?.isActive ?? false
 
   return (
     <Card className="overflow-hidden">
-      <div className="aspect-[4/3] relative">
-        <Image
-          src="/images/placeholder-doctor.jpg"
-          alt={doctor.name}
-          fill
-          className="object-cover"
-        />
+      <div className="aspect-[4/3] relative bg-gray-100">
+        {doctor.verification?.profilePhoto ? (
+          <Image
+            src={doctor.verification.profilePhoto}
+            alt={doctor.name}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <User className="h-20 w-20 text-gray-400" />
+          </div>
+        )}
       </div>
       <div className="p-4 space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">{doctor.title} {doctor.name}</h3>
-            <Badge variant={isAvailable ? "default" : "destructive"} >
+            <Badge variant={isAvailable?"default":"secondary"}>
               {isAvailable ? "Available" : "Not Available"}
             </Badge>
           </div>

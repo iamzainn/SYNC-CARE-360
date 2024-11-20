@@ -48,7 +48,6 @@ export function HomeServicesSection() {
   
 
   useEffect(() => {
-    
     fetchHomeService()
   }, [])
 

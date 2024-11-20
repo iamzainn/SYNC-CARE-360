@@ -40,7 +40,10 @@ export interface SponsorCard {
     name: string
     title: string
     specialization: string
-    isVerifiedDoctor: boolean
+    city: string
+    verification?: {
+      profilePhoto: string | null
+    } | null
     Services?: {
       homeService?: {
         isActive: boolean
