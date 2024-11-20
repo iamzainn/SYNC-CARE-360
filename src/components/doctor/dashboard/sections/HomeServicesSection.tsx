@@ -60,6 +60,37 @@ export function HomeServicesSection() {
     }
   }, [shouldRefetch])
 
+  useEffect(() => {
+    const fetchAndInitialize = async () => {
+      setIsLoading(true)
+      try {
+        const response = await getHomeService()
+        if (response.data) {
+          const homeService = response.data.homeService
+          store.setIsActive(homeService?.isActive ?? false)
+          store.setSpecializations(homeService?.specializations ?? [])
+          store.setSlots(homeService?.slots ?? [])
+          
+          // Only set editing mode if service is newly activated with no data
+          const isNewActivation  = homeService?.isActive && 
+            (!homeService.specializations.length && !homeService.slots.length)
+          setIsEditing(isNewActivation as boolean)
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load home service details",
+          variant: "destructive"
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchAndInitialize()
+  }, [])
+
+
   if (isLoading) {
     return <HomeServiceSkeleton />
   }
@@ -73,7 +104,10 @@ export function HomeServicesSection() {
 
       store.setIsActive(enabled)
       if (enabled) {
-        setIsEditing(true)
+        // Don't automatically set editing mode when tab is switched
+        // Only set editing mode for fresh activation
+        const isNewActivation = !store.specializations.length && !store.slots.length
+        setIsEditing(isNewActivation)
       } else {
         store.resetStore()
         setIsEditing(false)
@@ -96,58 +130,66 @@ export function HomeServicesSection() {
     }
   }
 
+  
+
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Home Services</CardTitle>
-          <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-  <Switch
-    checked={store.isActive}
-    onCheckedChange={toggleService}
-    disabled={isLoading}
-  />
-  <span className={cn(
-    "text-sm",
-    store.isActive ? "text-green-600" : "text-gray-500"
-  )}>
-    {isLoading ? (
-      <span className="flex items-center">
-        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-        Updating...
-      </span>
-    ) : (
-      store.isActive ? "Active" : "Inactive"
-    )}
-  </span>
-</div>
-            {store.isActive && !isEditing && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit Settings
-              </Button>
-            )}
-          </div>
+    <CardHeader>
+      <div className="flex items-center justify-between">
+        <CardTitle>Home Services</CardTitle>
+        <div className="flex items-center space-x-4">
+          {/* Only show toggle and status when not editing */}
+          {!isEditing && (
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={store.isActive}
+                onCheckedChange={toggleService}
+                disabled={isLoading}
+              />
+              <span className={cn(
+                "text-sm",
+                store.isActive ? "text-green-600" : "text-gray-500"
+              )}>
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Updating...
+                  </span>
+                ) : (
+                  store.isActive ? "Active" : "Inactive"
+                )}
+              </span>
+            </div>
+          )}
+          
+          {/* Show Edit button only when service is active and not in editing mode */}
+          {store.isActive && !isEditing && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit Settings
+            </Button>
+          )}
         </div>
-      </CardHeader>
-      
-      <CardContent>
+      </div>
+    </CardHeader>
+    
+    <CardContent>
       {store.isActive ? (
         isEditing ? (
           <HomeServiceForm onCancel={handleFormComplete} />
         ) : (
           <HomeServiceDetails />
         )
-        ) : (
-          <div className="text-center py-6 text-muted-foreground">
-            Enable home services to start accepting home visit appointments
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
+      ) : (
+        <div className="text-center py-6 text-muted-foreground">
+          Enable home services to start accepting home visit appointments
+        </div>
+      )}
+    </CardContent>
+  </Card>
+)
+  
 }

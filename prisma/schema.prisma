@@ -64,7 +64,7 @@ model DoctorVerification {
   cnicImage     String      // CNIC scan URL
   currentCity   String
 
-  // Add these fields for the relation
+
   doctorId      String      @unique  // Foreign key
   doctor        Doctor      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
@@ -178,14 +178,14 @@ model PatientMedicalRecord {
   bloodPressure       Json?     // { systolic: number, diastolic: number }
   heartRate           Int?
 
-  // Medical Reports
+
   medicalReportUrl    String?
 
-  // Emergency Contact
+  
   emergencyContactName    String
   emergencyContactPhone   String
 
-  // Consent
+  
   consentToStore     Boolean   @default(false)
 
   // Timestamps
