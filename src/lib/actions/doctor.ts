@@ -138,17 +138,23 @@ interface GetDoctorsParams {
   page?: number
   limit?: number
   specialization?: SpecializationType
+  city: string
 }
 
 export async function getDoctors({ 
   page = 1, 
   limit = 10, 
-  specialization 
+  specialization,
+  city 
 }: GetDoctorsParams): Promise<GetDoctorsResponse> {
   try {
-    // Base query for verified doctors
+    // Base query for verified doctors in specific city
     const whereClause: any = {
       isVerifiedDoctor: true,
+      city: {
+        equals: city,
+        mode: 'insensitive' // Case insensitive matching
+      },
       Services: {
         homeService: {
           specializations: specialization ? {
