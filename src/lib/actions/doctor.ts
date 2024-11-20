@@ -8,6 +8,8 @@ import { z } from "zod"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { PersonalDetailsFormValues, personalDetailsSchema } from "../validations/doctor"
+import { SpecializationType } from "@prisma/client"
+import { GetDoctorsResponse } from "@/types"
 
 export async function doctorSignUp(data: z.infer<typeof doctorSignUpSchema>) {
   try {
@@ -123,5 +125,75 @@ export async function updateDoctorProfile(formData: PersonalDetailsFormValues) {
     return {
       error: error instanceof Error ? error.message : "Failed to update profile"
     }
+  }
+}
+
+
+
+
+
+
+
+interface GetDoctorsParams {
+  page?: number
+  limit?: number
+  specialization?: SpecializationType
+}
+
+export async function getDoctors({ 
+  page = 1, 
+  limit = 10, 
+  specialization 
+}: GetDoctorsParams): Promise<GetDoctorsResponse> {
+  try {
+    // Base query for verified doctors
+    const whereClause: any = {
+      isVerifiedDoctor: true,
+      Services: {
+        homeService: {
+          specializations: specialization ? {
+            some: {
+              type: specialization
+            }
+          } : undefined
+        }
+      }
+    }
+
+    // Get total count for pagination
+    const total = await db.doctor.count({
+      where: whereClause
+    })
+
+    // Get paginated doctors with their services
+    const doctors = await db.doctor.findMany({
+      where: whereClause,
+      include: {
+        Services: {
+          include: {
+            homeService: {
+              include: {
+                specializations: true,
+                slots: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      skip: (page - 1) * limit,
+      take: limit
+    })
+
+    return {
+      doctors,
+      hasMore: total > page * limit,
+      total
+    }
+  } catch (error) {
+    console.error('Failed to fetch doctors:', error)
+    throw new Error('Failed to fetch doctors')
   }
 }

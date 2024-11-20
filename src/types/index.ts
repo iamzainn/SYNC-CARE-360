@@ -1,3 +1,5 @@
+import { DayOfWeek, SpecializationType } from "@prisma/client";
+
 export interface SponsorCard {
     title: string;
     description: string;
@@ -31,3 +33,33 @@ export interface SponsorCard {
       endTime: string
     }[]
   }
+
+
+  export interface DoctorWithServices {
+    id: string
+    name: string
+    title: string
+    specialization: string
+    isVerifiedDoctor: boolean
+    Services?: {
+      homeService?: {
+        isActive: boolean
+        specializations: {
+          type: SpecializationType
+          price: number
+        }[]
+        slots: {
+          dayOfWeek: DayOfWeek
+          startTime: string
+          endTime: string
+        }[]
+      } | null
+    } | null
+  }
+
+  export interface GetDoctorsResponse {
+    doctors: DoctorWithServices[]
+    hasMore: boolean
+    total: number
+  }
+  
