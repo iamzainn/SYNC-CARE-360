@@ -186,6 +186,7 @@ export async function getDoctors({
           select: {
             homeService: {
               select: {
+                id: true,
                 isActive: true,
                 specializations: {
                   select: {

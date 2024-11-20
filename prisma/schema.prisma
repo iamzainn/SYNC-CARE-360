@@ -36,6 +36,7 @@ model Doctor {
 
   @@map("doctors")
   Services Services?
+  HomeServiceBooking HomeServiceBooking[]
 }
 
 model DoctorVerification {
@@ -102,7 +103,10 @@ model Patient {
   medicalRecords    PatientMedicalRecord[]
 
   @@map("patients")
+  HomeServiceBooking HomeServiceBooking[]
 }
+
+
 
 
 model MedicineOrder {
@@ -234,6 +238,8 @@ model HomeService {
   
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  HomeServiceBooking HomeServiceBooking[]
 }
 
 
@@ -278,5 +284,34 @@ enum DayOfWeek {
   FRIDAY
   SATURDAY
 }
+
+
+model HomeServiceBooking {
+  id                String              @id @default(cuid())
+  patientId         String
+  patient           Patient             @relation(fields: [patientId], references: [id])
+  doctorId          String
+  doctor            Doctor              @relation(fields: [doctorId], references: [id])
+  homeServiceId     String
+  homeService       HomeService         @relation(fields: [homeServiceId], references: [id])
+  status            String              @default("pending") // pending, confirmed, cancelled, completed
+  scheduledDate     DateTime
+  dayOfWeek         String
+  startTime         String
+  endTime           String
+  totalAmount       Float
+  selectedServices  Json                // Store array of services directly as JSON
+  paymentMethod     String              @default("pending") // pending, card, cash
+  paymentStatus     String              @default("pending") // pending, completed, failed
+  stripePaymentId   String?             // Optional for card payments
+  patientDetails    Json                // Store name, address, phone
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([homeServiceId])
+}
+
 
 

@@ -45,7 +45,9 @@ export interface SponsorCard {
       profilePhoto: string | null
     } | null
     Services?: {
+      
       homeService?: {
+        id: string
         isActive: boolean
         specializations: {
           type: SpecializationType
@@ -66,3 +68,21 @@ export interface SponsorCard {
     total: number
   }
   
+
+
+  export interface SlotType {
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+}
+ 
+export interface SelectedService {
+  type: string;
+  price: number;
+}
+
+export interface BookingDialogProps {
+  doctor: DoctorWithServices;
+  isOpen: boolean;
+  onClose: () => void;
+}
