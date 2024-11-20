@@ -25,7 +25,10 @@ import { DoctorWithServices } from "@/types"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { HOME_SPECIALIZATIONS } from "@/lib/constants/home-services"
 
-export function DoctorsSection() {
+interface DoctorsSectionProps {
+  city: string
+}
+export function DoctorsSection({ city }: DoctorsSectionProps) {
   const [doctors, setDoctors] = useState<DoctorWithServices[]>([])
   const [specialization, setSpecialization] = useState<SpecializationType | undefined>()
   const [isLoading, setIsLoading] = useState(true)
@@ -40,7 +43,8 @@ export function DoctorsSection() {
       const currentPage = reset ? 1 : page
       const response = await getDoctors({
         page: currentPage,
-        specialization
+        specialization,
+        city
       })
 
       setDoctors(prev => 
@@ -56,7 +60,7 @@ export function DoctorsSection() {
     } finally {
       setIsLoading(false)
     }
-  }, [page, specialization])
+  }, [page, specialization, city])
 
   useEffect(() => {
     fetchDoctors(true)
@@ -97,9 +101,12 @@ export function DoctorsSection() {
   return (
     <section className="py-8 px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold">
-          Available Doctors ({total})
+      <h2 className="text-2xl sm:text-3xl font-bold">
+          Home Service Doctors in {city.charAt(0).toUpperCase() + city.slice(1).toLowerCase()}
         </h2>
+        <p className="text-muted-foreground">
+          {total} verified doctors available for home visits in your area
+        </p>
 
         {isMobile ? (
           <Sheet>
