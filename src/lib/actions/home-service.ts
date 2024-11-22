@@ -163,6 +163,14 @@ export async function updateHomeService(data: HomeServicePayload) {
   }
 }
 
+
+export async function updateSlotStatus(slotId: string, isReserved: boolean) {
+  return await db.homeServiceSlot.update({
+    where: { id: slotId },
+    data: { isReserved }
+  });
+}
+
 export async function toggleHomeService(isActive: boolean) {
   try {
     const session = await auth()

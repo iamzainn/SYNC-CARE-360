@@ -96,38 +96,33 @@ export function HomeServicesSection() {
 
 
   const toggleService = async (enabled: boolean) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await toggleHomeService(enabled)
-      if (response.error) throw new Error(response.error)
-
-      store.setIsActive(enabled)
-      if (enabled) {
-        // Don't automatically set editing mode when tab is switched
-        // Only set editing mode for fresh activation
-        const isNewActivation = !store.specializations.length && !store.slots.length
-        setIsEditing(isNewActivation)
-      } else {
-        store.resetStore()
-        setIsEditing(false)
+      const response = await toggleHomeService(enabled);
+      if (response.error) throw new Error(response.error);
+  
+      store.setIsActive(enabled);
+      if (!enabled) {
+        store.resetStore();
       }
-
+      
+  
       toast({
         title: enabled ? "Service Activated" : "Service Deactivated",
         description: enabled 
           ? "You can now set up your home service details" 
           : "Home service has been deactivated"
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to toggle service",
         variant: "destructive"
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   
 
@@ -137,7 +132,7 @@ export function HomeServicesSection() {
       <div className="flex items-center justify-between">
         <CardTitle>Home Services</CardTitle>
         <div className="flex items-center space-x-4">
-          {/* Only show toggle and status when not editing */}
+        
           {!isEditing && (
             <div className="flex items-center space-x-2">
               <Switch

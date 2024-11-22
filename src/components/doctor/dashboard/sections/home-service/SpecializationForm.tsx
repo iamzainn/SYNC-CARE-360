@@ -28,7 +28,6 @@ import { useToast } from "@/hooks/use-toast"
 import * as z from "zod"
 import { getHomeService, updateHomeService } from "@/lib/actions/home-service"
 import { SpecializationType } from "@prisma/client"
-import { HomeServiceData } from "@/types"
 
 const specializationSchema = z.object({
   type: z.nativeEnum(SpecializationType),
@@ -45,7 +44,17 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
   const store = useHomeServiceStore()
   const { toast } = useToast()
   const [isPending, setIsPending] = useState(false)
-  // const [homeServiceData, setHomeServiceData] = useState<HomeServiceData | null>(null)
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const response = await getHomeService();
+  //     if (response.data?.homeService) {
+  //       store.setSpecializations(response.data.homeService.specializations);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+ 
 
   const form = useForm<SpecializationFormValues>({
     resolver: zodResolver(specializationSchema),
@@ -55,18 +64,7 @@ export function HomeServiceSpecializationForm({ onNext }: HomeServiceSpecializat
     }
   })
 
-  // Fetch initial data
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const response = await getHomeService()
-  //     if (response.data?.homeService) {
-  //       setHomeServiceData(response.data.homeService)
-  //       // Update store for form operations
-  //       store.setSpecializations(response.data.homeService.specializations)
-  //     }
-  //   }
-  //   fetchData()
-  // }, [])
+
 
   const availableSpecializations = HOME_SPECIALIZATIONS.filter(
     spec => !store.specializations.some(s => s.type === spec.id)

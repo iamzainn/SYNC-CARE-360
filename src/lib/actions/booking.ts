@@ -1,5 +1,6 @@
 'use server'
 import { db } from "../db";
+import { updateSlotStatus } from "./home-service";
 
 interface CreateBookingParams {
   patientId: string;
@@ -10,6 +11,7 @@ interface CreateBookingParams {
     price: number;
   }[];
   slot: {
+    id: string;
     dayOfWeek: string;  // Changed from DayOfWeek enum to string as per schema
     startTime: string;
     endTime: string;
@@ -56,6 +58,8 @@ export async function createBooking({
       }
     });
 
+    await updateSlotStatus(slot.id, true);
+
     return { booking };
   } catch (error) {
     console.error('Booking creation error:', error);
@@ -89,6 +93,8 @@ export async function updateBookingPaymentStatus({
     });
 
     console.log("server actions succeed");
+
+    
 
 
     return { success: true, booking: updatedBooking };

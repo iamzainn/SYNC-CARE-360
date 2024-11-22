@@ -196,6 +196,7 @@ export async function getDoctors({
                 },
                 slots: {
                   select: {
+                    id: true,
                     dayOfWeek: true,
                     startTime: true,
                     endTime: true

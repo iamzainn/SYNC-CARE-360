@@ -261,6 +261,7 @@ model HomeServiceSlot {
   dayOfWeek     DayOfWeek   // Changed from String to enum
   startTime     String
   endTime       String
+  isReserved    Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }

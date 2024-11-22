@@ -54,6 +54,7 @@ export interface SponsorCard {
           price: number
         }[]
         slots: {
+          id: string
           dayOfWeek: DayOfWeek
           startTime: string
           endTime: string

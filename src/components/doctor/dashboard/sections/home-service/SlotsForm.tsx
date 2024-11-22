@@ -1,7 +1,7 @@
 // components/doctor/dashboard/sections/home-service/SlotsForm.tsx
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useHomeServiceStore } from "@/store/useHomeServiceStore"
 import * as z from "zod"
 import { DAYS } from "@/lib/constants/home-services"
-import { updateHomeService } from "@/lib/actions/home-service"
+import { getHomeService, updateHomeService } from "@/lib/actions/home-service"
 
 
 
@@ -56,6 +56,16 @@ export function HomeServiceSlotsForm({
   const store = useHomeServiceStore()
   const { toast } = useToast()
   const [isPending, setIsPending] = useState(false)
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const response = await getHomeService();
+  //     if (response.data?.homeService) {
+  //       store.setSlots(response.data.homeService.slots);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
 
   const form = useForm<SlotFormValues>({
     resolver: zodResolver(slotSchema),
