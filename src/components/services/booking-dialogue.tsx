@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useAuthPatient } from '@/hooks/use-auth-patient'
 
 import { getScheduledDate } from '@/utils/date'
-import { createBooking } from '@/lib/actions/booking'
+import { createBooking, updateBookingPaymentStatus } from '@/lib/actions/booking'
 import { StripePaymentForm } from '@/app/components/payments/stripe-payment-form'
 import { useRouter } from 'next/navigation'
 
@@ -45,6 +45,7 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card')
   const [clientSecret, setClientSecret] = useState<string>('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [bookingId, setbookingId] = useState<string>('')
 
 
   const handleProceedToPayment = async () => {
@@ -84,6 +85,9 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
       console.log('Booking Data:', bookingData); // Add this for debugging
   
       const bookingResponse = await createBooking(bookingData);
+
+      // console.log("booking response : ",bookingResponse.booking.id)
+      setbookingId(bookingResponse.booking.id)
   
 
       if (paymentMethod === 'cash') {
@@ -107,6 +111,10 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
         if (!response.ok) {
           throw new Error('Failed to create payment intent');
         }
+
+       
+         
+        
         
         const { clientSecret } = await response.json();
         setClientSecret(clientSecret);
@@ -124,12 +132,39 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
   };
 
   const handlePaymentSuccess = async () => {
-    toast({
-      title: "Booking Confirmed",
-      description: "Your appointment has been booked and payment has been processed successfully."
-    });
-    router.push('/');
-    onClose();
+    try {
+      if (!bookingId || !clientSecret) {
+        throw new Error("Missing booking information");
+      }
+  
+      const stripePaymentId = clientSecret.split('_secret')[0];
+      
+      const result = await updateBookingPaymentStatus({
+        bookingId,
+        stripePaymentId,
+        paymentMethod: paymentMethod
+      });
+
+      console.log("result : ",result)
+  
+      if (!result.success) {
+        throw new Error("Failed to update booking status");
+      }
+  
+      toast({
+        title: "Booking Confirmed",
+        description: "Your appointment has been booked and payment processed successfully."
+      });
+      router.push('/');
+      onClose();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Payment status update failed"
+      });
+      console.error(error);
+    }
   };
 
 
