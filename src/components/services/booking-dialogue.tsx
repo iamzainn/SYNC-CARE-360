@@ -12,11 +12,11 @@ import { DoctorWithServices } from '@/types'
 import { DayOfWeek, SpecializationType } from '@prisma/client'
 import { useToast } from '@/hooks/use-toast'
 import { useAuthPatient } from '@/hooks/use-auth-patient'
-
 import { getScheduledDate } from '@/utils/date'
 import { createBooking, updateBookingPaymentStatus } from '@/lib/actions/booking'
 import { StripePaymentForm } from '@/app/components/payments/stripe-payment-form'
 import { useRouter } from 'next/navigation'
+
 
 interface BookingDialogProps {
   doctor: DoctorWithServices
@@ -32,6 +32,7 @@ interface SelectedService {
 export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
   const [selectedServices, setSelectedServices] = useState<SelectedService[]>([])
   const [selectedSlot, setSelectedSlot] = useState<{
+    id: string,
     dayOfWeek: DayOfWeek,
     startTime: string,
     endTime: string
@@ -40,6 +41,48 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
   const { toast } = useToast();
   const router = useRouter();
 
+
+  function SlotButton({ slot, currentDay, isSelected, onSelect }: {
+    slot: any;
+    currentDay: DayOfWeek;
+    isSelected: boolean;
+    onSelect: (slot: any) => void;
+  }) {
+    const [hours, minutes] = slot.startTime.split(':').map(Number);
+    const currentHour = new Date().getHours();
+    const currentMinutes = new Date().getMinutes();
+    const todayDay = format(new Date(), 'EEEE').toUpperCase();
+    
+   
+    const isPassed = todayDay === slot.dayOfWeek && 
+      (hours < currentHour || (hours === currentHour && minutes <= currentMinutes));
+  
+    const tooltip = isPassed ? "This time slot has passed" : "Available for booking";
+  
+    return (
+      <div className="relative group">
+        <Button
+          variant={isSelected ? "default" : "outline"}
+          size="sm"
+          disabled={isPassed}
+          onClick={() => onSelect(slot)}
+          className={cn(
+            "gap-2",
+            isPassed && "opacity-50 bg-gray-100",
+            isSelected && "bg-blue-600 text-white hover:bg-blue-700"
+          )}
+        >
+          <Clock className="h-3 w-3" />
+          {slot.startTime} - {slot.endTime}
+        </Button>
+        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          {tooltip}
+        </span>
+      </div>
+    );
+  }
+  
+  const ALL_DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'] as const;
 
   const [paymentStep, setPaymentStep] = useState<'selection' | 'payment'>('selection')
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card')
@@ -69,6 +112,7 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
           price: service.price
         })),
         slot: {
+          id: selectedSlot.id,
           dayOfWeek: selectedSlot.dayOfWeek,
           startTime: selectedSlot.startTime,
           endTime: selectedSlot.endTime,
@@ -179,11 +223,7 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
   const currentMinutes = new Date().getMinutes()
   const currentDay = format(new Date(), 'EEEE').toUpperCase() as DayOfWeek
 
-  const isSlotPassed = (day: DayOfWeek, startTime: string) => {
-    if (day !== currentDay) return false
-    const [hours, minutes] = startTime.split(':').map(Number)
-    return hours < currentHour || (hours === currentHour && minutes <= currentMinutes)
-  }
+ 
 
   const handleServiceToggle = (service: SelectedService) => {
     setSelectedServices(prev => {
@@ -246,49 +286,33 @@ export function BookingDialog({ doctor, isOpen, onClose }: BookingDialogProps) {
             <h3 className="font-semibold mb-3">Select Time Slot</h3>
             <ScrollArea className="h-[200px]">
               <div className="space-y-4">
-              {['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'].map((day) => {
-               const daySlots = homeService?.slots.filter(slot => slot.dayOfWeek === day) || []
-                  
-               return (
-                <div key={day} className="space-y-2">
-                  <h4 className="text-sm font-medium">
-                    {day.charAt(0) + day.slice(1).toLowerCase()}
-                  </h4>
-                  {daySlots.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {daySlots.map((slot) => {
-                        const isPassed = isSlotPassed(day as DayOfWeek, slot.startTime)
-                        const isSelected = isSlotSelected(
-                          slot.dayOfWeek,
-                          slot.startTime,
-                          slot.endTime
-                        )
-                        
-                        return (
-                          <Button
-                            key={`${slot.dayOfWeek}-${slot.startTime}`}
-                            variant={isSelected ? "default" : "outline"}
-                            size="sm"
-                            disabled={isPassed}
-                            onClick={() => setSelectedSlot(slot)}
-                            className={cn(
-                              "gap-2",
-                              isPassed && "opacity-50",
-                              isSelected && "bg-blue-600 text-white hover:bg-blue-700"
-                            )}
-                          >
-                            <Clock className="h-3 w-3" />
-                            {slot.startTime} - {slot.endTime}
-                          </Button>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No slots available</p>
-                  )}
-                </div>
-              )
-            })}
+              {ALL_DAYS.map((day) => {
+  const daySlots = homeService?.slots.filter(slot => {
+   
+    return slot.dayOfWeek === day;
+  }) || [];
+  
+  // console.log(`${day} slots:`, daySlots);
+
+  return (
+    <div key={day} className="space-y-2">
+      <h4 className="text-sm font-medium">
+        {day.charAt(0) + day.slice(1).toLowerCase()}
+      </h4>
+      <div className="flex">
+        {daySlots.map((slot) => (
+          <SlotButton
+            key={`${slot.dayOfWeek}-${slot.startTime}`}
+            slot={slot}
+            currentDay={currentDay}
+            isSelected={isSlotSelected(slot.dayOfWeek, slot.startTime, slot.endTime)}
+            onSelect={setSelectedSlot}
+          />
+        ))}
+      </div>
+    </div>
+  );
+})}
               </div>
             </ScrollArea>
           </div>
