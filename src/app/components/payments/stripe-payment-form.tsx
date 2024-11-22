@@ -22,65 +22,51 @@ interface StripePaymentFormProps {
 }
 
 function PaymentForm({ amount, onSuccess, onCancel, orderDetails }: StripePaymentFormProps) {
-  const stripe = useStripe()
-  const elements = useElements()
-  const [isProcessing, setIsProcessing] = useState(false)
-  const { toast } = useToast()
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
+    if (!stripe || !elements) return;
 
-    if (!stripe || !elements) {
-      return
-    }
-
-    setIsProcessing(true)
-
+    setIsProcessing(true);
     try {
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/payment/success`,
           payment_method_data: {
             billing_details: {
               name: orderDetails.name,
               phone: orderDetails.phone,
               address: {
                 line1: orderDetails.address,
-                country: 'PK', // Pakistan
+                country: 'PK',
               },
             },
           },
         },
         redirect: "if_required"
-      })
+      });
 
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Payment Failed",
-          description: error.message || "Something went wrong",
-        })
-        return
+        throw new Error(error.message);
       }
 
       if (paymentIntent.status === "succeeded") {
-        toast({
-          title: "Payment Successful",
-          description: "Your payment has been processed successfully",
-        })
-        onSuccess()
+        onSuccess(); // Call the success handler directly
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred",
-      })
+        title: "Payment Failed",
+        description: error instanceof Error ? error.message : "Payment failed"
+      });
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-6">

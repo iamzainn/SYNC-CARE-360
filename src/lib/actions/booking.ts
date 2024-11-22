@@ -76,6 +76,8 @@ export async function updateBookingPaymentStatus({
   paymentMethod
 }: UpdatePaymentParams) {
   try {
+
+   console.log("server actions started");
     const updatedBooking = await db.homeServiceBooking.update({
       where: { id: bookingId },
       data: {
@@ -85,6 +87,9 @@ export async function updateBookingPaymentStatus({
         updatedAt: new Date()
       }
     });
+
+    console.log("server actions succeed");
+
 
     return { success: true, booking: updatedBooking };
   } catch (error) {
