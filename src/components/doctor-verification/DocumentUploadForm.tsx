@@ -166,7 +166,7 @@ export function DocumentUploadForm() {
                       </div>
                     )}
                     <div className="text-xs text-muted-foreground">
-                      Accepted formats: PDF, JPG, PNG (Max size: 5MB)
+                      Accepted formats: PDF, JPG, PNG (Max size: 1MB)
                     </div>
                   </div>
                 </FormControl>
@@ -188,7 +188,7 @@ export function DocumentUploadForm() {
             type="submit" 
             disabled={isPending || !form.formState.isValid}
           >
-            Review Application {/* Changed button text */}
+            Review Application
           </Button>
         </div>
       </form>
