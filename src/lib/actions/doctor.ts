@@ -64,27 +64,27 @@ export async function getDoctorProfile() {
   const doctorData = await db.doctor.findUnique({
     where: { id: session.user.id },
     include: {
-      verification: true, // Include verification data
+      verification: true, 
     }
   })
 
   if (!doctorData) throw new Error("Doctor not found")
 
-    // console.log("doctorData", doctorData)
+    
 
   const doctorProfile = {
     id: doctorData.id,
     name: doctorData.name,
     email: doctorData.email,
     phone: doctorData.phone,
-    currentCity: doctorData.verification?.currentCity || "",
+    currentCity: doctorData.city,
     profilePhoto: doctorData.verification?.profilePhoto || null,
     specialization: doctorData.verification?.specialization || [],
     experienceYears: doctorData.verification?.experienceYears || 0,
     expertise: doctorData.verification?.expertise || []
   }
 
-  // console.log("doctorProfile", doctorProfile)
+ 
 
   return doctorProfile
 }
@@ -97,7 +97,7 @@ export async function updateDoctorProfile(formData: PersonalDetailsFormValues) {
 
     const validatedFields = personalDetailsSchema.parse(formData)
 
-    // Update doctor's basic info
+    
     await db.doctor.update({
       where: { id: session.user.id },
       data: {
@@ -106,15 +106,12 @@ export async function updateDoctorProfile(formData: PersonalDetailsFormValues) {
       },
     })
 
-    // Update profile photo in verification table if provided
     if (validatedFields.profilePhoto) {
       await db.doctorVerification.update({
         where: { doctorId: session.user.id },
         data: {
           profilePhoto: validatedFields.profilePhoto,
-          currentCity: validatedFields.currentCity,
           phoneNumber: validatedFields.phone  
-          
         },
       })
     }

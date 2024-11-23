@@ -63,7 +63,7 @@ model DoctorVerification {
   degreeImage  String // MBBS degree scan URL
   pmcImage     String // PMC registration certificate URL
   cnicImage    String // CNIC scan URL
-  currentCity  String
+
 
   doctorId String @unique // Foreign key
   doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
