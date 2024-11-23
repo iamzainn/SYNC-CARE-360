@@ -1,10 +1,10 @@
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import { DoctorProfile } from "@/types/doctor"
 import { PersonalDetailsSection } from "./PersonalDetailsSection"
 import { HomeServicesSection } from "./sections/HomeServicesSection"
+import { OnlineServicesSection } from "./sections/online-service/OnlineServicesSection"
 
 interface DoctorDashboardProps {
   initialData: DoctorProfile
@@ -24,6 +24,7 @@ export function DoctorDashboard({ initialData }: DoctorDashboardProps) {
         <TabsList className="bg-white border">
           <TabsTrigger value="profile">Profile Details</TabsTrigger>
           <TabsTrigger value="home-services">Home Services</TabsTrigger>
+          <TabsTrigger value="online-services">Online Appointments</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -31,6 +32,9 @@ export function DoctorDashboard({ initialData }: DoctorDashboardProps) {
         </TabsContent>
         <TabsContent value="home-services">
           <HomeServicesSection />
+        </TabsContent>
+        <TabsContent value="online-services">
+          <OnlineServicesSection />
         </TabsContent>
       </Tabs>
     </div>

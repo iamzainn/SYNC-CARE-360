@@ -13,61 +13,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Doctor {
-  id                    String    @id @default(cuid())
-  title                 String    
-  name                  String
-  email                 String    @unique
-  phone                 String    @unique
-  password              String
-  city                  String
-  specialization        String
-  gender                Gender
-  emailVerified         DateTime?
-  resetToken            String?   
-  resetTokenExpiry      DateTime? 
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  isVerifiedDoctor      Boolean @default(false)
-  
+  id               String    @id @default(cuid())
+  title            String
+  name             String
+  email            String    @unique
+  phone            String    @unique
+  password         String
+  city             String
+  specialization   String
+  gender           Gender
+  emailVerified    DateTime?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  isVerifiedDoctor Boolean   @default(false)
+
   // Add this relation
-  verification         DoctorVerification?
+  verification       DoctorVerification?
+  Services           Services?
+  HomeServiceBooking HomeServiceBooking[]
+  onlineService      OnlineService?
 
   @@map("doctors")
-  Services Services?
-  HomeServiceBooking HomeServiceBooking[]
 }
 
 model DoctorVerification {
-  id            String      @id @default(cuid())
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  status        VerificationStatus @default(PENDING)
-  fullName      String
-  email         String      @unique
-  phoneNumber   String
-  cnic          String      @unique  // Format: xxxxx-xxxxxxx-x
-  
+  id          String             @id @default(cuid())
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  status      VerificationStatus @default(PENDING)
+  fullName    String
+  email       String             @unique
+  phoneNumber String
+  cnic        String             @unique // Format: xxxxx-xxxxxxx-x
+
   // Professional Information
-  pmcNumber     String      @unique  // PMC/PMDC Registration Number
-  graduationYear Int
-  specialization String[]   // Array of specializations
-  expertise     String[]    // Array of expertise areas
+  pmcNumber       String   @unique // PMC/PMDC Registration Number
+  graduationYear  Int
+  specialization  String[] // Array of specializations
+  expertise       String[] // Array of expertise areas
   experienceYears Int
-  
-  medicalSchool String      // Name of medical college/university
-  
+
+  medicalSchool String // Name of medical college/university
+
   // Documents (Store URLs/paths to cloud storage)
-  profilePhoto  String      // Passport size photo URL
-  degreeImage   String      // MBBS degree scan URL
-  pmcImage      String      // PMC registration certificate URL
-  cnicImage     String      // CNIC scan URL
-  currentCity   String
+  profilePhoto String // Passport size photo URL
+  degreeImage  String // MBBS degree scan URL
+  pmcImage     String // PMC registration certificate URL
+  cnicImage    String // CNIC scan URL
+  currentCity  String
 
-
-  doctorId      String      @unique  // Foreign key
-  doctor        Doctor      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId String @unique // Foreign key
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
   @@index([doctorId])
 }
@@ -84,59 +83,54 @@ enum Gender {
   FEMALE
 }
 
-
-
-
 model Patient {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  phone         String    @unique
-  password      String
-  city          String
-  gender        Gender
-  emailVerified DateTime?
-  resetToken    String?   
-  resetTokenExpiry DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  medicalRecords    PatientMedicalRecord[]
+  id                 String                 @id @default(cuid())
+  name               String
+  email              String                 @unique
+  phone              String                 @unique
+  password           String
+  city               String
+  gender             Gender
+  emailVerified      DateTime?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  medicalRecords     PatientMedicalRecord[]
+  HomeServiceBooking HomeServiceBooking[]
+  onlineAppointments OnlineAppointment[]
 
   @@map("patients")
-  HomeServiceBooking HomeServiceBooking[]
 }
 
-
-
-
 model MedicineOrder {
-  id              String          @id @default(cuid())
-  medicines       String?         // For manual medicine entry
-  prescriptionUrl String?        // For prescription upload
+  id              String        @id @default(cuid())
+  medicines       String? // For manual medicine entry
+  prescriptionUrl String? // For prescription upload
   address         String
   phoneNumber     String
   patientName     String
   pharmacyName    String?
   amount          Float?
   paymentMethod   PaymentMethod
-  orderStatus     OrderStatus     @default(PENDING)
-  paymentStatus   PaymentStatus   @default(PENDING)
-  transaction     Transaction?    // Optional relation for payment details
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  orderStatus     OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  transaction     Transaction? // Optional relation for payment details
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@map("medicine_orders")
 }
 
 model Transaction {
-  id              String         @id @default(cuid())
+  id              String        @id @default(cuid())
   amount          Float
-  paymentDate     DateTime       @default(now())
-  stripePaymentId String?        // Stripe payment intent ID
+  paymentDate     DateTime      @default(now())
+  stripePaymentId String? // Stripe payment intent ID
   status          PaymentStatus
-  medicineOrder   MedicineOrder  @relation(fields: [orderId], references: [id])
-  orderId         String         @unique // One-to-one relation
-  metadata        Json?          // For any additional payment details
+  medicineOrder   MedicineOrder @relation(fields: [orderId], references: [id])
+  orderId         String        @unique // One-to-one relation
+  metadata        Json? // For any additional payment details
 
   @@map("transactions")
 }
@@ -159,51 +153,45 @@ enum PaymentStatus {
   FAILED
 }
 
-
 model PatientMedicalRecord {
-  id                  String    @id @default(cuid())
+  id          String   @id @default(cuid())
   // Required Information
-  firstName           String
-  lastName            String
-  dateOfBirth         DateTime
-  gender              Gender
-  email              String
-  phoneNumber        String
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  gender      Gender
+  email       String
+  phoneNumber String
 
   // Medical Information
-  medicalConditions   String[]  @default([])
-  allergies           String[]  @default([])
-  currentMedications  String[]  @default([])
+  medicalConditions  String[] @default([])
+  allergies          String[] @default([])
+  currentMedications String[] @default([])
 
   // Health Metrics
-  height              Float?    // in feet
-  weight              Float?    // in kg
-  bloodType           BloodType?
-  bloodPressure       Json?     // { systolic: number, diastolic: number }
-  heartRate           Int?
+  height        Float? // in feet
+  weight        Float? // in kg
+  bloodType     BloodType?
+  bloodPressure Json? // { systolic: number, diastolic: number }
+  heartRate     Int?
 
+  medicalReportUrl String?
 
-  medicalReportUrl    String?
+  emergencyContactName  String
+  emergencyContactPhone String
 
-  
-  emergencyContactName    String
-  emergencyContactPhone   String
-
-  
-  consentToStore     Boolean   @default(false)
+  consentToStore Boolean @default(false)
 
   // Timestamps
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  patient            Patient   @relation(fields: [patientId], references: [id])
-  patientId          String
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId String
 
   @@map("patient_medical_records")
 }
-
-
 
 enum BloodType {
   A_POSITIVE
@@ -216,32 +204,32 @@ enum BloodType {
   AB_NEGATIVE
 }
 
-
 model Services {
-  id          String        @id @default(cuid())
-  doctorId    String        @unique
-  doctor      Doctor        @relation(fields: [doctorId], references: [id])
-  homeService HomeService?
+  id              String         @id @default(cuid())
+  doctorId        String         @unique
+  doctor          Doctor         @relation(fields: [doctorId], references: [id])
+  homeService     HomeService?
+  onlineService   OnlineService? @relation(fields: [onlineServiceId], references: [id])
+  onlineServiceId String?
 }
 
 model HomeService {
-  id          String   @id @default(cuid())
-  serviceId   String   @unique
-  service     Services @relation(fields: [serviceId], references: [id])
-  isActive    Boolean  @default(false)
-  
+  id        String   @id @default(cuid())
+  serviceId String   @unique
+  service   Services @relation(fields: [serviceId], references: [id])
+  isActive  Boolean  @default(false)
+
   // Specializations with prices
   specializations HomeServiceSpecialization[]
-  
+
   // Availability slots
-  slots      HomeServiceSlot[]
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  slots HomeServiceSlot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   HomeServiceBooking HomeServiceBooking[]
 }
-
 
 model HomeServiceSpecialization {
   id            String             @id @default(cuid())
@@ -249,24 +237,21 @@ model HomeServiceSpecialization {
   homeService   HomeService        @relation(fields: [homeServiceId], references: [id])
   type          SpecializationType // Changed from String to enum
   price         Float
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 }
-
 
 model HomeServiceSlot {
   id            String      @id @default(cuid())
   homeServiceId String
   homeService   HomeService @relation(fields: [homeServiceId], references: [id])
-  dayOfWeek     DayOfWeek   // Changed from String to enum
+  dayOfWeek     DayOfWeek // Changed from String to enum
   startTime     String
   endTime       String
   isReserved    Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
-
-
 
 enum SpecializationType {
   GENERAL_CHECKUP
@@ -286,33 +271,97 @@ enum DayOfWeek {
   SATURDAY
 }
 
-
 model HomeServiceBooking {
-  id                String              @id @default(cuid())
-  patientId         String
-  patient           Patient             @relation(fields: [patientId], references: [id])
-  doctorId          String
-  doctor            Doctor              @relation(fields: [doctorId], references: [id])
-  homeServiceId     String
-  homeService       HomeService         @relation(fields: [homeServiceId], references: [id])
-  status            String              @default("pending") // pending, confirmed, cancelled, completed
-  scheduledDate     DateTime
-  dayOfWeek         String
-  startTime         String
-  endTime           String
-  totalAmount       Float
-  selectedServices  Json                // Store array of services directly as JSON
-  paymentMethod     String              @default("pending") // pending, card, cash
-  paymentStatus     String              @default("pending") // pending, completed, failed
-  stripePaymentId   String?             // Optional for card payments
-  patientDetails    Json                // Store name, address, phone
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id               String      @id @default(cuid())
+  patientId        String
+  patient          Patient     @relation(fields: [patientId], references: [id])
+  doctorId         String
+  doctor           Doctor      @relation(fields: [doctorId], references: [id])
+  homeServiceId    String
+  homeService      HomeService @relation(fields: [homeServiceId], references: [id])
+  status           String      @default("pending") // pending, confirmed, cancelled, completed
+  scheduledDate    DateTime
+  dayOfWeek        String
+  startTime        String
+  endTime          String
+  totalAmount      Float
+  selectedServices Json // Store array of services directly as JSON
+  paymentMethod    String      @default("pending") // pending, card, cash
+  paymentStatus    String      @default("pending") // pending, completed, failed
+  stripePaymentId  String? // Optional for card payments
+  patientDetails   Json // Store name, address, phone
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   @@index([patientId])
   @@index([doctorId])
   @@index([homeServiceId])
 }
 
+model OnlineService {
+  id           String              @id @default(cuid())
+  doctorId     String              @unique
+  doctor       Doctor              @relation(fields: [doctorId], references: [id])
+  isActive     Boolean             @default(false)
+  fee          Float // Consultation fee
+  slots        OnlineServiceSlot[]
+  appointments OnlineAppointment[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
+  Services Services[]
+}
 
+model OnlineServiceSlot {
+  id              String        @id @default(cuid())
+  onlineServiceId String
+  onlineService   OnlineService @relation(fields: [onlineServiceId], references: [id])
+  dayOfWeek       DayOfWeek
+  startTime       String // Format: "HH:mm"
+  endTime         String // Format: "HH:mm"
+  isReserved      Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([onlineServiceId])
+}
+
+model OnlineAppointment {
+  id              String            @id @default(cuid())
+  onlineServiceId String
+  onlineService   OnlineService     @relation(fields: [onlineServiceId], references: [id])
+  patientId       String
+  patient         Patient           @relation(fields: [patientId], references: [id])
+  appointmentDate DateTime
+  startTime       String
+  endTime         String
+  appointmentType AppointmentType
+  visitType       VisitType
+  status          AppointmentStatus @default(PENDING)
+  amount          Float
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([patientId])
+  @@index([onlineServiceId])
+}
+
+enum AppointmentType {
+  GENERAL_CHECKUP
+  FOLLOW_UP
+  PRESCRIPTION_RENEWAL
+  TEST_REVIEW
+  SPECIALIST_CONSULTATION
+}
+
+enum VisitType {
+  FIRST_TIME
+  FOLLOW_UP
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}

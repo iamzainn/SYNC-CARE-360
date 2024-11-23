@@ -1,7 +1,6 @@
-// components/doctor/dashboard/sections/home-service/SlotsForm.tsx
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
@@ -20,17 +19,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, X } from "lucide-react"
+
+import { useOnlineServiceStore } from "@/store/useOnlineServiceStore"
 import { useToast } from "@/hooks/use-toast"
-import { useHomeServiceStore } from "@/store/useHomeServiceStore"
 import * as z from "zod"
+import { getOnlineService, updateOnlineService } from "@/lib/actions/online-service"
 import { DAYS } from "@/lib/constants/home-services"
-import { getHomeService, updateHomeService } from "@/lib/actions/home-service"
 
-
-
-const slotSchema = z.object({
+const formSchema = z.object({
+  fee: z.number().min(100, "Minimum fee is Rs. 100"),
   dayOfWeek: z.enum(DAYS),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required")
@@ -40,48 +40,62 @@ const slotSchema = z.object({
   const startMinutes = startHour * 60 + startMinute
   const endMinutes = endHour * 60 + endMinute
   return endMinutes > startMinutes
-}, "End time must be after start time");
+}, "End time must be after start time")
 
-type SlotFormValues = z.infer<typeof slotSchema>
+type FormValues = z.infer<typeof formSchema>
 
-interface HomeServiceSlotsFormProps {
-  onPrevious: () => void
+interface OnlineServiceFormProps {
   onComplete: () => void
 }
 
-export function HomeServiceSlotsForm({
-  onPrevious,
-  onComplete
-}: HomeServiceSlotsFormProps) {
-  const store = useHomeServiceStore()
+export function OnlineServiceForm({ onComplete }: OnlineServiceFormProps) {
+  const store = useOnlineServiceStore()
   const { toast } = useToast()
   const [isPending, setIsPending] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
- 
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getOnlineService()
+        if (response.data?.onlineService) {
+          store.setFee(response.data.onlineService.fee)
+          store.setSlots(response.data.onlineService.slots)
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load online service details",
+          variant: "destructive"
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
-  const form = useForm<SlotFormValues>({
-    resolver: zodResolver(slotSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
+      fee: store.fee || 0,
       dayOfWeek: undefined,
       startTime: undefined,
       endTime: undefined
     }
   })
 
-  const timeSlots = useMemo(() => {
-    return Array.from({ length: 28 }, (_, i) => {
-      const hour = Math.floor(i / 2) + 9 // Start from 9 AM
-      const minute = (i % 2) * 30
-      return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-    }).filter(time => {
-      const hour = parseInt(time.split(':')[0])
-      return hour >= 9 && hour < 16 // 9 AM to 4 PM
-    })
-  }, [])
+  // Generate time slots in 20-minute intervals from 9 AM to 6 PM
+  const timeSlots = Array.from({ length: 27 }, (_, i) => {
+    const hour = 9 + Math.floor(i / 3)
+    const minute = (i % 3) * 20
+    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+  })
 
-  const isSlotOverlapping = (newSlot: SlotFormValues) => {
+  const isSlotOverlapping = (newSlot: Omit<FormValues, 'fee'>) => {
     return store.slots.some(existingSlot => {
-      if (existingSlot.dayOfWeek !== newSlot.dayOfWeek) return false;
+      if (existingSlot.dayOfWeek !== newSlot.dayOfWeek) return false
       
       const [newStartHour, newStartMinute] = newSlot.startTime.split(':').map(Number)
       const [newEndHour, newEndMinute] = newSlot.endTime.split(':').map(Number)
@@ -101,49 +115,38 @@ export function HomeServiceSlotsForm({
     })
   }
 
-  const onSubmitSlot = (values: SlotFormValues) => {
-    if (isSlotOverlapping(values)) {
+  const onSubmit = (values: FormValues) => {
+    const { fee, ...slotData } = values
+
+    // Check for overlapping slots
+    if (isSlotOverlapping(slotData)) {
       toast({
         title: "Error",
-        description: "This time slot overlaps with an existing slot for this day",
+        description: "This time slot overlaps with an existing slot",
         variant: "destructive"
       })
       return
     }
 
-    store.addSlot(values)
-    const currentdayOfWeek=values.dayOfWeek
-    const currentstartTime=values.startTime
-    const currentendTime=values.endTime
+    // Just update the store
+    store.setFee(fee)
+    store.addSlot(slotData)
 
-    //reset value can be any without of these using Math.random
-    const randomDayOfWeek = DAYS.filter(day => day !== currentdayOfWeek)[Math.floor(Math.random() * DAYS.length)]
-    const randomStartTime = timeSlots.filter(time => time !== currentstartTime)[Math.floor(Math.random() * timeSlots.length)]
-    const randomEndTime = timeSlots.filter(time => time !== currentendTime)[Math.floor(Math.random() * timeSlots.length)]
-    
-    
-    // Reset form with proper cleanup
+    // Reset the form except fee
     form.reset({
-      dayOfWeek: randomDayOfWeek,
-      startTime: randomStartTime,
-      endTime: randomEndTime
+      fee,
+      dayOfWeek: undefined,
+      startTime: undefined,
+      endTime: undefined
     })
     
-    // Clear touched states and errors
-    Object.keys(values).forEach(key => {
-      form.clearErrors(key as keyof SlotFormValues)
-      form.resetField(key as keyof SlotFormValues, {
-        defaultValue: undefined
-      })
-    })
-
     toast({
       title: "Success",
       description: "Time slot added successfully"
     })
   }
 
-  const handleComplete = async () => {
+  const handleSaveSettings = async () => {
     if (store.slots.length === 0) {
       toast({
         title: "Error",
@@ -155,18 +158,23 @@ export function HomeServiceSlotsForm({
 
     setIsPending(true)
     try {
-      const response = await updateHomeService({
+      const response = await updateOnlineService({
         isActive: true,
-        specializations: store.specializations,
+        fee: store.fee,
         slots: store.slots
       })
 
       if (response.error) throw new Error(response.error)
+      
       onComplete()
+      toast({
+        title: "Success",
+        description: "Online service settings saved successfully"
+      })
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save slots",
+        description: error instanceof Error ? error.message : "Failed to save settings",
         variant: "destructive"
       })
     } finally {
@@ -174,10 +182,37 @@ export function HomeServiceSlotsForm({
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmitSlot)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="fee"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Consultation Fee (Rs.)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Enter consultation fee"
+                    {...field}
+                    onChange={e => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="grid grid-cols-3 gap-4">
             <FormField
               control={form.control}
@@ -265,16 +300,8 @@ export function HomeServiceSlotsForm({
             type="submit" 
             variant="outline" 
             className="w-full"
-            disabled={isPending}
           >
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding Slot...
-              </>
-            ) : (
-              "Add Time Slot"
-            )}
+            Add Time Slot
           </Button>
         </form>
       </Form>
@@ -285,7 +312,7 @@ export function HomeServiceSlotsForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {DAYS.map(day => {
             const daySlots = store.slots.filter(slot => slot.dayOfWeek === day)
-            if (daySlots.length === 0) return null;
+            if (daySlots.length === 0) return null
 
             return (
               <div key={day} className="p-3 border rounded-lg">
@@ -318,26 +345,19 @@ export function HomeServiceSlotsForm({
         </div>
       </div>
 
-      <div className="flex justify-between pt-4">
-      <Button
-          type="button"
-          variant="outline"
-          onClick={onPrevious}
-          disabled={isPending}
-        >
-          Previous: Specializations
-        </Button>
+      {/* Save Settings Button */}
+      <div className="flex justify-end pt-6">
         <Button
-          onClick={handleComplete}
+          onClick={handleSaveSettings}
           disabled={isPending || store.slots.length === 0}
         >
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              Saving Settings...
             </>
           ) : (
-            "Complete Setup"
+            "Save Settings"
           )}
         </Button>
       </div>
