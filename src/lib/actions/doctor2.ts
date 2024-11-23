@@ -11,9 +11,11 @@ export interface DoctorWithDetails extends Doctor {
     specialization: string[]
   } | null
   onlineService: {
+    id: string
     fee: number
     isActive: boolean
     slots: {
+      id:string
       dayOfWeek: string
       startTime: string
       endTime: string
@@ -80,6 +82,7 @@ export async function getDoctors({
           include: {
             slots: {
               select: {
+                id: true,
                 dayOfWeek: true,
                 startTime: true,
                 endTime: true,
