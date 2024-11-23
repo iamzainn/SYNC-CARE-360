@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
+  
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -84,7 +84,7 @@ export function ReviewStep() {
     email: store.email,
     phoneNumber: store.phoneNumber,
     cnic: store.cnic,
-    currentCity: store.currentCity,
+    
   }
 
   const professionalInfo = {
@@ -136,7 +136,7 @@ export function ReviewStep() {
 
       // Reset form and store
       store.resetForm()
-      router.push('/verification-pending') // Create this page to show verification status
+      router.push('/verification-pending') 
     } catch (error) {
       toast({
         title: "Error",
