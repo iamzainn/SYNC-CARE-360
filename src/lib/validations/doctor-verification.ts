@@ -9,7 +9,7 @@ export const basicInformationSchema = z.object({
     .regex(/^03\d{9}$/, "Phone number must start with '03' and be 11 digits long"),
   cnic: z.string()
     .regex(/^\d{5}-\d{7}-\d{1}$/, "CNIC must be in format: XXXXX-XXXXXXX-X"),
-  currentCity: z.string().min(2, "Please select your city")
+  
 })
 
 export const professionalInformationSchema = z.object({

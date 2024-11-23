@@ -14,24 +14,15 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+
 import { basicInformationSchema } from "@/lib/validations/doctor-verification"
 import { useDoctorVerificationStore } from "@/store/useDoctorVerificationStore"
 import { z } from "zod"
 
 type BasicInformationValues = z.infer<typeof basicInformationSchema>
 
-// Pakistani major cities
-const CITIES = [
-  "Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad",
-  "Multan", "Peshawar", "Quetta", "Sialkot", "Gujranwala"
-]
+
+
 
 export function BasicInformationForm() {
   const store = useDoctorVerificationStore()
@@ -44,7 +35,7 @@ export function BasicInformationForm() {
       email: store.email,
       phoneNumber: store.phoneNumber,
       cnic: store.cnic,
-      currentCity: store.currentCity,
+     
     },
   })
 
@@ -134,31 +125,9 @@ export function BasicInformationForm() {
           )}
         />
 
-        {/* City Selection */}
-        <FormField
-          control={form.control}
-          name="currentCity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Current City</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your city" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        
+        
+        
 
         <Button
           type="submit"

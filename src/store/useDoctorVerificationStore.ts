@@ -7,7 +7,7 @@ interface DoctorVerification {
   email: string
   phoneNumber: string
   cnic: string
-  currentCity: string
+  
   
  
   pmcNumber: string
@@ -37,7 +37,7 @@ const initialState: DoctorVerification = {
   email: '',
   phoneNumber: '',
   cnic: '',
-  currentCity: '',
+  
   pmcNumber: '',
   graduationYear: 0,
   medicalSchool: '',
@@ -64,8 +64,8 @@ export const useDoctorVerificationStore = create<DoctorVerificationState>()(
               state.fullName &&
               state.email &&
               state.phoneNumber.length === 11 &&
-              state.cnic &&
-              state.currentCity
+              state.cnic 
+              
             )
           case 2: // Professional Information
             return !!(
