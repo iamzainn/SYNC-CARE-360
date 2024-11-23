@@ -59,6 +59,7 @@ export interface SponsorCard {
           dayOfWeek: DayOfWeek
           startTime: string
           endTime: string
+          isReserved: boolean
         }[]
       } | null
     } | null

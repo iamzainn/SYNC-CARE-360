@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { DoctorWithDetails } from "@/lib/actions/doctor2"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
-import { BookingDialog } from "./TwoBookingDialgue"
+import {OnlineBookingDialog } from "./TwoBookingDialgue"
 
 
 interface DoctorCardProps {
@@ -145,7 +145,7 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
         </div>
       )}
     </Card>
-     <BookingDialog 
+     <OnlineBookingDialog 
      doctor={doctor}
      isOpen={isBookingOpen}
      onClose={() => setIsBookingOpen(false)}

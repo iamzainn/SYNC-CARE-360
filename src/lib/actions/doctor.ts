@@ -193,6 +193,7 @@ export async function getDoctors({
                 },
                 slots: {
                   select: {
+                    isReserved: true,
                     id: true,
                     dayOfWeek: true,
                     startTime: true,

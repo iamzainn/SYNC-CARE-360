@@ -1,4 +1,4 @@
-// app/pakistan/[city]/[specialist]/page.tsx
+
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { DoctorsList } from "@/components/doctors/DoctorsList"

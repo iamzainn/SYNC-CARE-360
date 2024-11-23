@@ -330,12 +330,14 @@ model OnlineAppointment {
   id              String            @id @default(cuid())
   onlineServiceId String
   onlineService   OnlineService     @relation(fields: [onlineServiceId], references: [id])
+  doctorId        String
   patientId       String
   patient         Patient           @relation(fields: [patientId], references: [id])
   appointmentDate DateTime
   startTime       String
   endTime         String
   appointmentType AppointmentType
+  stripePaymentId  String?
   visitType       VisitType
   status          AppointmentStatus @default(PENDING)
   amount          Float
@@ -344,6 +346,7 @@ model OnlineAppointment {
 
   @@index([patientId])
   @@index([onlineServiceId])
+  @@index([doctorId])
 }
 
 enum AppointmentType {

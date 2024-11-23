@@ -5,7 +5,7 @@ import { DoctorWithServices } from "@/types"
 import Image from "next/image"
 import { User } from "lucide-react"
 import { useState } from "react"
-import { BookingDialog } from "./booking-dialogue"
+import { HomeServiceDialog } from "./booking-dialogue"
 
 interface DoctorCardProps {
   doctor: DoctorWithServices
@@ -64,7 +64,7 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
           Book Now
         </Button>
 
-        <BookingDialog 
+        <HomeServiceDialog 
 doctor={doctor}
 isOpen={isBookingOpen}
 onClose={() => setIsBookingOpen(false)}
