@@ -17,7 +17,7 @@ export default function HomeServicesPage({ params }: HomeServicesPageProps) {
   const breadcrumbItems = [
     { label: "HOME", href: "/" },
     { label: "Services", href: "/services" },
-    { label: "Home Services", href: "/services/home-services" },
+    { label: "Home Visits", href: "/services/home-visits" },
     { label: city.charAt(0).toUpperCase() + city.slice(1).toLowerCase(), href: `/services/home-services/${city}` }
   ]
 

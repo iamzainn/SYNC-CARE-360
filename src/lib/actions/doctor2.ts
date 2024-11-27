@@ -1,6 +1,6 @@
 'use server'
 import { db } from "@/lib/db"
-import { urlToSpecialization } from "@/lib/helpers/specialization-mapping"
+import { specializationToUrl, urlToSpecialization } from "@/lib/helpers/specialization-mapping"
 import { Doctor, Gender, VerificationStatus } from "@prisma/client"
 
 export interface DoctorWithDetails extends Doctor {
@@ -50,7 +50,9 @@ export async function getDoctors({
   take = 10
 }: GetDoctorsParams): Promise<GetDoctorsResponse> {
   try {
+    
     const specialization = urlToSpecialization(specialist)
+    console.log("spec",specialization)
 
     const doctors = await db.doctor.findMany({
       where: {

@@ -16,83 +16,63 @@ import {
 export function MobileNav() {
   const [open, setOpen] = useState(false)
 
+  const renderItems = (items: any[], level: number = 0) => {
+    return (
+      <Accordion type="single" collapsible>
+        {items.map((item) => (
+          <AccordionItem value={item.href} key={item.href}>
+            {item.items ? (
+              <>
+                <AccordionTrigger className={`pl-${level * 4}`}>
+                  <div className="flex items-center gap-2">
+                    {item.icon && <item.icon className="h-4 w-4" />}
+                    {item.title}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {item.items && renderItems(item.items, level + 1)}
+                </AccordionContent>
+              </>
+            ) : (
+              <Link
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-2 p-2 pl-${level * 4 + 4} text-sm text-muted-foreground hover:text-foreground`}
+              >
+                {item.icon && <item.icon className="h-4 w-4" />}
+                {item.title}
+              </Link>
+            )}
+          </AccordionItem>
+        ))}
+      </Accordion>
+    )
+  }
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="xl:hidden ml-2"
-        >
+        <Button variant="ghost" size="icon" className="xl:hidden ml-2">
           <Menu className="h-6 w-6" />
-          <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent 
-        side="right"
-        className="w-[300px] sm:w-[400px]"
-      >
+      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
         <div className="flex flex-col space-y-4 mt-6">
-          {/* Join Doctor button for small screens */}
-          <div className="sm:hidden pb-4 border-b">
-            <Button 
-              variant="outline"
-              className="w-full justify-center text-base bg-transparent hover:bg-transparent"
-              asChild
-            >
-              <Link href="/join-as-doctor">Join As Doctor</Link>
-            </Button>
-          </div>
-
-          {/* Navigation Items */}
-          <nav className="flex flex-col space-y-4">
+          <nav className="flex flex-col space-y-2">
             {navigationItems.map((item) => (
-              <div key={item.href}>
-                {item.dropdownItems.length > 0 ? (
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value={item.href}>
-                      <AccordionTrigger className="text-base py-2">
-                        {item.title}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="flex flex-col space-y-2 pl-4">
-                          {item.dropdownItems.map((dropdownItem) => (
-                            <Link
-                              key={dropdownItem.href}
-                              href={dropdownItem.href}
-                              onClick={() => setOpen(false)}
-                              className="py-2 text-sm text-muted-foreground hover:text-foreground"
-                            >
-                              {dropdownItem.title}
-                            </Link>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                ) : (
-                  <Link
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="block py-2 text-base hover:text-primary"
-                  >
+              <Accordion type="single" collapsible key={item.href}>
+                <AccordionItem value={item.href}>
+                  <AccordionTrigger className="flex items-center gap-2">
+                    {item.icon && <item.icon className="h-4 w-4" />}
                     {item.title}
-                  </Link>
-                )}
-              </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {renderItems(item.items)}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             ))}
           </nav>
-
-          {/* Phone number in mobile menu */}
-          <div className="pt-4 border-t">
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start text-base"
-            >
-              <Phone className="h-4 w-4 mr-2" />
-              042-389-00939
-            </Button>
-          </div>
         </div>
       </SheetContent>
     </Sheet>
