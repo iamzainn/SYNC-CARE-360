@@ -6,17 +6,17 @@ import { DoctorCardsGridSkeleton } from "./DoctorCardSkeleton"
 import { getDoctors } from "@/lib/actions/doctor2"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import { getDoctorsByCity } from "@/lib/actions/doctor3"
 
 interface DoctorsListProps {
   city: string
-  specialist: string
+ 
   initialDoctors: Awaited<ReturnType<typeof getDoctors>>
   searchParams: { [key: string]: string | undefined }
 }
 
-export function DoctorsList({ 
+export function DoctorsCityList({ 
   city, 
-  specialist, 
   initialDoctors,
   searchParams 
 }: DoctorsListProps) {
@@ -31,9 +31,9 @@ export function DoctorsList({
 
     setIsLoading(true)
     try {
-      const result = await getDoctors({
+      const result = await getDoctorsByCity({
         city,
-        specialist,
+        
         skip: doctors.length,
         take: 10,
         gender: searchParams.gender,
@@ -55,9 +55,9 @@ export function DoctorsList({
     setIsFilterLoading(true)
     const fetchDoctors = async () => {
       try {
-        const result = await getDoctors({
+        const result = await getDoctorsByCity({
           city,
-          specialist,
+          
           gender: searchParams.gender,
           maxFee: searchParams.fee === 'asc' ? 2000 : undefined,
           minExperience: searchParams.experience ? parseInt(searchParams.experience) : undefined,

@@ -1,7 +1,7 @@
 'use server'
 import { db } from "@/lib/db"
-import { specializationToUrl, urlToSpecialization } from "@/lib/helpers/specialization-mapping"
-import { Doctor, Gender, VerificationStatus } from "@prisma/client"
+import {  urlToSpecialization } from "@/lib/helpers/specialization-mapping"
+import { Doctor, Gender } from "@prisma/client"
 
 export interface DoctorWithDetails extends Doctor {
   verification: {
@@ -52,7 +52,7 @@ export async function getDoctors({
   try {
     
     const specialization = urlToSpecialization(specialist)
-    console.log("spec",specialization)
+    
 
     const doctors = await db.doctor.findMany({
       where: {
@@ -66,7 +66,7 @@ export async function getDoctors({
           experienceYears: minExperience ? {
             gte: minExperience
           } : undefined,
-          // Use array contains for specialization
+          
           specialization: {
             has: specialization
           }
