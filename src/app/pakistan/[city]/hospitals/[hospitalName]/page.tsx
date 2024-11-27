@@ -1,10 +1,8 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { hospitals } from "@/lib/config/hospitals"
-
 import { HospitalHero } from "@/components/hospitals/hospital-hero"
 import { DoctorsFilters } from "@/components/doctors/DoctorsFilters"
-
 import { getDoctorsByCity } from "@/lib/actions/doctor3"
 import { HospitalSpecialties } from "@/components/hospitals/hospital-specialties"
 import { HospitalFacilities } from "@/components/hospitals/hospital-facilities"
@@ -36,58 +34,57 @@ export async function generateMetadata({
 }
 
 export default async function HospitalPage({ params }: PageProps) {
-   const hospital = hospitals[params.hospitalName]
- if (!hospital) notFound()
-
- const initialDoctors = await getDoctorsByCity({
-   city: params.city,
-   take: 10
- })
-
-
-
-
-    return (
-        <>
-        
-           <main className="min-h-screen bg-background">
-         <HospitalHero hospital={hospital} />
-        
-     <div className="space-y-12">
-           <div className="container py-12">
-             <HospitalSpecialties specialties={hospital.specialties} />
-           </div>
-  
-           <HospitalFacilities facilities={hospital.facilities} />
-  
-           <div className="container">
-             <section>
-               <div className="mb-6">
-                 <h2 className="text-2xl font-bold">
-                   Our Doctors in {hospital.name}
-                 </h2>
-                 <p className="text-muted-foreground">
-                   Book appointments with our experienced specialists
-                 </p>
-               </div>
-  
-               <DoctorsFilters />
-               <DoctorsCityList 
-               initialDoctors={initialDoctors}
-               city={params.city}
-               searchParams={params.searchParams}
-              
-               />
-               
-             </section>
-           </div>
-  
-           <HospitalLocation location={hospital.location} />
-     </div>
-     
-     
-       </main>
-        </>
-
-    )
+  const hospital = hospitals[params.hospitalName]
+  if(!hospital) {
+    notFound()
   }
+
+  const initialDoctors = await getDoctorsByCity({
+    city: params.city,
+    maxFee: params.searchParams?.fee === 'asc' ? 2000 : undefined,
+    minExperience: params.searchParams?.experience ? parseInt(params.searchParams.experience) : undefined,
+    take: 10
+  })
+
+  return (
+    <main className="min-h-screen bg-background">
+      <HospitalHero hospital={hospital} />
+      
+      <div className="space-y-16">
+        <section className="py-12 bg-white">
+          <div className="container">
+            <HospitalSpecialties specialties={hospital.specialties} />
+          </div>
+        </section>
+ 
+        <section className="py-12 bg-gray-50">
+          <div className="container">
+            <HospitalFacilities facilities={hospital.facilities} />
+          </div>
+        </section>
+ 
+        <section className="py-12 bg-white">
+          <div className="container max-w-7xl">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold">
+                Our Doctors at {hospital.name}
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                Book appointments with our experienced specialists
+              </p>
+            </div>
+ 
+            <DoctorsFilters />
+            <DoctorsCityList 
+              initialDoctors={initialDoctors}
+              city={params.city} 
+              searchParams={params.searchParams}
+            />
+          </div>
+        </section>
+ 
+        <HospitalLocation location={hospital.location} />
+      </div>
+    </main>
+  )
+ }
