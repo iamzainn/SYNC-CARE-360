@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from "@/components/ui/card"
 import { TelemedicineDialog } from '../search/TelemedicineSearchDialogue'
+import { useLocationStore } from '@/store/useLocationStore'
 
 const services = [
   {
@@ -39,7 +40,7 @@ const services = [
     title: "Home Visits",
     description: "In-home medical check-ups by healthcare professionals",
     imagePath: "/home-visit.png",
-    path: "/Services/Home-Visits"
+    path: "/Services/home-visits"
   },
   {
     id: 6,
@@ -53,13 +54,21 @@ const services = [
 export const ServiceSection = () => {
   const router = useRouter()
   const [isTelemedicineOpen, setIsTelemedicineOpen] = useState(false)
+ 
+  const { location } = useLocationStore()
+
+  
 
   const handleCardClick = (service: typeof services[0]) => {
     if (service.action === "dialog") {
       setIsTelemedicineOpen(true)
-    } else if (service.path) {
+    }else if(service.title=='Home Visits'){
+      router.push(`/Services/home-visits/${location?location:'lahore'}`)
+    }
+     else if (service.path) {
       router.push(service.path)
     }
+
   }
 
   return (
