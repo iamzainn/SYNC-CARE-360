@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { BadgeCheck, Calendar, Clock, Video } from "lucide-react"
-import { cn } from "@/lib/utils"
+
 import { DoctorWithDetails } from "@/lib/actions/doctor2"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
@@ -22,22 +22,10 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
   const toast = useToast()
 
   const handleBooking = () => {
-    // If you want to check auth before opening dialog
-    // if (!user) {
-    //   toast({
-    //     title: "Login Required",
-    //     description: "Please login to book an appointment",
-    //     variant: "destructive"
-    //   })
-    //   return
-    // }
+   
 
     if (!doctor.onlineService?.isActive) {
-      // toast({
-      //   title: "Not Available",
-      //   description: "This doctor is not currently accepting online appointments",
-      //   variant: "destructive"
-      // })
+    
       return
     }
 
