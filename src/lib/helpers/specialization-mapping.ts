@@ -1,5 +1,6 @@
 // lib/helpers/specialization-mapping.ts
 export const urlToSpecialization = (param: string): string => {
+  console.log("par " ,param)
     const mappings: Record<string, string> = {
       'dermatologist': 'Dermatology',
       'cardiologist': 'Cardiology',
@@ -12,6 +13,7 @@ export const urlToSpecialization = (param: string): string => {
       
     }
     
+    // console.log(mappings[param.toLowerCase()])
     return mappings[param.toLowerCase()] || param
   }
   
@@ -25,7 +27,7 @@ export const urlToSpecialization = (param: string): string => {
       'Orthopedics': 'orthopedic-surgeon',
       'Gastroenterology': 'gastroenterologist',
       'Endocrinology': 'endocrinologist',
-      // Add other mappings...
+      
     }
     
     return reversed[specialization] || specialization.toLowerCase()
