@@ -1,4 +1,4 @@
-// app/Services/Medicine/page.tsx
+
 
 import { HowItWorks } from "@/app/components/services/how-it-works";
 import { MedicineOrderForm } from "@/app/components/services/Medicine-order-form";
@@ -13,8 +13,8 @@ export default function MedicinePage() {
       <ServiceBreadcrumb 
         items={[
           { label: "HOME", href: "/" },
-          { label: "Services", href: "/Services" },
-          { label: "Medicines", href: "/Services/Medicine" },
+          { label: "Services", href: "/Services/Medicines" },
+          { label: "Medicines", href: "/Services/Medicines" },
         ]} 
       />
       <ServiceHero />

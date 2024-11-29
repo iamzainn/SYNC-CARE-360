@@ -47,9 +47,7 @@ export default function VerificationPendingPage() {
               <Button asChild variant="outline">
                 <Link href="/">Return Home</Link>
               </Button>
-              {/* <Button asChild>
-                <Link href="/contact">Contact Support</Link>
-              </Button> */}
+              
             </div>
           </div>
         </CardContent>

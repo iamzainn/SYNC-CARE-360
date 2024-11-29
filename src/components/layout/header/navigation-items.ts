@@ -39,7 +39,7 @@ export const navigationItems: NavigationItem[] = [
     items: [
       {
         title: "Lahore",
-        href: "/pakistan/lahore",
+        href: "/pakistan/lahore/dermatologist",
         icon: MapPin,
         items: [
           { title: "Dermatologist", href: "/pakistan/lahore/dermatologist" },
@@ -53,7 +53,7 @@ export const navigationItems: NavigationItem[] = [
       // Karachi and Islamabad similar structure
       {
         title: "Islamabad",
-        href: "/pakistan/islamabad",
+        href: "/pakistan/islamabad/dermatologist",
         icon: MapPin,
         items: [
           { title: "Dermatologist", href: "/pakistan/islamabad/dermatologist" },
@@ -66,7 +66,7 @@ export const navigationItems: NavigationItem[] = [
       },
       {
         title: "Karachi",
-        href: "/pakistan/karachi",
+        href: "/pakistan/karachi/dermatologist",
         icon: MapPin,
         items: [
           { title: "Dermatologist", href: "/pakistan/karachi/dermatologist" },
@@ -81,13 +81,13 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     title: "Hospitals",
-    href: "/hospitals",
+    href: "/pakistan/lahore/hospitals/doctors-hospital",
     icon: Building2,
     hasLocations: true,
     items: [
       {
         title: "Lahore",
-        href: "/pakistan/lahore/hospitals",
+        href: "/pakistan/lahore/hospitals/doctors-hospital",
         icon: MapPin,
         items: [
           { title: "Doctors Hospital", href: "/pakistan/lahore/hospitals/doctors-hospital" },
@@ -97,7 +97,7 @@ export const navigationItems: NavigationItem[] = [
       },
       {
         title: "Karachi",
-        href: "/pakistan/karachi/hospitals",
+        href: "/pakistan/karachi/hospitals/patel-hospital",
         icon: MapPin,
         items: [
           { title: "Patel Hospital", href: "/pakistan/karachi/hospitals/patel-hospital" }
@@ -105,25 +105,25 @@ export const navigationItems: NavigationItem[] = [
       },
       {
         title: "Islamabad",
-        href: "/pakistan/islamabad/hospitals",
+        href: "/pakistan/islamabad/hospitals/shifa-hospital",
         icon: MapPin,
         items: [
-          { title: "All Medical Center", href: "/pakistan/islamabad/hospitals/all-medical-center" },
+          // { title: "All Medical Center", href: "/pakistan/islamabad/hospitals/all-medical-center" },
           { title: "Shifa Hospital", href: "/pakistan/islamabad/hospitals/shifa-hospital" },
-          { title: "Maroof Hospital", href: "/pakistan/islamabad/hospitals/maroof-hospital" }
+          // { title: "Maroof Hospital", href: "/pakistan/islamabad/hospitals/maroof-hospital" }
         ]
       }
     ]
   },
   {
     title: "Labs & Diagnostic",
-    href: "/labs",
+    href: "/pakistan/lahore/lab/chughtai",
     icon: MSquare,
     hasLocations: true,
     items: [
       {
         title: "Lahore",
-        href: "/pakistan/lahore/lab",
+        href: "/pakistan/lahore/lab/chughtai",
         icon: MapPin,
         items: [
           { title: "Chughtai Lab", href: "/pakistan/lahore/lab/chughtai" },
@@ -152,13 +152,13 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     title: "Services",
-    href: "/Services",
+    href: "/Services/home-visits/lahore",
     icon: MSquare,
     hasLocations: false,
     items: [
       {
         title: "Home Visits",
-        href: "/Services/home-visits",
+        href: "/Services/home-visits/lahore",
         icon: MSquare,
         items: [
           {

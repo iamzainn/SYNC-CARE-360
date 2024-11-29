@@ -19,7 +19,7 @@ const services = [
     title: "Medication Management & Delivery",
     description: "Ordering, managing, & delivering prescribed medications.",
     imagePath: "/medication.png",
-    path: "/Services/Medicine" // direct route
+    path: "/Services/Medicines" // direct route
   },
   {
     id: 3,
@@ -40,7 +40,7 @@ const services = [
     title: "Home Visits",
     description: "In-home medical check-ups by healthcare professionals",
     imagePath: "/home-visit.png",
-    path: "/Services/home-visits"
+    path: "/Services/home-visits/lahore"
   },
   {
     id: 6,

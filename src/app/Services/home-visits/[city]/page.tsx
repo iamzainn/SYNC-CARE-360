@@ -16,9 +16,9 @@ export default function HomeServicesPage({ params }: HomeServicesPageProps) {
   const { city } = params
   const breadcrumbItems = [
     { label: "HOME", href: "/" },
-    { label: "Services", href: "/services" },
-    { label: "Home Visits", href: "/services/home-visits" },
-    { label: city.charAt(0).toUpperCase() + city.slice(1).toLowerCase(), href: `/services/home-services/${city}` }
+    { label: "Services", href: `/Services/home-vistis/${city ? city.toLowerCase() : 'lahore'}` },
+    { label: "Home Visits", href: `/Services/home-visits/${city ? city.toLowerCase() : 'lahore'}` },
+    { label: city.charAt(0).toUpperCase() + city.slice(1).toLowerCase(), href: `/services/home-visits/${city ? city.toLowerCase() : 'lahore'}` }
   ]
 
   return (
