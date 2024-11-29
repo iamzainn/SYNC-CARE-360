@@ -47,7 +47,7 @@ export function DoctorsSection({ city }: DoctorsSectionProps) {
         city
       })
 
-      console.log(response)
+      // console.log(response)
 
       setDoctors(prev => 
         reset ? response.doctors : [...prev, ...response.doctors]
