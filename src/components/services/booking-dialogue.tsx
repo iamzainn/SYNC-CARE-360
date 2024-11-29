@@ -85,12 +85,22 @@ export function HomeServiceDialog({ doctor, isOpen, onClose }: HomeServiceDialog
   }
 
   const handleProceedToPayment = async () => {
-    if (!selectedSlot || selectedServices.length === 0 || !user) {
+    if (!selectedSlot || selectedServices.length === 0) {
       toast({
         title: "Incomplete Selection",
         description: "Please select services and time slot. Login required.",
         variant: "destructive"
       })
+      return
+    }
+    if(!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to continue",
+        variant: "destructive"
+      })
+      router.push(`/patient/auth/?callbackUrl=${encodeURIComponent(window.location.href)}`)
+
       return
     }
 
