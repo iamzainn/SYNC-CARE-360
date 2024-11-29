@@ -47,7 +47,7 @@ export default async function DoctorsPage({ params, searchParams }: PageProps) {
     const specialization = urlToSpecialization(specialist)
     const cityName = city.charAt(0).toUpperCase() + city.slice(1)
 
-    console.log("specilization : ",specialization)
+   
 
     return (
       <main className="min-h-screen max-w-full bg-gray-50/50">

@@ -8,7 +8,7 @@ export default function DataManagementPage() {
       <ServiceBreadcrumb 
         items={[
           { label: "HOME", href: "/" },
-          { label: "Services", href: "/Services" },
+          { label: "Services", href: "/Services/DataManagement" },
           { label: "Data Management", href: "/Services/DataManagement" },
         ]} 
       />

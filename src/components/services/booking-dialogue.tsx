@@ -207,7 +207,7 @@ export function HomeServiceDialog({ doctor, isOpen, onClose }: HomeServiceDialog
               {/* Services Selection */}
               <div>
                 <h3 className="font-semibold mb-3">Select Services</h3>
-                <ScrollArea className="h-[200px] rounded-md border p-4">
+                <ScrollArea className="rounded-md border p-4">
                   <div className="space-y-2">
                     {homeService?.specializations.map((service) => (
                       <div
