@@ -27,6 +27,13 @@ export async function Header() {
         </Button>
       )
     }
+    if (session.user.role === 'PATIENT') {
+      return (
+        <Button variant="outline" className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" asChild>
+          <Link href="/patient/dashboard">Pateint StatusBoard</Link>
+        </Button>
+      )
+    }
     return null
   }
   

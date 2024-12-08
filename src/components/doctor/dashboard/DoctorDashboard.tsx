@@ -5,6 +5,7 @@ import { DoctorProfile } from "@/types/doctor"
 import { PersonalDetailsSection } from "./PersonalDetailsSection"
 import { HomeServicesSection } from "./sections/HomeServicesSection"
 import { OnlineServicesSection } from "./sections/online-service/OnlineServicesSection"
+import { BookingsSection } from "./sections/BookingSection"
 
 interface DoctorDashboardProps {
   initialData: DoctorProfile
@@ -25,6 +26,7 @@ export function DoctorDashboard({ initialData }: DoctorDashboardProps) {
           <TabsTrigger value="profile">Profile Details</TabsTrigger>
           <TabsTrigger value="home-services">Home Services</TabsTrigger>
           <TabsTrigger value="online-services">Online Appointments</TabsTrigger>
+          <TabsTrigger value="bookings">My Bookings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -35,6 +37,9 @@ export function DoctorDashboard({ initialData }: DoctorDashboardProps) {
         </TabsContent>
         <TabsContent value="online-services">
           <OnlineServicesSection />
+        </TabsContent>
+        <TabsContent value="bookings">
+          <BookingsSection doctorId={initialData.id} />
         </TabsContent>
       </Tabs>
     </div>

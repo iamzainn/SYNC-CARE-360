@@ -21,6 +21,7 @@ export default async function DashboardPage() {
 
   try {
     const doctorProfile = await getDoctorProfile()
+    // console.log(doctorProfile)
     
     return (
       <main className="min-h-screen bg-gray-50">

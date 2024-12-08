@@ -37,6 +37,7 @@ model Doctor {
   onlineService      OnlineService?
 
   @@map("doctors")
+  Conversation Conversation[]
 }
 
 model DoctorVerification {
@@ -101,6 +102,7 @@ model Patient {
   onlineAppointments OnlineAppointment[]
 
   @@map("patients")
+  Conversation Conversation[]
 }
 
 model MedicineOrder {
@@ -296,6 +298,7 @@ model HomeServiceBooking {
   @@index([patientId])
   @@index([doctorId])
   @@index([homeServiceId])
+  Conversation Conversation[]
 }
 
 model OnlineService {
@@ -347,6 +350,7 @@ model OnlineAppointment {
   @@index([patientId])
   @@index([onlineServiceId])
   @@index([doctorId])
+  Conversation Conversation[]
 }
 
 enum AppointmentType {
@@ -367,4 +371,126 @@ enum AppointmentStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+enum Role{
+  DOCTOR
+  PATIENT
+}
+
+
+model Conversation {
+  id                String      @id @default(cuid())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  // Participants
+  doctorId          String
+  doctor            Doctor      @relation(fields: [doctorId], references: [id])
+  patientId         String
+  patient           Patient     @relation(fields: [patientId], references: [id])
+  
+  // Associated bookings (optional)
+  homeServiceBookingId  String?
+  homeServiceBooking    HomeServiceBooking? @relation(fields: [homeServiceBookingId], references: [id])
+  
+  // For online consultations
+  onlineAppointmentId  String?
+  onlineAppointment    OnlineAppointment? @relation(fields: [onlineAppointmentId], references: [id])
+  
+  // Messages in this conversation
+  messages             Message[]
+  typingIndicators     TypingIndicator[]
+  
+  // Metadata
+  lastMessageAt        DateTime    @default(now())
+  lastMessageContent   String?     // Preview of last message
+  unreadCount          Int         @default(0)
+  
+  // Status tracking
+  isActive            Boolean      @default(true)
+  deactivatedAt       DateTime?
+  deactivatedBy       String?      // User ID who deactivated
+  deactivationReason  String?
+
+  @@unique([doctorId, patientId, homeServiceBookingId])
+  @@unique([doctorId, patientId, onlineAppointmentId])
+  @@index([doctorId])
+  @@index([patientId])
+  @@index([lastMessageAt])
+}
+
+model Message {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId        String       
+  senderRole      Role        
+  content         String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  // Message status
+  status          MessageStatus @default(SENT)
+  
+  // Read receipts
+  readBy          ReadReceipt[]
+  
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+model ReadReceipt {
+  id          String   @id @default(cuid())
+  messageId   String
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId      String   // ID of the user who read the message
+  userRole    Role     // Role of the user who read the message
+  readAt      DateTime @default(now())
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
+}
+
+model TypingIndicator {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId          String
+  userRole        Role
+  isTyping        Boolean      @default(false)
+  lastTypedAt     DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String          // Recipient's ID
+  userRole    Role            // Recipient's role
+  type        NotificationType
+  title       String
+  content     String
+  isRead      Boolean         @default(false)
+  data        Json?           // Additional data (e.g., conversationId, messageId)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum NotificationType {
+  NEW_MESSAGE
+  BOOKING_UPDATE
+  PAYMENT_RECEIVED
+  CONSULTATION_REMINDER
 }
