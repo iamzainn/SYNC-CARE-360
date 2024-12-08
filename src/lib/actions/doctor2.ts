@@ -52,24 +52,29 @@ export async function getDoctors({
   try {
     
     const specialization = urlToSpecialization(specialist)
+    // console.log("specialization : ", specialization)
     
 
     const doctors = await db.doctor.findMany({
       where: {
+         
         isVerifiedDoctor: true,
         city: {
+          
           equals: city,
           mode: 'insensitive'
         },
+       
         verification: {
-          status: 'APPROVED',
-          experienceYears: minExperience ? {
-            gte: minExperience
+
+           status: 'APPROVED',
+           experienceYears: minExperience ? {
+             gte: minExperience
           } : undefined,
           
-          specialization: {
-            has: specialization
-          }
+         specialization: {
+             has: specialization
+           }
         },
         gender: gender as Gender | undefined,
         onlineService: {
@@ -80,6 +85,10 @@ export async function getDoctors({
         }
       },
       include: {
+        
+        
+      
+        
         onlineService: {
           include: {
             slots: {
@@ -93,6 +102,7 @@ export async function getDoctors({
             }
           }
         },
+        
         verification: {
           select: {
             experienceYears: true,
@@ -102,6 +112,7 @@ export async function getDoctors({
           }
         }
       },
+
       skip,
       take,
       orderBy: [
@@ -111,12 +122,16 @@ export async function getDoctors({
           }
         },
         {
+
           verification: {
             experienceYears: 'desc'
           }
         }
-      ]
+      ],
+
     })
+
+    console.log("doctors : ",doctors)
 
     const total = await db.doctor.count({
       where: {
@@ -133,6 +148,7 @@ export async function getDoctors({
         }
       }
     })
+    console.log("d",doctors)
 
     return {
       doctors: doctors as DoctorWithDetails[],

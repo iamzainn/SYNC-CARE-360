@@ -39,7 +39,6 @@ export function DoctorsCityList({
     try {
       const result = await getDoctorsByCity({
         city,
-        
         skip: doctors.length,
         take: 10,
         gender: searchParams.gender,
@@ -59,6 +58,13 @@ export function DoctorsCityList({
   const resetFilters = () => {
     router.push(pathname)
   }
+
+  useEffect(() => {
+    const doctorsSection = document.getElementById('doctors-section')
+    if (doctorsSection) {
+      doctorsSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [searchParams])
  
   useEffect(() => {
     setIsFilterLoading(true)

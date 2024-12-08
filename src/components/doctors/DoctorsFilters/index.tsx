@@ -3,9 +3,9 @@ import { MobileFilters } from "./MobileFilters"
 
 export function DoctorsFilters() {
   return (
-    <div className="sticky top-0 z-10 bg-black border-b  py-4 items-center justify-center">
-      <div className="container items-center">
-        <div className="flex items-center justify-between">
+    <div className="bg-white shadow-lg rounded-lg p-6 w-full">
+      <div className="container max-w-6xl mx-auto">
+        <div className="flex items-center justify-center space-x-4">
           <MobileFilters />
           <DesktopFilters />
         </div>
