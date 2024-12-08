@@ -15,6 +15,7 @@ interface PageProps {
   }
   searchParams: { [key: string]: string | undefined }
 }
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({
   params,
@@ -50,29 +51,34 @@ export default async function DoctorsPage({ params, searchParams }: PageProps) {
    
 
     return (
-      <main className="min-h-screen max-w-full bg-gray-50/50">
-        <div className="container py-6">
-          
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">
-              Best {specialization} Doctors in {cityName}
-            </h1>
-            <p className="text-muted-foreground">
-              Book appointments with the best {specialization.toLowerCase()} specialists
-            </p>
+      <main className="bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="max-w-4xl mx-auto space-y-8">
+            {/* Header Section */}
+            <div className="text-center">
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-4">
+                Best {specialization} Doctors in {cityName}
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Book appointments with top {specialization.toLowerCase()} specialists
+              </p>
+            </div>
+
+            {/* Filters Section */}
+            <div className="w-full">
+              <DoctorsFilters />
+            </div>
+
+            {/* Doctors List Section */}
+            <Suspense fallback={<DoctorCardsGridSkeleton />}>
+              <DoctorsList
+                city={city}
+                specialist={specialist}
+                initialDoctors={initialDoctors}
+                searchParams={searchParams}
+              />
+            </Suspense>
           </div>
-
-          
-          <DoctorsFilters />
-
-          <Suspense fallback={<DoctorCardsGridSkeleton />}>
-            <DoctorsList
-              city={city}
-              specialist={specialist}
-              initialDoctors={initialDoctors}
-              searchParams={searchParams}
-            />
-          </Suspense>
         </div>
       </main>
     )

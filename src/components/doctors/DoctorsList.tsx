@@ -84,19 +84,19 @@ export function DoctorsList({
 
   if (!doctors.length) {
     return (
-      <div className="w-full max-w-[1000px] mx-auto px-4 py-12">
-        <div className="text-center space-y-3">
-          <h3 className="text-xl font-semibold">No Doctors Found</h3>
-          <p className="text-muted-foreground">
-            We could not find any doctors matching your criteria. Try adjusting your filters.
-          </p>
-        </div>
+      <div className="w-full max-w-4xl mx-auto px-4 py-12">
+      <div className="text-center space-y-3">
+        <h3 className="text-xl font-semibold">No Doctors Found</h3>
+        <p className="text-muted-foreground">
+          We could not find any doctors matching your criteria. Try adjusting your filters.
+        </p>
       </div>
+    </div>
     )
   }
 
   return (
-    <div className="w-full  mx-auto px-4 space-y-6">
+    <div className="w-full max-w-4xl mx-auto px-4 space-y-6">
       <div className="space-y-6">
         {doctors.map((doctor) => (
           <DoctorCard key={doctor.id} doctor={doctor} />
