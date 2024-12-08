@@ -103,3 +103,66 @@ export async function updateBookingPaymentStatus({
     throw error;
   }
 }
+
+
+export async function getHomeServiceBookings(doctorId: string) {
+  try {
+    const bookings = await db.homeServiceBooking.findMany({
+      where: {
+        doctorId: doctorId,
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        homeService: {
+          include: {
+            specializations: true,
+          },
+        },
+      },
+      orderBy: {
+        scheduledDate: 'desc',
+      },
+    })
+    
+    return bookings
+  } catch (error) {
+    console.error("Error fetching home service bookings:", error)
+    throw new Error("Failed to fetch home service bookings")
+  }
+}
+
+export async function getOnlineBookings(doctorId: string) {
+  try {
+    const bookings = await db.onlineAppointment.findMany({
+      where: {
+        doctorId: doctorId,
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        onlineService: true,
+      },
+      orderBy: {
+        appointmentDate: 'desc',
+      },
+    })
+    
+    return bookings
+  } catch (error) {
+    console.error("Error fetching online bookings:", error)
+    throw new Error("Failed to fetch online bookings")
+  }
+}
