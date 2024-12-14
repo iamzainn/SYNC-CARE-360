@@ -108,7 +108,7 @@ export function BookingCard({ booking, onChatClick, onStatusUpdate }: BookingCar
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 ">
           <p className="text-sm font-medium">Services Booked</p>
           <div className="mt-1">
             {Object.values(booking.selectedServices).map((service: any, index: number) => (
