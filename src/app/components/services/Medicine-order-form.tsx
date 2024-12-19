@@ -179,9 +179,9 @@ export function MedicineOrderForm() {
         stripePaymentId: paymentIntent
       })
 
-      // if (!result.success) {
-      //   throw new Error(result.error)
-      // }
+      if (!result.success) {
+        throw new Error(result.error)
+      }
 
       setShowPayment(false)
       handleOrderSuccess()
@@ -215,9 +215,9 @@ export function MedicineOrderForm() {
 
       });
 
-      // if (!result.success) {
-      //   throw new Error(result.error);
-      // }
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       toast({
         title: "Order Placed!",
