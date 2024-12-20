@@ -76,6 +76,20 @@ model Patient {
   medicalRecords     PatientMedicalRecord[]
 
   @@map("patients")
+  EmergencyPatientDetails EmergencyPatientDetails[]
+}
+
+
+model EmergencyPatientDetails {
+  id          String    @id @default(cuid())
+  phoneNumber String    // Emergency contact number
+  patientId   String    // Reference to patient
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("emergency_patient_details")
+  @@index([patientId])
 }
 
 model MedicineOrder {
