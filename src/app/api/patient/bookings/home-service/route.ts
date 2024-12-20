@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
 
-export const dynamic = 'force'
+export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
   try {
