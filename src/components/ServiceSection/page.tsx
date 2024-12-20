@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Card } from "@/components/ui/card"
 import { TelemedicineDialog } from '../search/TelemedicineSearchDialogue'
 import { useLocationStore } from '@/store/useLocationStore'
+import { EmergencyDialog } from '../services/emergency-dialog'
 
 const services = [
   {
@@ -54,7 +55,7 @@ const services = [
 export const ServiceSection = () => {
   const router = useRouter()
   const [isTelemedicineOpen, setIsTelemedicineOpen] = useState(false)
- 
+  const [isEmergencyOpen, setIsEmergencyOpen] = useState(false)
   const { location } = useLocationStore()
 
   
@@ -62,13 +63,13 @@ export const ServiceSection = () => {
   const handleCardClick = (service: typeof services[0]) => {
     if (service.action === "dialog") {
       setIsTelemedicineOpen(true)
-    }else if(service.title=='Home Visits'){
-      router.push(`/Services/home-visits/${location?location:'lahore'}`)
-    }
-     else if (service.path) {
+    } else if (service.title === "Emergency Assistance") {
+      setIsEmergencyOpen(true)
+    } else if (service.title === "Home Visits") {
+      router.push(`/Services/home-visits/${location || 'lahore'}`)
+    } else if (service.path) {
       router.push(service.path)
     }
-
   }
 
   return (
@@ -123,6 +124,12 @@ export const ServiceSection = () => {
           ))}
         </div>
       </div>
+
+
+      <EmergencyDialog 
+        isOpen={isEmergencyOpen}
+        onClose={() => setIsEmergencyOpen(false)}
+      />
 
       {/* Telemedicine Dialog */}
       <TelemedicineDialog 
