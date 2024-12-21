@@ -78,6 +78,7 @@ export async function getDoctors({
             has: specialist ? urlToSpecialization(specialist) : undefined
           }
         })
+
       },
       ...(gender && { gender: gender as Gender }),
       onlineService: {
@@ -138,6 +139,8 @@ export async function getDoctors({
         where: cleanWhereClause
       })
     ])
+
+    console.log("doctors : ",JSON.stringify(doctors,null,2))
 
     return {
       doctors: doctors as DoctorWithDetails[],
