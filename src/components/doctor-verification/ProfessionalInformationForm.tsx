@@ -36,6 +36,7 @@ export function ProfessionalInformationForm() {
       medicalSchool: store.medicalSchool,
       specialization: store.specialization || [],
       expertise: store.expertise || [],
+      
       experienceYears: store.experienceYears || undefined,
     },
   })

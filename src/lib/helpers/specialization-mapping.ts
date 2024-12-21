@@ -1,6 +1,6 @@
 // lib/helpers/specialization-mapping.ts
 export const urlToSpecialization = (param: string): string => {
-  console.log("par " ,param)
+  
     const mappings: Record<string, string> = {
       'dermatologist': 'Dermatology',
       'cardiologist': 'Cardiology',
@@ -13,8 +13,14 @@ export const urlToSpecialization = (param: string): string => {
       
     }
     
-    // console.log(mappings[param.toLowerCase()])
+    
     return mappings[param.toLowerCase()] || param
+  }
+
+
+  export const urlToExpertise = (condition: string) => {
+    // Replace any sequence of spaces with a single hyphen
+    return condition.trim().replace(/\s+/g, '-');
   }
   
   export const specializationToUrl = (specialization: string): string => {
@@ -32,3 +38,4 @@ export const urlToSpecialization = (param: string): string => {
     
     return reversed[specialization] || specialization.toLowerCase()
   }
+
