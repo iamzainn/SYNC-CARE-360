@@ -28,7 +28,7 @@ export const TelemedicineDialog = ({ isOpen, onClose }: TelemedicineDialogProps)
 
   const handleSpecialtyClick = (urlPath: string) => {
     const currentLocation = location || 'lahore'
-    router.push(`/pakistan/${currentLocation}/video-consultation/${urlPath}?online-now=true`)
+    router.push(`/pakistan/${currentLocation}/${urlPath}`)
     onClose()
   }
 

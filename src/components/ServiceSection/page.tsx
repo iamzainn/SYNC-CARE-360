@@ -131,7 +131,7 @@ export const ServiceSection = () => {
         onClose={() => setIsEmergencyOpen(false)}
       />
 
-      {/* Telemedicine Dialog */}
+      
       <TelemedicineDialog 
         isOpen={isTelemedicineOpen}
         onClose={() => setIsTelemedicineOpen(false)}
