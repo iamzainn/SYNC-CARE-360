@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+
 import { Card } from "@/components/ui/card"
 
 import { useMedicalRecordStore } from "@/store/useMedicalRecordStore"

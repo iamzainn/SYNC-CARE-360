@@ -77,6 +77,7 @@ model Patient {
 
   @@map("patients")
   EmergencyPatientDetails EmergencyPatientDetails[]
+  TestBooking TestBooking[]
 }
 
 
@@ -90,6 +91,38 @@ model EmergencyPatientDetails {
 
   @@map("emergency_patient_details")
   @@index([patientId])
+}
+
+
+model TestBooking {
+  id                String        @id @default(cuid())
+  patientId         String
+  patient           Patient       @relation(fields: [patientId], references: [id])
+  bookingDate       DateTime      @default(now())
+  status            BookingStatus @default(PENDING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentMethod     PaymentMethod
+  amount            Float
+  serviceCharge     Float         @default(100)
+  totalAmount       Float
+  address           String        // Sample collection address
+  phoneNumber       String        // Contact for collection
+  
+  // Payment details
+  stripePaymentId   String?       // For card payments
+  paymentDate       DateTime?     // When payment was completed
+  
+  // Store test details as they were at time of booking
+  bookedTests       Json[]        // Array of test details including lab info
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("test_bookings")
+  @@index([patientId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
 }
 
 model MedicineOrder {
@@ -123,8 +156,11 @@ model Transaction {
   orderId         String        @unique
   metadata        Json?
   medicineOrder   MedicineOrder @relation(fields: [orderId], references: [id])
+  testbookingId       String       @unique
+  
 
   @@map("transactions")
+  
 }
 
 model PatientMedicalRecord {
@@ -393,6 +429,15 @@ enum PaymentStatus {
   FAILED
 }
 
+enum BookingStatus {
+  PENDING
+  SAMPLE_COLLECTED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+
 enum BloodType {
   A_POSITIVE
   A_NEGATIVE
@@ -421,6 +466,9 @@ enum DayOfWeek {
   FRIDAY
   SATURDAY
 }
+
+
+
 
 enum AppointmentType {
   GENERAL_CHECKUP
