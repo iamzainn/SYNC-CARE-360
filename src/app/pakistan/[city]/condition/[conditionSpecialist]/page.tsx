@@ -4,14 +4,13 @@ import { notFound } from "next/navigation"
 import { DoctorsList } from "@/components/doctors/DoctorsList"
 import { DoctorsFilters } from "@/components/doctors/DoctorsFilters"
 import { getDoctors } from "@/lib/actions/doctor2"
-import { urlToSpecialization } from "@/lib/helpers/specialization-mapping"
 import { Suspense } from "react"
 import { DoctorCardsGridSkeleton } from "@/components/doctors/DoctorCardSkeleton"
 
 interface PageProps {
   params: {
     city: string
-    specialist: string
+    conditionSpecialist: string
   }
   searchParams: { [key: string]: string | undefined }
 }
@@ -21,32 +20,32 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const city = params.city.charAt(0).toUpperCase() + params.city.slice(1)
-  const specialization = urlToSpecialization(params.specialist)
+  const conditionSpecialist=params.conditionSpecialist
   
 
   return {
-    title: `Best ${specialization} Doctors in ${city} | Book Appointment`,
-    description: `Find and book the best ${specialization.toLowerCase()} doctors in ${city}. View doctor profiles, read patient reviews, check consultation fees and book appointments online.`
+    title: `Best ${conditionSpecialist} Doctors in ${city} | Book Appointment`,
+    description: `Find and book the best ${conditionSpecialist.toLowerCase()} doctors in ${city}. View doctor profiles, read patient reviews, check consultation fees and book appointments online.`
   }
 }
 
 export default async function DoctorsPage({ params, searchParams }: PageProps) {
-  const { city, specialist } = params
+  const { city, conditionSpecialist} = params
 
 
 
   try {
     const initialDoctors = await getDoctors({
       city,
-      specialist,
+      conditionSpecialist:conditionSpecialist,
       gender: searchParams.gender,
       maxFee: searchParams.fee === 'asc' ? 2000 : undefined,
       minExperience: searchParams.experience ? parseInt(searchParams.experience) : undefined,
       take: 10,
-      isByCondition:false
+      isByCondition:true
     })
 
-    const specialization = urlToSpecialization(specialist)
+    // const specialization = urlToSpecialization(specialist)
     const cityName = city.charAt(0).toUpperCase() + city.slice(1)
 
    
@@ -58,10 +57,10 @@ export default async function DoctorsPage({ params, searchParams }: PageProps) {
             {/* Header Section */}
             <div className="text-center">
               <h1 className="text-3xl font-extrabold text-gray-900 mb-4">
-                Best {specialization} Doctors in {cityName}
+                Best {conditionSpecialist} Doctors in {cityName}
               </h1>
               <p className="text-xl text-gray-600 mb-8">
-                Book appointments with top {specialization.toLowerCase()} specialists
+                Book appointments with top {conditionSpecialist.toLowerCase()} specialists
               </p>
             </div>
 
@@ -70,14 +69,15 @@ export default async function DoctorsPage({ params, searchParams }: PageProps) {
               <DoctorsFilters />
             </div>
 
-            {/* Doctors List Section */}
-            <Suspense fallback={<DoctorCardsGridSkeleton />}>
+           
+             <Suspense fallback={<DoctorCardsGridSkeleton />}>
               <DoctorsList
                 city={city}
-                specialist={specialist}
+                specialist={""}
+                
                 initialDoctors={initialDoctors}
                 searchParams={searchParams}
-                isByCondition={false}
+                isByCondition={true}
               />
             </Suspense>
           </div>

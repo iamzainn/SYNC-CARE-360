@@ -9,7 +9,9 @@ import { Loader2 } from "lucide-react"
 
 interface DoctorsListProps {
   city: string
-  specialist: string
+  specialist?: string
+  isByCondition:boolean
+  conditionSpecialist?:string
   initialDoctors: Awaited<ReturnType<typeof getDoctors>>
   searchParams: { [key: string]: string | undefined }
 }
@@ -18,7 +20,9 @@ export function DoctorsList({
   city, 
   specialist, 
   initialDoctors,
-  searchParams 
+  isByCondition,
+  conditionSpecialist,
+  searchParams
 }: DoctorsListProps) {
   const [doctors, setDoctors] = useState(initialDoctors.doctors)
   const [hasMore, setHasMore] = useState(initialDoctors.hasMore)
@@ -34,6 +38,8 @@ export function DoctorsList({
       const result = await getDoctors({
         city,
         specialist,
+        isByCondition,
+        conditionSpecialist,
         skip: doctors.length,
         take: 10,
         gender: searchParams.gender,
@@ -58,6 +64,8 @@ export function DoctorsList({
         const result = await getDoctors({
           city,
           specialist,
+          isByCondition,
+          conditionSpecialist,
           gender: searchParams.gender,
           maxFee: searchParams.fee === 'asc' ? 2000 : undefined,
           minExperience: searchParams.experience ? parseInt(searchParams.experience) : undefined,
