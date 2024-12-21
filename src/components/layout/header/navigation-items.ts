@@ -27,7 +27,7 @@ export function hasSubItems(item: LocationItem | SubItem): item is LocationItem 
 // navigation-items.ts
 import { 
   Stethoscope, Building2,MSquare,
-  Pill, Brain, Database, MapPin, ChevronRight 
+  Pill, Brain, Database, MapPin
 } from 'lucide-react';
 
 export const navigationItems: NavigationItem[] = [
@@ -108,45 +108,50 @@ export const navigationItems: NavigationItem[] = [
         href: "/pakistan/islamabad/hospitals/shifa-hospital",
         icon: MapPin,
         items: [
-          // { title: "All Medical Center", href: "/pakistan/islamabad/hospitals/all-medical-center" },
+          
           { title: "Shifa Hospital", href: "/pakistan/islamabad/hospitals/shifa-hospital" },
-          // { title: "Maroof Hospital", href: "/pakistan/islamabad/hospitals/maroof-hospital" }
+          
         ]
       }
     ]
   },
   {
     title: "Labs & Diagnostic",
-    href: "/pakistan/lahore/lab/chughtai",
+    href: "/labs",
     icon: MSquare,
-    hasLocations: true,
+    
     items: [
       {
-        title: "Lahore",
-        href: "/pakistan/lahore/lab/chughtai",
+        title: "Chughtai Lab (LHR)",
+        href: "/labs/chughtai-lhr",
         icon: MapPin,
-        items: [
-          { title: "Chughtai Lab", href: "/pakistan/lahore/lab/chughtai" },
-          { title: "Dr. Essa Lab", href: "/pakistan/lahore/lab/dr-essa" }
-        ]
+      
       },
       {
-        title: "Islamabad",
-        href: "/pakistan/islamabad/lab",
+        title: "Dr. Essa Lab (LHR)",
+        href: "/labs/essa",
         icon: MapPin,
-        items: [
-          { title: "Metropole Lab", href: "/pakistan/islamabad/lab/metropole" },
-          { title: "All Medical Center", href: "/pakistan/islamabad/lab/all-medical-center" }
-        ]
+        
       },
       {
-        title: "Karachi",
-        href: "/pakistan/karachi/lab",
-        icon: MapPin,
-        items: [
-          { title: "Chughtai Lab", href: "/pakistan/karachi/lab/chughtai" },
-          { title: "One Health Lab", href: "/pakistan/karachi/lab/one-health" }
-        ]
+        title: "Metro Pole Lab (ISL)",
+        href: "/labs/metropole",
+        icon: MapPin, 
+      },
+      {
+        title:"Ali Medical Center (ISL)",
+        href:"/labs/amc",
+        icon:MapPin
+      },
+      {
+        title:"Chugatai Lab Karachi",
+        href:"labs/chughtai-khi",
+        icon:MapPin
+      },
+      {
+        title:"One Health Lab Karachi",
+        href:"labs/onehealth",
+        icon:MapPin
       }
     ]
   },

@@ -5,25 +5,60 @@ import { Lab, Test } from "@/lib/types/lab-test"
 
 export const labs: Lab[] = [
   {
-    id: "chughtai",
-    name: "Chughtai Lab",
-    description: "Leading diagnostic laboratory providing quality healthcare services",
+    id: "chughtai-lhr",
+    name: "Chughtai Lab (LHR)",
+    description: "Leading diagnostic laboratory providing quality healthcare services across Lahore",
     phone: "042-111-456-789",
     city: "Lahore",
-    services: ["Free Home Sample", "24/7 Service", "Online Reports", "Same Day Reports"],
+    services: ["Free Home Sample", "24/7 Service", "Online Reports", "Same Day Reports", "International Quality Standards"],
     logo: "/labs/chughtai.png"
   },
   {
-    id: "idc",
-    name: "Islamabad Diagnostic Center",
-    description: "Premier diagnostic facility with state-of-the-art equipment",
-    phone: "051-111-123-456",
+    id: "essa",
+    name: "Dr. Essa Lab (LHR)",
+    description: "Premier diagnostic center with state-of-the-art facilities and expert pathologists",
+    phone: "042-111-372-372",
+    city: "Lahore",
+    services: ["Home Sample Collection", "Online Reports", "Expert Consultations", "Quick Turnaround Time"],
+    logo: "/labs/essa.png"
+  },
+  {
+    id: "metropole",
+    name: "Metro Pole Lab (ISL)",
+    description: "Advanced diagnostic facility serving the twin cities with modern equipment",
+    phone: "051-111-123-123",
     city: "Islamabad",
-    services: ["Free Home Sample", "Same Day Reports", "Online Reports"],
-    logo: "/labs/idc.png"
+    services: ["Free Sample Collection", "24/7 Emergency Services", "Online Portal", "Mobile App"],
+    logo: "/labs/metropole.png"
+  },
+  {
+    id: "amc",
+    name: "Ali Medical Center (ISL)",
+    description: "Comprehensive healthcare facility with cutting-edge diagnostic services",
+    phone: "051-111-777-777",
+    city: "Islamabad",
+    services: ["Home Collection", "Same Day Reports", "Expert Pathologists", "Quality Assurance"],
+    logo: "/labs/amc.png"
+  },
+  {
+    id: "chughtai-khi",
+    name: "Chughtai Lab Karachi",
+    description: "Extending quality diagnostic services to Karachi with international standards",
+    phone: "021-111-456-789",
+    city: "Karachi",
+    services: ["Free Home Sample", "24/7 Service", "Online Reports", "International Standards"],
+    logo: "/labs/chughtai.png"
+  },
+  {
+    id: "onehealth",
+    name: "One Health Lab Karachi",
+    description: "Modern diagnostic center providing comprehensive lab services in Karachi",
+    phone: "021-111-222-333",
+    city: "Karachi",
+    services: ["Home Sample Collection", "Digital Reports", "Quick Processing", "Expert Team"],
+    logo: "/labs/onehealth.png"
   }
 ]
-
 export const tests: Test[] = [
   {
     id: "cbc",
@@ -52,7 +87,7 @@ export const tests: Test[] = [
     ],
     labPricing: [
       {
-        labId: "chughtai",
+        labId: "chughtai-lhr",
         price: 850,
         discount: { percentage: 20, validUntil: new Date("2024-12-31") }
       },
@@ -81,7 +116,7 @@ export const tests: Test[] = [
       }
     ],
     labPricing: [
-      { labId: "chughtai", price: 2400 },
+      { labId: "chughtai-lhr", price: 2400 },
       { 
         labId: "idc", 
         price: 2600,
@@ -104,7 +139,7 @@ export const tests: Test[] = [
       { instruction: "Continue regular medications" }
     ],
     labPricing: [
-      { labId: "chughtai", price: 1900 },
+      { labId: "chughtai-lhr", price: 1900 },
       { labId: "idc", price: 1850 }
     ],
     faqs: [
@@ -130,7 +165,7 @@ export const tests: Test[] = [
     ],
     labPricing: [
       { 
-        labId: "chughtai", 
+        labId: "chughtai-lhr", 
         price: 2800,
         discount: { percentage: 10, validUntil: new Date("2024-12-31") }
       },
@@ -157,7 +192,7 @@ export const tests: Test[] = [
       { instruction: "No special preparation required" }
     ],
     labPricing: [
-      { labId: "chughtai", price: 2200 },
+      { labId: "chughtai-lhr", price: 2200 },
       { labId: "idc", price: 2100 }
     ],
     faqs: [
@@ -182,7 +217,7 @@ export const tests: Test[] = [
     ],
     labPricing: [
       { 
-        labId: "chughtai", 
+        labId: "chughtai-lhr", 
         price: 3800,
         discount: { percentage: 25, validUntil: new Date("2024-12-31") }
       },
@@ -210,7 +245,7 @@ export const tests: Test[] = [
       { instruction: "Avoid alcohol for 24 hours before test" }
     ],
     labPricing: [
-      { labId: "chughtai", price: 1600 },
+      { labId: "chughtai-lhr", price: 1600 },
       { 
         labId: "idc", 
         price: 1700,
@@ -221,6 +256,100 @@ export const tests: Test[] = [
       {
         question: "What does LFT measure?",
         answer: "It measures various proteins, enzymes, and substances to assess liver function."
+      }
+    ]
+  },
+
+  {
+    id: "kidney-function",
+    name: "Kidney Function Test",
+    knownAs: "KFT",
+    sampleType: "Blood",
+    basePrice: 2200,
+    description: "Comprehensive evaluation of kidney function and health status.",
+    ageGroup: "All ages",
+    category: "Biochemistry",
+    turnaroundTime: "Same Day",
+    preparations: [
+      { instruction: "8-12 hours fasting required" },
+      { instruction: "Morning sample preferred" }
+    ],
+    labPricing: [
+      { labId: "chughtai-lhr", price: 2400 },
+      { labId: "essa", price: 2300 },
+      { labId: "metropole", price: 2500 },
+      { labId: "amc", price: 2450 },
+      { labId: "chughtai-khi", price: 2400 },
+      { labId: "onehealth", price: 2350 }
+    ],
+    faqs: [
+      {
+        question: "What does KFT measure?",
+        answer: "KFT measures creatinine, urea, and electrolytes to assess kidney function."
+      }
+    ]
+  },
+  {
+    id: "vitamin-d",
+    name: "Vitamin D Test",
+    knownAs: "25-OH Vitamin D",
+    sampleType: "Blood",
+    basePrice: 3500,
+    description: "Measures vitamin D levels to assess deficiency or excess.",
+    ageGroup: "All ages",
+    category: "Endocrinology",
+    turnaroundTime: "Next Day",
+    preparations: [
+      { instruction: "No special preparation required" }
+    ],
+    labPricing: [
+      { 
+        labId: "chughtai-lhr", 
+        price: 3800,
+        discount: { percentage: 15, validUntil: new Date("2024-12-31") }
+      },
+      { labId: "essa", price: 3600 },
+      { labId: "metropole", price: 3700 },
+      { labId: "amc", price: 3650 },
+      { labId: "chughtai-khi", price: 3800 },
+      { labId: "onehealth", price: 3550 }
+    ],
+    faqs: [
+      {
+        question: "Why is Vitamin D testing important?",
+        answer: "Vitamin D deficiency is common and can affect bone health and immunity."
+      }
+    ]
+  },
+  {
+    id: "hepatitis",
+    name: "Hepatitis Profile",
+    knownAs: "Viral Markers",
+    sampleType: "Blood",
+    basePrice: 4500,
+    description: "Screening test for different types of viral hepatitis.",
+    ageGroup: "All ages",
+    category: "Infectious Disease",
+    turnaroundTime: "48 Hours",
+    preparations: [
+      { instruction: "No fasting required" }
+    ],
+    labPricing: [
+      { labId: "chughtai-lhr", price: 4800 },
+      { 
+        labId: "essa", 
+        price: 4700,
+        discount: { percentage: 10, validUntil: new Date("2024-12-31") }
+      },
+      { labId: "metropole", price: 4600 },
+      { labId: "amc", price: 4750 },
+      { labId: "chughtai-khi", price: 4800 },
+      { labId: "onehealth", price: 4550 }
+    ],
+    faqs: [
+      {
+        question: "What types of hepatitis are tested?",
+        answer: "The profile typically includes tests for Hepatitis A, B, and C."
       }
     ]
   }
