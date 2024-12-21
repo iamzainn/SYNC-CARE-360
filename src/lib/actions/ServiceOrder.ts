@@ -49,6 +49,7 @@ export async function createOrder(data: CreateOrderParams) {
         ...(data.paymentMethod === "CARD" && {
           transaction: {
             create: {
+              
               amount: orderAmount,
               stripePaymentId: data.stripePaymentId,
               status: "COMPLETED",
