@@ -1,3 +1,4 @@
+// components/doctor/dashboard/sections/BookingSection.tsx
 "use client"
 
 import { useState } from "react"
@@ -5,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
 import { HomeServiceBookingList } from "./bookings/HomeServiceBookingList"
 import { OnlineBookingList } from "./bookings/OnlineBookingList"
+import { SpecializedTreatmentList } from "./bookings/SpecializedTreatmentList"  // New import
 import { ChatWindow } from "./bookings/ChatWindow"
-
 
 interface BookingsSectionProps {
   doctorId: string
@@ -21,13 +22,14 @@ export function BookingsSection({ doctorId }: BookingsSectionProps) {
       <div className="lg:col-span-2">
         <Card className="p-6">
           <Tabs defaultValue="home-services" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="home-services">Home Service Bookings</TabsTrigger>
-              <TabsTrigger value="online">Online Consultations</TabsTrigger>
+            <TabsList className="grid grid-cols-3 sm:grid-cols-3">
+              <TabsTrigger value="home-services">Home Service</TabsTrigger>
+              <TabsTrigger value="online">Online</TabsTrigger>
+              <TabsTrigger value="specialized">Specialized</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="home-services">
-              <HomeServiceBookingList 
+              <HomeServiceBookingList
                 doctorId={doctorId}
                 onSelectBooking={(booking) => {
                   setSelectedBooking(booking)
@@ -35,13 +37,25 @@ export function BookingsSection({ doctorId }: BookingsSectionProps) {
                 }}
               />
             </TabsContent>
-            
+
             <TabsContent value="online">
-              <OnlineBookingList 
+              <OnlineBookingList
                 doctorId={doctorId}
                 onSelectBooking={(booking) => {
                   setSelectedBooking(booking)
                   setIsChatOpen(true)
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="specialized">
+              <SpecializedTreatmentList
+                doctorId={doctorId}
+                onSelectBooking={(treatment) => {
+                  if (treatment.status === 'ACCEPTED') {
+                    setSelectedBooking(treatment)
+                    setIsChatOpen(true)
+                  }
                 }}
               />
             </TabsContent>
@@ -62,7 +76,9 @@ export function BookingsSection({ doctorId }: BookingsSectionProps) {
             />
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
-              Select a booking to start chatting
+              {selectedBooking?.status !== 'ACCEPTED' 
+                ? "Chat available after accepting the request" 
+                : "Select a booking to start chatting"}
             </div>
           )}
         </Card>
