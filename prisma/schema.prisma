@@ -8,26 +8,27 @@ datasource db {
 }
 
 model Doctor {
-  id                 String               @id @default(cuid())
-  title              String
-  name               String
-  email              String               @unique
-  phone              String               @unique
-  password           String
-  city               String
-  specialization     String
-  gender             Gender
-  emailVerified      DateTime?
-  resetToken         String?
-  resetTokenExpiry   DateTime?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  isVerifiedDoctor   Boolean              @default(false)
-  Conversation       Conversation[]
-  verification       DoctorVerification?
-  HomeServiceBooking HomeServiceBooking[]
-  onlineService      OnlineService?
-  Services           Services?
+  id                   String                 @id @default(cuid())
+  title                String
+  name                 String
+  email                String                 @unique
+  phone                String                 @unique
+  password             String
+  city                 String
+  specialization       String
+  gender               Gender
+  emailVerified        DateTime?
+  resetToken           String?
+  resetTokenExpiry     DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  isVerifiedDoctor     Boolean                @default(false)
+  Conversation         Conversation[]
+  verification         DoctorVerification?
+  HomeServiceBooking   HomeServiceBooking[]
+  onlineService        OnlineService?
+  Services             Services?
+  SpecializedTreatment SpecializedTreatment[]
 
   @@map("doctors")
 }
@@ -58,71 +59,70 @@ model DoctorVerification {
 }
 
 model Patient {
-  id                 String                 @id @default(cuid())
-  name               String
-  email              String                 @unique
-  phone              String                 @unique
-  password           String
-  city               String
-  gender             Gender
-  emailVerified      DateTime?
-  resetToken         String?
-  resetTokenExpiry   DateTime?
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  Conversation       Conversation[]
-  HomeServiceBooking HomeServiceBooking[]
-  onlineAppointments OnlineAppointment[]
-  medicalRecords     PatientMedicalRecord[]
+  id                      String                    @id @default(cuid())
+  name                    String
+  email                   String                    @unique
+  phone                   String                    @unique
+  password                String
+  city                    String
+  gender                  Gender
+  emailVerified           DateTime?
+  resetToken              String?
+  resetTokenExpiry        DateTime?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  Conversation            Conversation[]
+  HomeServiceBooking      HomeServiceBooking[]
+  onlineAppointments      OnlineAppointment[]
+  medicalRecords          PatientMedicalRecord[]
+  EmergencyPatientDetails EmergencyPatientDetails[]
+  TestBooking             TestBooking[]
+  SpecializedTreatment    SpecializedTreatment[]
 
   @@map("patients")
-  EmergencyPatientDetails EmergencyPatientDetails[]
-  TestBooking TestBooking[]
 }
-
 
 model EmergencyPatientDetails {
-  id          String    @id @default(cuid())
-  phoneNumber String    // Emergency contact number
-  patientId   String    // Reference to patient
-  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id          String   @id @default(cuid())
+  phoneNumber String // Emergency contact number
+  patientId   String // Reference to patient
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("emergency_patient_details")
   @@index([patientId])
+  @@map("emergency_patient_details")
 }
 
-
 model TestBooking {
-  id                String        @id @default(cuid())
-  patientId         String
-  patient           Patient       @relation(fields: [patientId], references: [id])
-  bookingDate       DateTime      @default(now())
-  status            BookingStatus @default(PENDING)
-  paymentStatus     PaymentStatus @default(PENDING)
-  paymentMethod     PaymentMethod
-  amount            Float
-  serviceCharge     Float         @default(100)
-  totalAmount       Float
-  address           String        // Sample collection address
-  phoneNumber       String        // Contact for collection
-  
-  // Payment details
-  stripePaymentId   String?       // For card payments
-  paymentDate       DateTime?     // When payment was completed
-  
-  // Store test details as they were at time of booking
-  bookedTests       Json[]        // Array of test details including lab info
-  
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  patientId     String
+  patient       Patient       @relation(fields: [patientId], references: [id])
+  bookingDate   DateTime      @default(now())
+  status        BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentMethod PaymentMethod
+  amount        Float
+  serviceCharge Float         @default(100)
+  totalAmount   Float
+  address       String // Sample collection address
+  phoneNumber   String // Contact for collection
 
-  @@map("test_bookings")
+  // Payment details
+  stripePaymentId String? // For card payments
+  paymentDate     DateTime? // When payment was completed
+
+  // Store test details as they were at time of booking
+  bookedTests Json[] // Array of test details including lab info
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([patientId])
   @@index([status])
   @@index([paymentStatus])
   @@index([createdAt])
+  @@map("test_bookings")
 }
 
 model MedicineOrder {
@@ -156,11 +156,8 @@ model Transaction {
   orderId         String        @unique
   metadata        Json?
   medicineOrder   MedicineOrder @relation(fields: [orderId], references: [id])
-  
-  
 
   @@map("transactions")
-  
 }
 
 model PatientMedicalRecord {
@@ -314,26 +311,27 @@ model OnlineAppointment {
 }
 
 model Conversation {
-  id                   String              @id @default(cuid())
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  id                   String                 @id @default(cuid())
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
   doctorId             String
   patientId            String
   homeServiceBookingId String?
   onlineAppointmentId  String?
-  lastMessageAt        DateTime            @default(now())
+  lastMessageAt        DateTime               @default(now())
   lastMessageContent   String?
-  unreadCount          Int                 @default(0)
-  isActive             Boolean             @default(true)
+  unreadCount          Int                    @default(0)
+  isActive             Boolean                @default(true)
   deactivatedAt        DateTime?
   deactivatedBy        String?
   deactivationReason   String?
-  doctor               Doctor              @relation(fields: [doctorId], references: [id])
-  homeServiceBooking   HomeServiceBooking? @relation(fields: [homeServiceBookingId], references: [id])
-  onlineAppointment    OnlineAppointment?  @relation(fields: [onlineAppointmentId], references: [id])
-  patient              Patient             @relation(fields: [patientId], references: [id])
+  doctor               Doctor                 @relation(fields: [doctorId], references: [id])
+  homeServiceBooking   HomeServiceBooking?    @relation(fields: [homeServiceBookingId], references: [id])
+  onlineAppointment    OnlineAppointment?     @relation(fields: [onlineAppointmentId], references: [id])
+  patient              Patient                @relation(fields: [patientId], references: [id])
   messages             Message[]
   typingIndicators     TypingIndicator[]
+  SpecializedTreatment SpecializedTreatment[]
 
   @@unique([doctorId, patientId, homeServiceBookingId])
   @@unique([doctorId, patientId, onlineAppointmentId])
@@ -437,7 +435,6 @@ enum BookingStatus {
   CANCELLED
 }
 
-
 enum BloodType {
   A_POSITIVE
   A_NEGATIVE
@@ -466,9 +463,6 @@ enum DayOfWeek {
   FRIDAY
   SATURDAY
 }
-
-
-
 
 enum AppointmentType {
   GENERAL_CHECKUP
@@ -507,4 +501,34 @@ enum NotificationType {
   BOOKING_UPDATE
   PAYMENT_RECEIVED
   CONSULTATION_REMINDER
+}
+
+enum SpecializedTreatmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+model SpecializedTreatment {
+  id               String                     @id @default(cuid())
+  patientId        String
+  doctorId         String
+  prescriptionUrl  String? // Optional prescription upload
+  treatmentDetails String? // Optional treatment description
+  status           SpecializedTreatmentStatus @default(PENDING)
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+
+  // Relations
+  patient        Patient       @relation(fields: [patientId], references: [id])
+  doctor         Doctor        @relation(fields: [doctorId], references: [id])
+  conversation   Conversation? @relation(fields: [conversationId], references: [id]) // Optional conversation link
+  conversationId String?
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("specialized_treatments")
 }

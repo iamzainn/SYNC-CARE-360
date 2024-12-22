@@ -51,6 +51,8 @@ export function ChatWindow({ booking, doctorId, onClose }: ChatWindowProps) {
           })
         })
         
+         console.log("here i am") 
+
         if (!conversationRes.ok) {
           throw new Error("Failed to create conversation")
         }
