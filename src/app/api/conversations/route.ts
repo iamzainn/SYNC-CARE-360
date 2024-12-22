@@ -13,6 +13,8 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { doctorId, patientId, homeServiceBookingId, onlineAppointmentId } = body
 
+    console.log("body ", JSON.stringify(body,null,2));
+
     // First, try to find an existing conversation
     const existingConversation = await db.conversation.findFirst({
       where: {

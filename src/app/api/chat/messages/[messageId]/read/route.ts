@@ -1,3 +1,4 @@
+//app/api/chat/messages/messageId/read
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
