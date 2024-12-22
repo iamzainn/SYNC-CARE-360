@@ -48,7 +48,7 @@ const services = [
     title: "Specialized Medical Treatment",
     description: "Tailored treatments requiring certified medical personnel",
     imagePath: "/Services/smt.png",
-    path: "/Services/Specialized-Treatment"
+    path: "/Services/specialized-treatment"
   }
 ]
 
