@@ -190,7 +190,7 @@ export const navigationItems: NavigationItem[] = [
       },
       { 
         title: "Specialized Medical Treatment", 
-        href: "/Services/specialized-medical-treatment",
+        href: "Services/specialized-treatment",
         icon: Brain 
       },
       { 
