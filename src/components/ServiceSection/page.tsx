@@ -12,42 +12,42 @@ const services = [
     title: "Telemedicines",
     description: "Remote healthcare consultations via video calls or messaging",
     badge: "26 Doctors Online Now",
-    imagePath: "/telemedicine.png",
+    imagePath: "/Services/tm.png",
     action: "dialog" // special handling for telemedicine
   },
   {
     id: 2,
     title: "Medication Management & Delivery",
     description: "Ordering, managing, & delivering prescribed medications.",
-    imagePath: "/medication.png",
+    imagePath: "/Services/mmd.png",
     path: "/Services/Medicines" // direct route
   },
   {
     id: 3,
     title: "Emergency Assistance",
     description: "Providing medical help in urgent situations.",
-    imagePath: "/emergency.png",
+    imagePath: "/Services/ea.png",
     path: "/Services/Emergency"
   },
   {
     id: 4,
     title: "Healthcare Data Management",
     description: "Secure management of patient health data and records",
-    imagePath: "/data-management.png",
+    imagePath: "/Services/hcd.png",
     path: "/Services/DataManagement"
   },
   {
     id: 5,
     title: "Home Visits",
     description: "In-home medical check-ups by healthcare professionals",
-    imagePath: "/home-visit.png",
+    imagePath: "/Services/hv.png",
     path: "/Services/home-visits/lahore"
   },
   {
     id: 6,
     title: "Specialized Medical Treatment",
     description: "Tailored treatments requiring certified medical personnel",
-    imagePath: "/specialized.png",
+    imagePath: "/Services/smt.png",
     path: "/Services/Specialized-Treatment"
   }
 ]
@@ -89,11 +89,11 @@ export const ServiceSection = () => {
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
                   <div className="absolute inset-0">
                     {/* Image placeholder - replace with actual image */}
-                    {/* <img
+                    <img
                       src={service.imagePath}
                       alt={service.title}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    /> */}
+                    />
                   </div>
                   
                   {/* Online Badge */}

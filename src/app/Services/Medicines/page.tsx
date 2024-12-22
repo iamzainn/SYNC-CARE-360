@@ -1,4 +1,4 @@
-
+// /Services/Medicines/page.tsx
 
 import { HowItWorks } from "@/app/components/services/how-it-works";
 import { MedicineOrderForm } from "@/app/components/services/Medicine-order-form";
