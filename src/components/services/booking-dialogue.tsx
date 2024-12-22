@@ -217,7 +217,7 @@ export function HomeServiceDialog({ doctor, isOpen, onClose }: HomeServiceDialog
               {/* Services Selection */}
               <div>
                 <h3 className="font-semibold mb-3">Select Services</h3>
-                <ScrollArea className="rounded-md border p-4">
+                <ScrollArea  className=''>
                   <div className="space-y-2">
                     {homeService?.specializations.map((service) => (
                       <div
@@ -288,7 +288,7 @@ export function HomeServiceDialog({ doctor, isOpen, onClose }: HomeServiceDialog
               {/* Time Slots */}
               <div>
                 <h3 className="font-semibold mb-3">Select Time Slot</h3>
-                <ScrollArea className="h-[300px]">
+                <ScrollArea className="h-auto">
                   <TimeSlotsGrid
                     slots={homeService?.slots || []}
                     selectedDate={selectedDate}
