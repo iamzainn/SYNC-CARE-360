@@ -25,8 +25,13 @@ export const LocationDetectButton = () => {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           )
           const data = await response.json()
+
+
+          console.log("data : ",data);
           
           const mainCity = determineMainCity(data.address)
+
+          console.log("main city : " ,mainCity)
           
           if (mainCity) {
             setLocation(mainCity)

@@ -1,16 +1,16 @@
-'use client'
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { MapPin } from "lucide-react"
-import { useLocationStore } from "@/store/useLocationStore"
-import { LocationDetectButton } from "./LocationDetectButton"
-import { SearchDialog } from "./SearchDialogue"
+"use client";
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { MapPin } from "lucide-react";
+import { useLocationStore } from "@/store/useLocationStore";
+import { LocationDetectButton } from "./LocationDetectButton";
+import { SearchDialog } from "./SearchDialogue";
 
 export const HeroSection = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { location } = useLocationStore()
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { location } = useLocationStore();
 
   return (
     <Card className="w-full max-w-[1280px] mx-auto overflow-hidden rounded-3xl mt-4 shadow-lg">
@@ -32,7 +32,7 @@ export const HeroSection = () => {
                 <Input
                   type="text"
                   placeholder="Location"
-                  value={location || ''}
+                  value={location || ""}
                   readOnly
                   onClick={() => setIsDialogOpen(true)}
                   className="w-24 sm:w-32 bg-transparent border-0 p-0 focus:ring-0 placeholder:text-gray-400"
@@ -51,7 +51,7 @@ export const HeroSection = () => {
                     className="h-14 pl-[180px] sm:pl-[220px] pr-32 border-0 rounded-xl focus:ring-0"
                   />
                 </div>
-                <Button 
+                <Button
                   onClick={() => setIsDialogOpen(true)}
                   className="absolute right-0 top-0 h-full bg-[#39B7FF] hover:bg-[#2da8f0] text-white px-8 rounded-r-xl text-base font-medium transition-colors min-w-[120px]"
                 >
@@ -65,20 +65,20 @@ export const HeroSection = () => {
           <div className="lg:col-span-5 relative h-full">
             <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#392B54] lg:hidden z-[1]" />
             <img
-              src="/doctor-image.png"
+              src="/Services/d.png"
               alt="Healthcare Professional"
-              className="absolute right-0 bottom-0 h-full w-full lg:w-auto object-cover object-right-bottom"
+              className="absolute top-[10%] right-0 bottom-0 hidden sm:block sm:h-[170%] w-full lg:w-auto object-cover object-right-bottom"
             />
           </div>
         </div>
       </div>
 
-      <SearchDialog 
+      <SearchDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
       />
     </Card>
-  )
-}
+  );
+};
 
-export default HeroSection
+export default HeroSection;
