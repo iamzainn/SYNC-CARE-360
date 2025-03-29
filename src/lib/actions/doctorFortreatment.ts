@@ -1,4 +1,3 @@
-
 // app/actions/doctors.ts
 "use server"
 
@@ -15,6 +14,7 @@ export interface VerifiedDoctor {
     profilePhoto: string
     specialization: string[]
   } | null
+  homeSlots?: any[]
 }
 
 export interface DoctorsResponse {
@@ -30,6 +30,14 @@ export async function getVerifiedDoctors(): Promise<DoctorsResponse> {
         isVerifiedDoctor: true,
         verification: {
           status: "APPROVED"
+        },
+        Services: {
+          homeService: {
+            isActive: true,
+            slots: {
+              some: {}
+            }
+          }
         }
       },
       select: {
@@ -45,6 +53,26 @@ export async function getVerifiedDoctors(): Promise<DoctorsResponse> {
             specialization: true,
           }
         },
+        Services: {
+          select: {
+            homeService: {
+              select: {
+                slots: {
+                  where: {
+                    isReserved: false
+                  },
+                  select: {
+                    id: true,
+                    dayOfWeek: true,
+                    startTime: true,
+                    endTime: true,
+                    isReserved: true
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       orderBy: [
         {
@@ -58,9 +86,23 @@ export async function getVerifiedDoctors(): Promise<DoctorsResponse> {
       ]
     })
 
+    const doctorsWithSlots = doctors.map(doctor => {
+      const homeSlots = doctor.Services?.homeService?.slots || [];
+      
+      return {
+        id: doctor.id,
+        title: doctor.title,
+        name: doctor.name,
+        city: doctor.city,
+        specialization: doctor.specialization,
+        verification: doctor.verification,
+        homeSlots: homeSlots
+      };
+    });
+
     return {
       success: true,
-      data: doctors as VerifiedDoctor[]
+      data: doctorsWithSlots
     }
   } catch (error) {
     console.error("Failed to fetch doctors:", error)
@@ -94,6 +136,26 @@ export async function getDoctorById(id: string) {
             specialization: true,
           }
         },
+        Services: {
+          select: {
+            homeService: {
+              select: {
+                slots: {
+                  where: {
+                    isReserved: false
+                  },
+                  select: {
+                    id: true,
+                    dayOfWeek: true,
+                    startTime: true,
+                    endTime: true,
+                    isReserved: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     })
 
@@ -104,9 +166,14 @@ export async function getDoctorById(id: string) {
       }
     }
 
+    const doctorWithSlots = {
+      ...doctor,
+      homeSlots: doctor.Services?.homeService?.slots || []
+    };
+
     return {
       success: true,
-      data: doctor
+      data: doctorWithSlots
     }
   } catch (error) {
     console.error("Failed to fetch doctor:", error)

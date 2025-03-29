@@ -40,14 +40,20 @@ export function ChatWindow({ booking, doctorId, onClose }: ChatWindowProps) {
   useEffect(() => {
     const initializeChat = async () => {
       try {
+        // Only proceed if this is a home service booking
+        if (!booking.homeServiceId) {
+          console.log("Chat only available for home service bookings")
+          return
+        }
+        
         // Create or get conversation
         const conversationRes = await fetch("/api/conversations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             doctorId,
-            patientId: booking.patientId, // Make sure this matches your booking structure
-            ...(booking.id && { homeServiceBookingId: booking.id }) // Use the correct booking ID field
+            patientId: booking.patientId,
+            homeServiceBookingId: booking.id
           })
         })
         

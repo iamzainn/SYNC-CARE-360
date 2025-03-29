@@ -1,4 +1,3 @@
-
 // components/services/doctor-list.tsx
 "use client"
 
@@ -23,11 +22,14 @@ import { getVerifiedDoctors, VerifiedDoctor } from "@/lib/actions/doctorFortreat
 
 interface DoctorListProps {
   selectedDoctor: string
-  onSelect: (id: string) => void
+  onSelect: (doctorId: string, slots: any[]) => void
 }
 
+
+
+
 export function DoctorList({ selectedDoctor, onSelect }: DoctorListProps) {
-  const [doctors, setDoctors] = useState<VerifiedDoctor[]>([])
+  const [doctors, setDoctors] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRetrying, setIsRetrying] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -41,6 +43,7 @@ export function DoctorList({ selectedDoctor, onSelect }: DoctorListProps) {
       if (!result.success) {
         throw new Error(result.error)
       }
+      console.log(result.data)
 
       setDoctors(result.data || [])
       setError(null)
@@ -134,7 +137,7 @@ export function DoctorList({ selectedDoctor, onSelect }: DoctorListProps) {
           key={doctor.id}
           doctor={doctor}
           isSelected={selectedDoctor === doctor.id}
-          onSelect={onSelect}
+          onSelect={(doctorId, slots) => onSelect(doctorId, slots)}
         />
       ))}
     </div>
@@ -142,9 +145,9 @@ export function DoctorList({ selectedDoctor, onSelect }: DoctorListProps) {
 }
 
 interface DoctorCardProps {
-  doctor: VerifiedDoctor
+  doctor: any
   isSelected: boolean
-  onSelect: (id: string) => void
+  onSelect: (doctorId: string, slots: any[]) => void
 }
 
 function DoctorCard({ doctor, isSelected, onSelect }: DoctorCardProps) {
@@ -153,7 +156,7 @@ function DoctorCard({ doctor, isSelected, onSelect }: DoctorCardProps) {
       className={`p-4 cursor-pointer transition-all hover:shadow-md ${
         isSelected ? "border-primary ring-2 ring-primary/20" : ""
       }`}
-      onClick={() => onSelect(doctor.id)}
+      onClick={() => onSelect(doctor.id, doctor.specializedSlots)}
     >
       <div className="flex items-start gap-4">
         <Avatar className="h-12 w-12">
@@ -191,7 +194,7 @@ function DoctorCard({ doctor, isSelected, onSelect }: DoctorCardProps) {
 
           {doctor.verification?.specialization && (
             <div className="flex flex-wrap gap-1">
-              {doctor.verification.specialization.map((spec, index) => (
+              {doctor.verification.specialization.map((spec: string, index: number) => (
                 <Badge 
                   key={index} 
                   variant="secondary"
@@ -209,7 +212,7 @@ function DoctorCard({ doctor, isSelected, onSelect }: DoctorCardProps) {
           size="sm"
           onClick={(e) => {
             e.stopPropagation()
-            onSelect(doctor.id)
+            onSelect(doctor.id, doctor.specializedSlots)
           }}
         >
           {isSelected ? "Selected" : "Select"}

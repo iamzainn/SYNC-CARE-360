@@ -66,14 +66,6 @@ export function OnlineBookingList({
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onSelectBooking(booking)}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Chat
-                </Button>
                 {booking.status === "CONFIRMED" && (
                   <Button
                     variant="default"

@@ -42,8 +42,7 @@ export function BookingsSection({ doctorId }: BookingsSectionProps) {
               <OnlineBookingList
                 doctorId={doctorId}
                 onSelectBooking={(booking) => {
-                  setSelectedBooking(booking)
-                  setIsChatOpen(true)
+                  // Only handle video call, no chat selection
                 }}
               />
             </TabsContent>

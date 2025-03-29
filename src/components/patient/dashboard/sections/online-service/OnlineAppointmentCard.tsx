@@ -9,7 +9,7 @@ import {
   CardFooter 
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Video } from "lucide-react"
+import { Video } from "lucide-react"
 import { format } from "date-fns"
 import {
   AlertDialog,
@@ -26,13 +26,11 @@ import { toast } from "@/hooks/use-toast"
 
 interface OnlineAppointmentCardProps {
   appointment: any
-  onChatClick: () => void
   onStatusUpdate: (updatedAppointment: any) => void
 }
 
 export function OnlineAppointmentCard({ 
   appointment, 
-  onChatClick, 
   onStatusUpdate 
 }: OnlineAppointmentCardProps) {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
@@ -97,15 +95,7 @@ export function OnlineAppointmentCard({
               {appointment.onlineService.doctor.specialization}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onChatClick}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Chat
-            </Button>
+          <div>
             {isToday && appointment.status === 'CONFIRMED' && (
               <Button
                 size="sm"

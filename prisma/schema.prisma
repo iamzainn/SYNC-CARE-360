@@ -331,7 +331,7 @@ model Conversation {
   patient              Patient                @relation(fields: [patientId], references: [id])
   messages             Message[]
   typingIndicators     TypingIndicator[]
-  SpecializedTreatment SpecializedTreatment[]
+  // SpecializedTreatment SpecializedTreatment[]
 
   @@unique([doctorId, patientId, homeServiceBookingId])
   @@unique([doctorId, patientId, onlineAppointmentId])
@@ -510,22 +510,40 @@ enum SpecializedTreatmentStatus {
   COMPLETED
 }
 
+model SpecializedTreatmentSlot {
+  id                 String                     @id @default(cuid())
+  specializedTreatmentId String?
+  dayOfWeek          DayOfWeek
+  startTime          String
+  endTime            String
+  isReserved         Boolean                    @default(false)
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  specializedTreatment SpecializedTreatment?    @relation(fields: [specializedTreatmentId], references: [id])
+}
+
 model SpecializedTreatment {
   id               String                     @id @default(cuid())
   patientId        String
   doctorId         String
-  prescriptionUrl  String? // Optional prescription upload
-  treatmentDetails String? // Optional treatment description
+  prescriptionUrl  String? 
+  treatmentDetails String?
   status           SpecializedTreatmentStatus @default(PENDING)
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
+  scheduledDate    DateTime?                  // Add scheduled date
+  paymentStatus    PaymentStatus              @default(PENDING) // Add payment status
+  paymentMethod    PaymentMethod?             // Add payment method
+  stripePaymentId  String?                    // Add stripe payment ID
+  amount           Float?                     // Add treatment amount
+  serviceCharge    Float                      @default(500)     // Add service charge
+  totalAmount      Float?                     // Add total amount
 
   // Relations
   patient        Patient       @relation(fields: [patientId], references: [id])
   doctor         Doctor        @relation(fields: [doctorId], references: [id])
-  conversation   Conversation? @relation(fields: [conversationId], references: [id]) // Optional conversation link
-  conversationId String?
-
+  slots          SpecializedTreatmentSlot[] // Add slots relation
+  
   @@index([patientId])
   @@index([doctorId])
   @@index([status])
