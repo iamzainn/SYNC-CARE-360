@@ -217,7 +217,7 @@ export function HomeServiceDialog({ doctor, isOpen, onClose }: HomeServiceDialog
               {/* Services Selection */}
               <div>
                 <h3 className="font-semibold mb-3">Select Services</h3>
-                <ScrollArea  className=''>
+                {/* <ScrollArea  className=''> */}
                   <div className="space-y-2">
                     {homeService?.specializations.map((service) => (
                       <div
@@ -240,7 +240,7 @@ export function HomeServiceDialog({ doctor, isOpen, onClose }: HomeServiceDialog
                       </div>
                     ))}
                   </div>
-                </ScrollArea>
+                {/* </ScrollArea> */}
               </div>
 
               <Separator />
@@ -288,14 +288,14 @@ export function HomeServiceDialog({ doctor, isOpen, onClose }: HomeServiceDialog
               {/* Time Slots */}
               <div>
                 <h3 className="font-semibold mb-3">Select Time Slot</h3>
-                <ScrollArea className="h-auto">
+                {/* <ScrollArea className="h-auto"> */}
                   <TimeSlotsGrid
                     slots={homeService?.slots || []}
                     selectedDate={selectedDate}
                     selectedSlot={selectedSlot as TimeSlot}
                     onSlotSelect={setSelectedSlot}
                   />
-                </ScrollArea>
+                {/* </ScrollArea> */}
               </div>
             </div>
 

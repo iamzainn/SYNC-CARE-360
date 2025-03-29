@@ -63,7 +63,6 @@ export async function POST(req: Request) {
         doctorId,
         patientId,
         ...(homeServiceBookingId && { homeServiceBookingId }),
-        ...(onlineAppointmentId && { onlineAppointmentId })
       },
       include: {
         doctor: {

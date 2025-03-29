@@ -1,6 +1,5 @@
-
 // components/slots/TimeSlotsGrid.tsx
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 import { format, isToday, parse } from "date-fns"
 import { Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -30,6 +29,11 @@ export function TimeSlotsGrid({
 }: TimeSlotsGridProps) {
   // Get slots for the selected date's day
   const daySlots = useMemo(() => {
+    // Add a safety check to ensure slots is an array
+    if (!slots || !Array.isArray(slots)) {
+      return [];
+    }
+    
     const selectedDay = format(selectedDate, 'EEEE').toUpperCase() as DayOfWeek
     const now = new Date()
     const isSelectedDateToday = isToday(selectedDate)
@@ -73,6 +77,13 @@ export function TimeSlotsGrid({
     afternoon: "🌤️ Afternoon",
     evening: "🌙 Evening"
   }
+
+  // When selectedSlot doesn't match any of the current day's slots, clear it
+  useEffect(() => {
+    if (selectedSlot && daySlots.length > 0 && !daySlots.some(slot => slot.id === selectedSlot.id)) {
+      onSlotSelect(null as any);
+    }
+  }, [selectedDate, daySlots, selectedSlot]);
 
   if (daySlots.length === 0) {
     return (
