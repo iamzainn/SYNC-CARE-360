@@ -33,7 +33,7 @@ export function EmergencyDialog({ isOpen, onClose }: EmergencyDialogProps) {
     phone: "+92-300-1234567",
     email: "emergency@caresync.io",
     hours: "24/7 Emergency Support",
-    location: "CareSync Emergency Center, Johar Town, Lahore",
+    location: "CareSync Emergency Institute, Islamabad",
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
