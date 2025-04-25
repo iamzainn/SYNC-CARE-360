@@ -6,10 +6,10 @@ import { db } from "@/lib/db"
 import { PaymentMethod } from "@prisma/client"
 
 
-interface CreateTreatmentRequestParams {
+ export interface CreateTreatmentRequestParams {
   doctorId: string
-  prescriptionUrl?: string
-  treatmentDetails?: string
+  
+  patientMedicalRecordId?: string
   slot: {
     id: string
     dayOfWeek: string
@@ -44,13 +44,13 @@ export async function createTreatmentRequest(data: CreateTreatmentRequestParams)
         data: {
           patientId: session.user.id,
           doctorId: data.doctorId,
-          prescriptionUrl: data.prescriptionUrl,
-          treatmentDetails: data.treatmentDetails,
+       
           status: "PENDING",
           scheduledDate: data.slot.date,
           paymentMethod: data.paymentMethod === 'card' ? PaymentMethod.CARD : null,
           paymentStatus: data.paymentMethod === 'cash' ? 'PENDING' : 'PENDING',
           amount: data.amount,
+          patientMedicalRecordId: data.patientMedicalRecordId,
           serviceCharge: data.serviceCharge,
           totalAmount: data.totalAmount
         }

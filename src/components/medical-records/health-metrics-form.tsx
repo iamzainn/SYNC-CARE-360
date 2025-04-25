@@ -42,7 +42,11 @@ const formatBloodType = (type: string) => {
   return type.replace("_", "+").replace("POSITIVE", "+").replace("NEGATIVE", "-")
 }
 
-export function HealthMetricsForm() {
+interface HealthMetricsFormProps {
+  recordId?: string | null;
+}
+
+export function HealthMetricsForm({ recordId }: HealthMetricsFormProps) {
   const store = useMedicalRecordStore()
   const [isPending, setIsPending] = useState(false)
 

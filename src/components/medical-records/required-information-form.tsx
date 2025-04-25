@@ -30,7 +30,11 @@ import { z } from "zod"
 
 type RequiredInformationValues = z.infer<typeof requiredInformationSchema>
 
-export function RequiredInformationForm() {
+interface RequiredInformationFormProps {
+  recordId?: string | null;
+}
+
+export function RequiredInformationForm({ recordId }: RequiredInformationFormProps) {
   const store = useMedicalRecordStore()
   const [isPending, setIsPending] = useState(false)
 

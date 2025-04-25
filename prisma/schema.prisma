@@ -97,7 +97,7 @@ model EmergencyPatientDetails {
 model TestBooking {
   id            String        @id @default(cuid())
   patientId     String
-  patient       Patient       @relation(fields: [patientId], references: [id])
+  patient       Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
   bookingDate   DateTime      @default(now())
   status        BookingStatus @default(PENDING)
   paymentStatus PaymentStatus @default(PENDING)
@@ -155,7 +155,7 @@ model Transaction {
   status          PaymentStatus
   orderId         String        @unique
   metadata        Json?
-  medicineOrder   MedicineOrder @relation(fields: [orderId], references: [id])
+  medicineOrder   MedicineOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("transactions")
 }
@@ -183,7 +183,8 @@ model PatientMedicalRecord {
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
   patientId             String
-  patient               Patient    @relation(fields: [patientId], references: [id])
+  patient               Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  specializedTreatments SpecializedTreatment[]
 
   @@map("patient_medical_records")
 }
@@ -193,8 +194,8 @@ model Services {
   doctorId        String         @unique
   onlineServiceId String?
   homeService     HomeService?
-  doctor          Doctor         @relation(fields: [doctorId], references: [id])
-  onlineService   OnlineService? @relation(fields: [onlineServiceId], references: [id])
+  doctor          Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  onlineService   OnlineService? @relation(fields: [onlineServiceId], references: [id], onDelete: SetNull)
 }
 
 model HomeService {
@@ -203,7 +204,7 @@ model HomeService {
   isActive           Boolean                     @default(false)
   createdAt          DateTime                    @default(now())
   updatedAt          DateTime                    @updatedAt
-  service            Services                    @relation(fields: [serviceId], references: [id])
+  service            Services                    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   HomeServiceBooking HomeServiceBooking[]
   slots              HomeServiceSlot[]
   specializations    HomeServiceSpecialization[]
@@ -216,7 +217,7 @@ model HomeServiceSpecialization {
   price         Float
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
-  homeService   HomeService        @relation(fields: [homeServiceId], references: [id])
+  homeService   HomeService        @relation(fields: [homeServiceId], references: [id], onDelete: Cascade)
 }
 
 model HomeServiceSlot {
@@ -228,7 +229,7 @@ model HomeServiceSlot {
   isReserved    Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  homeService   HomeService @relation(fields: [homeServiceId], references: [id])
+  homeService   HomeService @relation(fields: [homeServiceId], references: [id], onDelete: Cascade)
 }
 
 model HomeServiceBooking {
@@ -250,9 +251,9 @@ model HomeServiceBooking {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   Conversation     Conversation[]
-  doctor           Doctor         @relation(fields: [doctorId], references: [id])
-  homeService      HomeService    @relation(fields: [homeServiceId], references: [id])
-  patient          Patient        @relation(fields: [patientId], references: [id])
+  doctor           Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  homeService      HomeService    @relation(fields: [homeServiceId], references: [id], onDelete: Cascade)
+  patient          Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
   @@index([doctorId])
@@ -267,7 +268,7 @@ model OnlineService {
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   appointments OnlineAppointment[]
-  doctor       Doctor              @relation(fields: [doctorId], references: [id])
+  doctor       Doctor              @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   slots        OnlineServiceSlot[]
   Services     Services[]
 }
@@ -281,7 +282,7 @@ model OnlineServiceSlot {
   isReserved      Boolean       @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  onlineService   OnlineService @relation(fields: [onlineServiceId], references: [id])
+  onlineService   OnlineService @relation(fields: [onlineServiceId], references: [id], onDelete: Cascade)
 
   @@index([onlineServiceId])
 }
@@ -302,8 +303,8 @@ model OnlineAppointment {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   Conversation    Conversation[]
-  onlineService   OnlineService     @relation(fields: [onlineServiceId], references: [id])
-  patient         Patient           @relation(fields: [patientId], references: [id])
+  onlineService   OnlineService     @relation(fields: [onlineServiceId], references: [id], onDelete: Cascade)
+  patient         Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
   @@index([onlineServiceId])
@@ -325,10 +326,10 @@ model Conversation {
   deactivatedAt        DateTime?
   deactivatedBy        String?
   deactivationReason   String?
-  doctor               Doctor                 @relation(fields: [doctorId], references: [id])
-  homeServiceBooking   HomeServiceBooking?    @relation(fields: [homeServiceBookingId], references: [id])
-  onlineAppointment    OnlineAppointment?     @relation(fields: [onlineAppointmentId], references: [id])
-  patient              Patient                @relation(fields: [patientId], references: [id])
+  doctor               Doctor                 @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  homeServiceBooking   HomeServiceBooking?    @relation(fields: [homeServiceBookingId], references: [id], onDelete: SetNull)
+  onlineAppointment    OnlineAppointment?     @relation(fields: [onlineAppointmentId], references: [id], onDelete: SetNull)
+  patient              Patient                @relation(fields: [patientId], references: [id], onDelete: Cascade)
   messages             Message[]
   typingIndicators     TypingIndicator[]
   // SpecializedTreatment SpecializedTreatment[]
@@ -519,15 +520,14 @@ model SpecializedTreatmentSlot {
   isReserved         Boolean                    @default(false)
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
-  specializedTreatment SpecializedTreatment?    @relation(fields: [specializedTreatmentId], references: [id])
+  specializedTreatment SpecializedTreatment?    @relation(fields: [specializedTreatmentId], references: [id], onDelete: Cascade)
 }
 
 model SpecializedTreatment {
   id               String                     @id @default(cuid())
   patientId        String
   doctorId         String
-  prescriptionUrl  String? 
-  treatmentDetails String?
+  
   status           SpecializedTreatmentStatus @default(PENDING)
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
@@ -538,15 +538,18 @@ model SpecializedTreatment {
   amount           Float?                     // Add treatment amount
   serviceCharge    Float                      @default(500)     // Add service charge
   totalAmount      Float?                     // Add total amount
+  patientMedicalRecordId String?
+  patientMedicalRecord   PatientMedicalRecord? @relation(fields: [patientMedicalRecordId], references: [id], onDelete: SetNull)
 
   // Relations
-  patient        Patient       @relation(fields: [patientId], references: [id])
-  doctor         Doctor        @relation(fields: [doctorId], references: [id])
+  patient        Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor         Doctor        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   slots          SpecializedTreatmentSlot[] // Add slots relation
   
   @@index([patientId])
   @@index([doctorId])
   @@index([status])
   @@index([createdAt])
+  @@index([patientMedicalRecordId])
   @@map("specialized_treatments")
 }

@@ -22,7 +22,11 @@ import { z } from "zod"
 
 type MedicalInformationValues = z.infer<typeof medicalInformationSchema>
 
-export function MedicalInformationForm() {
+interface MedicalInformationFormProps {
+  recordId?: string | null;
+}
+
+export function MedicalInformationForm({ recordId }: MedicalInformationFormProps) {
   const store = useMedicalRecordStore()
   const [isPending, setIsPending] = useState(false)
   const [newCondition, setNewCondition] = useState("")

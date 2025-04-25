@@ -52,8 +52,7 @@ export function BookingsSection({ doctorId }: BookingsSectionProps) {
                 doctorId={doctorId}
                 onSelectBooking={(treatment) => {
                   if (treatment.status === 'ACCEPTED') {
-                    setSelectedBooking(treatment)
-                    setIsChatOpen(true)
+                   
                   }
                 }}
               />
