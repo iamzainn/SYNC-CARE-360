@@ -1,7 +1,7 @@
 // components/medical-records/upload-data-form.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { X, FileText } from "lucide-react"
@@ -19,7 +19,7 @@ import { useMedicalRecordStore } from "@/store/useMedicalRecordStore"
 import { UploadDropzone } from "@/utils/uploadthing"
 import { Badge } from "@/components/ui/badge"
 import { z } from "zod"
-import{ useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 type UploadDataValues = z.infer<typeof uploadDataSchema>
 
@@ -28,8 +28,12 @@ interface UploadedFile {
   name: string;
 }
 
-export function UploadDataForm() {
-const toast = useToast()
+interface UploadDataFormProps {
+  recordId?: string | null;
+}
+
+export function UploadDataForm({ recordId }: UploadDataFormProps) {
+  const { toast } = useToast()
   const store = useMedicalRecordStore()
   const [isPending, setIsPending] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
@@ -41,10 +45,27 @@ const toast = useToast()
     },
   })
 
+  // Initialize with existing medical report URL if available
+  useEffect(() => {
+    if (store.medicalReportUrl) {
+      // Extract filename from URL
+      const urlParts = store.medicalReportUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      
+      setUploadedFiles([{
+        url: store.medicalReportUrl,
+        name: fileName || 'Medical Report'
+      }]);
+      
+      form.setValue('medicalReportUrl', store.medicalReportUrl);
+    }
+  }, [store.medicalReportUrl, form]);
+
   const handleFileRemove = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index))
     if (uploadedFiles.length === 1) {
       form.setValue('medicalReportUrl', '')
+      store.updateField('medicalReportUrl', null);
     }
   }
 
@@ -84,12 +105,11 @@ const toast = useToast()
                         }
                       }}
                       onUploadError={(error: Error) => {
-                        // toast({
-                        
-                        //   variant: "destructive",
-                        //   title: "Error",
-                        //   description: error instanceof Error ? error.message : "Something went wrong",
-                        // })  
+                        toast({
+                          variant: "destructive",
+                          title: "Error",
+                          description: error instanceof Error ? error.message : "Something went wrong",
+                        })  
                       }}
                       className="border-2 border-dashed border-gray-300 rounded-lg p-6 ut-uploading:cursor-not-allowed"
                     />
@@ -106,14 +126,24 @@ const toast = useToast()
                               {file.name}
                             </span>
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleFileRemove(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(file.url, '_blank')}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleFileRemove(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                       {uploadedFiles.length < 8 && (
@@ -126,11 +156,15 @@ const toast = useToast()
                                 name: file.name
                               }))
                               setUploadedFiles(prev => [...prev, ...newFiles])
+                              field.onChange(res[0].url)
                             }
                           }}
                           onUploadError={(error: Error) => {
-                            console.error(error)
-                            
+                            toast({
+                              variant: "destructive",
+                              title: "Error",
+                              description: error instanceof Error ? error.message : "Something went wrong",
+                            })
                           }}
                           className="border-2 border-dashed border-gray-300 rounded-lg p-6"
                         />

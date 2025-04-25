@@ -27,7 +27,11 @@ import { createMedicalRecord } from "@/lib/actions/medical-record"
 
 type EmergencyContactValues = z.infer<typeof emergencyContactSchema>
 
-export function EmergencyContactForm() {
+interface EmergencyContactFormProps {
+  recordId?: string | null;
+}
+
+export function EmergencyContactForm({ recordId }: EmergencyContactFormProps) {
   const router = useRouter()
   const { data: session } = useSession()
   const { toast } = useToast()
@@ -85,6 +89,8 @@ export function EmergencyContactForm() {
         emergencyContactName: store.emergencyContactName,
         emergencyContactPhone: store.emergencyContactPhone,
         consentToStore: store.consentToStore,
+        // Add recordId if we're editing
+        recordId: recordId || undefined
       }
 
       const result = await createMedicalRecord(formData)
@@ -95,12 +101,21 @@ export function EmergencyContactForm() {
 
       toast({
         title: "Success!",
-        description: "Your medical records have been saved successfully.",
+        description: result.isUpdate 
+          ? "Your medical records have been updated successfully."
+          : "Your medical records have been saved successfully.",
       })
 
       // Reset form and store
       store.resetForm()
-      router.push('/')
+      
+      // Redirect to specialized treatment if coming from there
+      const returnUrl = new URLSearchParams(window.location.search).get('returnTo')
+      if (returnUrl) {
+        router.push(returnUrl)
+      } else {
+        router.push('/')
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -195,7 +210,7 @@ export function EmergencyContactForm() {
             Previous
           </Button>
           <Button type="submit" disabled={isPending}>
-            Review Information
+            {recordId ? "Review Updates" : "Review Information"}
           </Button>
         </div>
       </form>

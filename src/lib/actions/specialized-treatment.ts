@@ -20,6 +20,7 @@ export async function getSpecializedTreatments(doctorId: string) {
             phone: true,
           },
         },
+        patientMedicalRecord: true,
       },
       orderBy: {
         createdAt: 'desc',

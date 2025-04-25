@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PatientProfile } from "@/types/patient"
 import { HomeServiceBookingsSection } from "./sections/HomeServiceBookingsSection"
 import { OnlineAppointmentsSection } from "./sections/online-service/OnlineAppointmentsSection"
+import { SpecializedTreatmentsSection } from "./sections/specialized/SpecializedTreatmentsSection"
 
 interface PatientDashboardProps {
   initialData: PatientProfile
@@ -26,6 +27,7 @@ export function PatientDashboard({ initialData }: PatientDashboardProps) {
         <TabsList className="bg-white border">
           <TabsTrigger value="home-services">Home Services</TabsTrigger>
           <TabsTrigger value="online-appointments">Online Appointments</TabsTrigger>
+          <TabsTrigger value="specialized-treatments">Specialized Treatments</TabsTrigger>
         </TabsList>
 
         <TabsContent value="home-services">
@@ -33,6 +35,9 @@ export function PatientDashboard({ initialData }: PatientDashboardProps) {
         </TabsContent>
         <TabsContent value="online-appointments">
           <OnlineAppointmentsSection patientId={initialData.id} />
+        </TabsContent>
+        <TabsContent value="specialized-treatments">
+          <SpecializedTreatmentsSection patientId={initialData.id} />
         </TabsContent>
       </Tabs>
     </div>
