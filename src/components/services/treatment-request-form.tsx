@@ -7,30 +7,44 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/hooks/use-toast"
-import { createTreatmentRequest, CreateTreatmentRequestParams, updateTreatmentPaymentStatus } from "@/lib/actions/treatment"
-import { DoctorList } from "./doctor-list"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { createTreatmentRequest, CreateTreatmentRequestParams } from "@/lib/actions/treatment"
+import { NurseList } from "./nurse-list"
 import { TimeSlotsGrid } from "@/components/slots/TimeSlotsGrid"
 import { format, addDays, startOfToday } from "date-fns"
 
 import { ArrowLeft } from "lucide-react"
-import { StripePaymentForm } from "@/app/components/payments/stripe-payment-form"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
 import { DayOfWeek } from "@prisma/client"
 import { useAuthPatient } from "@/hooks/use-auth-patient"
-import { getDoctorById } from "@/lib/actions/doctorFortreatment"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
+import { getNurseById } from "@/lib/actions/nurseForTreatment"
 
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "@/components/ui/form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
 
+// Define the form schema for patient details
+const patientDetailsSchema = z.object({
+  fullName: z.string().min(2, { message: "Full name is required" }),
+  contactNumber: z.string().min(10, { message: "Valid contact number is required" }),
+  address: z.string().min(5, { message: "Address is required" }),
+  issueDetails: z.string().min(5, { message: "Please describe when the issue started" }),
+  medicalCondition: z.string().min(5, { message: "Brief medical condition details are required" }),
+})
+
+type PatientDetailsFormValues = z.infer<typeof patientDetailsSchema>
 
 export function TreatmentRequestForm() {
   const [step, setStep] = useState(1)
-  const [selectedDoctor, setSelectedDoctor] = useState<string>("")
+  const [selectedNurse, setSelectedNurse] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSlots, setSelectedSlots] = useState<any[]>([])
+  const [patientDetails, setPatientDetails] = useState<PatientDetailsFormValues | null>(null)
   
   // Add new states for slot booking
   const [startDate, setStartDate] = useState(startOfToday())
@@ -43,60 +57,35 @@ export function TreatmentRequestForm() {
     isReserved: boolean
   } | null>(null)
   
-  // Add states for payment
-  const [paymentStep, setPaymentStep] = useState<'selection' | 'payment'>('selection')
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card')
-  const [clientSecret, setClientSecret] = useState<string>('')
+  // Using only cash payment
   const [treatmentAmount, setTreatmentAmount] = useState(1500) // Default amount
-  const [treatmentId, setTreatmentId] = useState<string>('')
-
-  // Add new state for medical records
-  const [hasMedicalRecord, setHasMedicalRecord] = useState(false)
-  const [medicalRecordId, setMedicalRecordId] = useState<string | null>(null)
-  const [medicalRecords, setMedicalRecords] = useState<any[]>([])
-
-  // Add a new state for loading medical records
-  const [isCheckingRecords, setIsCheckingRecords] = useState(true)
 
   const { toast } = useToast()
   const router = useRouter()
   const { user, isAuthenticated } = useAuthPatient()
 
+  // Form setup
+  const form = useForm<PatientDetailsFormValues>({
+    resolver: zodResolver(patientDetailsSchema),
+    defaultValues: {
+      fullName: user?.name || "",
+      contactNumber: user?.phone || "",
+      address: "",
+      issueDetails: "",
+      medicalCondition: "",
+    },
+  })
+
   // Generate dates for the week
   const dates = Array.from({ length: 7 }, (_, i) => addDays(startDate, i))
 
-  // Check for medical records when component mounts
+  // Update form when user data is available
   useEffect(() => {
-    async function checkMedicalRecords() {
-      if (!user?.id) {
-        setIsCheckingRecords(false)
-        return
-      }
-      
-      setIsCheckingRecords(true)
-      try {
-        const response = await fetch(`/api/patient/medical-records?patientId=${user.id}`)
-        const data = await response.json()
-        
-        if (data.success && data.records?.length > 0) {
-          setHasMedicalRecord(true)
-          setMedicalRecords(data.records) // Store all records
-          setMedicalRecordId(null) // Reset selection
-        } else {
-          setHasMedicalRecord(false)
-          setMedicalRecordId(null)
-          setMedicalRecords([])
-        }
-      } catch (error) {
-        console.error("Error checking medical records:", error)
-        setHasMedicalRecord(false)
-      } finally {
-        setIsCheckingRecords(false)
-      }
+    if (user) {
+      form.setValue("fullName", user.name || "")
+      form.setValue("contactNumber", user.phone || "")
     }
-    
-    checkMedicalRecords()
-  }, [user])
+  }, [user, form])
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date)
@@ -111,25 +100,30 @@ export function TreatmentRequestForm() {
     setStartDate(prev => addDays(prev, 7))
   }
 
-  // Modified to include slot and payment handling
+  const onSubmitPatientDetails = (data: PatientDetailsFormValues) => {
+    setPatientDetails(data)
+    setStep(2)
+  }
+
+  // Simplified treatment request submission
   const handleSubmitRequest = async () => {
     try {
       setIsLoading(true)
       
-      if (!medicalRecordId) {
+      if (!patientDetails) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Please select a medical record to share with the doctor"
+          description: "Please complete patient details first"
         })
         return
       }
 
-      if (!selectedDoctor) {
+      if (!selectedNurse) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Please select a doctor"
+          description: "Please select a nurse"
         })
         return
       }
@@ -153,9 +147,10 @@ export function TreatmentRequestForm() {
         return
       }
 
+      // Update the treatment request with simplified data
       const treatmentData = {
-        doctorId: selectedDoctor,
-        patientMedicalRecordId: medicalRecordId,
+        nurseId: selectedNurse,
+        patientDetails: patientDetails,
         slot: {
           id: selectedSlot.id,
           dayOfWeek: selectedSlot.dayOfWeek,
@@ -163,11 +158,13 @@ export function TreatmentRequestForm() {
           endTime: selectedSlot.endTime,
           date: getScheduledDate(selectedSlot.dayOfWeek)
         },
-        paymentMethod,
+        paymentMethod: "cash", // Set to cash only
         amount: treatmentAmount,
         serviceCharge: 500, // Fixed service charge
         totalAmount: treatmentAmount + 500
       }
+
+      console.log(treatmentData)
 
       const result = await createTreatmentRequest(treatmentData as CreateTreatmentRequestParams)
 
@@ -181,31 +178,13 @@ export function TreatmentRequestForm() {
         throw new Error(result.error)
       }
 
-      setTreatmentId(result.data?.id || '')
-
-      if (paymentMethod === 'cash') {
-        toast({
-          title: "Request Submitted",
-          description: "Your treatment request has been sent to the doctor. Payment will be collected during treatment."
-        })
-        router.push('/')
-      } else {
-        // Get payment intent for card payment
-        const response = await fetch('/api/specialized/create-payment-intent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            amount: treatmentAmount + 500,
-            treatmentId: result.data?.id || '' 
-          })
-        })
-        
-        if (!response.ok) throw new Error('Failed to create payment intent')
-        
-        const { clientSecret } = await response.json()
-        setClientSecret(clientSecret)
-        setPaymentStep('payment')
-      }
+      // Show success message and redirect to home
+      toast({
+        title: "Request Submitted",
+        description: "Your treatment request has been submitted successfully."
+      })
+      router.push('/')
+      
     } catch (error) {
       toast({
         variant: "destructive",
@@ -237,58 +216,30 @@ export function TreatmentRequestForm() {
     )
   }
 
-  const handlePaymentSuccess = async () => {
-    try {
-      if (!treatmentId || !clientSecret) {
-        throw new Error("Missing treatment information")
-      }
-  
-      const stripePaymentId = clientSecret.split('_secret')[0]
-      
-      // Update payment status
-      const result = await updateTreatmentPaymentStatus({
-        treatmentId,
-        stripePaymentId,
-        paymentMethod
-      })
-  
-      if (!result.success) {
-        throw new Error("Failed to update treatment status")
-      }
-  
-      toast({
-        title: "Request Confirmed",
-        description: "Your treatment request has been submitted and payment processed successfully."
-      })
-      router.push('/')
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Payment status update failed"
-      })
-    }
-  }
+  // Initialize nurse slots
+  const [nurseSlots, setNurseSlots] = useState<any[]>([])
 
-  // Ensure slots are initialized properly and defaulted to an empty array
-  const [doctorSlots, setDoctorSlots] = useState<any[]>([])
-
-  // When selecting a doctor
-  const handleDoctorSelect = async (doctorId: string) => {
-    setSelectedDoctor(doctorId)
+  // When selecting a nurse
+  const handleNurseSelect = async (nurseId: string) => {
+    setSelectedNurse(nurseId)
     
     try {
-      const response = await getDoctorById(doctorId)
+      const response = await getNurseById(nurseId)
       
       if (response.success && response.data) {
-        console.log("Doctor slots:", response.data.homeSlots) // Debugging
-        setDoctorSlots(response.data.homeSlots || []) // Ensure we default to empty array
+        console.log("Nurse slots:", response.data.slots) // Debugging
+        setNurseSlots(response.data.slots || []) // Ensure we default to empty array
+        
+        // Update the treatment amount based on the nurse's fee
+        if (response.data.fee) {
+          setTreatmentAmount(response.data.fee)
+        }
       } else {
-        setDoctorSlots([])
+        setNurseSlots([])
       }
     } catch (error) {
-      console.error("Error fetching doctor slots:", error)
-      setDoctorSlots([])
+      console.error("Error fetching nurse slots:", error)
+      setNurseSlots([])
     }
   }
 
@@ -296,235 +247,225 @@ export function TreatmentRequestForm() {
     <section className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Card className="p-6">
         <div className="space-y-8">
-          {/* Step 1: Medical Records Check */}
+          {/* Step 1: Patient Details Form */}
           {step === 1 && (
             <div className="space-y-6">
-              <h3 className="text-lg font-medium">Step 1: Medical Records</h3>
+              <h3 className="text-lg font-medium">Step 1: Patient Details</h3>
               
-              {/* Medical Records Section */}
               <div className="p-6 border rounded-md bg-gray-50">
-                <h4 className="font-medium mb-3 text-xl">Your Medical Records</h4>
+                <h4 className="font-medium mb-3 text-xl">Patient Information</h4>
                 <p className="text-muted-foreground mb-6">
-                  Your medical records will be sent to the doctor with your specialized treatment request.
-                  This helps doctors better understand your medical history and provide appropriate care.
+                  Please provide the necessary details for your specialized treatment request.
+                  This information will help nurses provide appropriate care.
                 </p>
                 
-                {isCheckingRecords ? (
-                  <div className="flex flex-col items-center justify-center p-8">
-                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent border-solid rounded-full animate-spin mb-4"></div>
-                    <p className="text-muted-foreground">Loading your medical records...</p>
-                  </div>
-                ) : hasMedicalRecord ? (
-                  <div className="p-5 bg-white rounded-md border border-green-100">
-                    <div>
-                      <p className="text-green-700 font-medium text-lg mb-4">Select a medical record to share</p>
-                      
-                      <RadioGroup 
-                        value={medicalRecordId || ''} 
-                        onValueChange={setMedicalRecordId}
-                        className="space-y-4"
-                      >
-                        {medicalRecords.map((record) => (
-                          <div key={record.id} className="flex items-start space-x-3 p-3 border rounded-md hover:bg-gray-50">
-                            <RadioGroupItem value={record.id} id={record.id} />
-                            <div className="grid gap-1">
-                              <Label htmlFor={record.id} className="font-medium">
-                                {record.firstName} {record.lastName}
-                              </Label>
-                              <div className="text-sm text-muted-foreground">
-                                <p>Created: {new Date(record.createdAt).toLocaleDateString()}</p>
-                                <p className="mt-1">
-                                  Conditions: {record.medicalConditions?.join(', ') || 'None'}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                      
-                      <div className="flex gap-3 mt-6 justify-end">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => router.push('/Services/DataManagement')}
-                        >
-                          Create New Record
-                        </Button>
-                        <Button 
-                          onClick={() => setStep(2)}
-                          disabled={!medicalRecordId}
-                        >
-                          Continue
-                        </Button>
-                      </div>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmitPatientDetails)} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="fullName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Name*</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your full name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    
+                      <FormField
+                        control={form.control}
+                        name="contactNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Contact Number*</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your phone number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center p-8 border border-amber-100 rounded-md bg-amber-50">
-                    <p className="mb-3 text-amber-800 font-medium">
-                      You need to complete your medical records before requesting specialized treatment.
-                    </p>
-                    <Button 
-                      onClick={() => router.push('/Services/DataManagement')}
-                      className="mt-2"
-                    >
-                      Complete Medical Records
-                    </Button>
-                  </div>
-                )}
+                    
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Home Address*</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Your complete home address for the treatment" 
+                              className="resize-none" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="issueDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>When did the issue start?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Briefly describe when the issue started" 
+                              className="resize-none" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="medicalCondition"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Brief Medical Condition*</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Briefly describe your medical condition and requirements" 
+                              className="resize-none" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="pt-4 flex justify-end">
+                      <Button type="submit">
+                        Continue to Select Nurse
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
               </div>
             </div>
           )}
 
-          {/* Step 2: Doctor Selection, Slot Selection & Payment */}
+          {/* Step 2: Nurse Selection & Slot Selection */}
           {step === 2 && (
             <div className="space-y-6">
-              {paymentStep === 'selection' ? (
+              <h3 className="text-lg font-medium">Step 2: Select Nurse & Appointment</h3>
+              
+              <ScrollArea className="h-[250px] rounded-md border p-4">
+                <div className="space-y-4">
+                  <NurseList
+                    selectedNurse={selectedNurse}
+                    onSelect={handleNurseSelect}
+                  />
+                </div>
+              </ScrollArea>
+              
+              {selectedNurse && (
                 <>
-                  <h3 className="text-lg font-medium">Step 2: Select Doctor & Appointment</h3>
+                  <Separator />
                   
-                  <ScrollArea className="h-[250px] rounded-md border p-4">
-                    <div className="space-y-4">
-                      <DoctorList
-                        selectedDoctor={selectedDoctor}
-                        onSelect={handleDoctorSelect}
-                      />
+                  {/* Date Selection */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Select Appointment Date</h3>
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrevWeek}
+                        disabled={startDate <= startOfToday()}
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Previous Week
+                      </Button>
+                      <div className="font-medium">
+                        {format(dates[0], "MMM d")} - {format(dates[6], "MMM d, yyyy")}
+                      </div>
+                      <Button variant="outline" size="sm" onClick={handleNextWeek}>
+                        Next Week
+                        <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+                      </Button>
                     </div>
-                  </ScrollArea>
+
+                    <div className="grid grid-cols-7 gap-2">
+                      {dates.map(date => (
+                        <Button
+                          key={date.toISOString()}
+                          variant={selectedDate.toDateString() === date.toDateString() ? "default" : "outline"}
+                          className={cn(
+                            "flex flex-col h-auto py-2",
+                            selectedDate.toDateString() === date.toDateString() && "border-2 border-primary"
+                          )}
+                          onClick={() => handleDateSelect(date)}
+                          disabled={date < startOfToday()}
+                        >
+                          <span className="text-sm font-normal">{format(date, "EEE")}</span>
+                          <span className="text-lg font-semibold">{format(date, "d")}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Time Slots */}
+                  <div>
+                    <h3 className="font-semibold mb-3">Select Time Slot</h3>
+                    <ScrollArea className="h-auto">
+                      <TimeSlotsGrid
+                        slots={nurseSlots || []}
+                        selectedDate={selectedDate}
+                        selectedSlot={selectedSlot}
+                        onSlotSelect={setSelectedSlot}
+                      />
+                    </ScrollArea>
+                  </div>
                   
-                  {selectedDoctor && (
-                    <>
-                      <Separator />
-                      
-                      {/* Date Selection - Similar to HomeServiceDialog */}
-                      <div className="space-y-4">
-                        <h3 className="font-semibold">Select Appointment Date</h3>
-                        <div className="flex items-center justify-between">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handlePrevWeek}
-                            disabled={startDate <= startOfToday()}
-                          >
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Previous Week
-                          </Button>
-                          <div className="font-medium">
-                            {format(dates[0], "MMM d")} - {format(dates[6], "MMM d, yyyy")}
-                          </div>
-                          <Button variant="outline" size="sm" onClick={handleNextWeek}>
-                            Next Week
-                            <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
-                          </Button>
-                        </div>
+                  {/* Payment Information */}
+                  <div className="space-y-2">
+                    <h3 className="font-semibold">Payment Information</h3>
+                    <p className="text-muted-foreground">Payment will be collected in cash during treatment.</p>
+                  </div>
 
-                        <div className="grid grid-cols-7 gap-2">
-                          {dates.map(date => (
-                            <Button
-                              key={date.toISOString()}
-                              variant={selectedDate.toDateString() === date.toDateString() ? "default" : "outline"}
-                              className={cn(
-                                "flex flex-col h-auto py-2",
-                                selectedDate.toDateString() === date.toDateString() && "border-2 border-primary"
-                              )}
-                              onClick={() => handleDateSelect(date)}
-                              disabled={date < startOfToday()}
-                            >
-                              <span className="text-sm font-normal">{format(date, "EEE")}</span>
-                              <span className="text-lg font-semibold">{format(date, "d")}</span>
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Time Slots - Will need to fetch doctor's available slots */}
-                      <div>
-                        <h3 className="font-semibold mb-3">Select Time Slot</h3>
-                        <ScrollArea className="h-auto">
-                          <TimeSlotsGrid
-                            slots={doctorSlots || []}
-                            selectedDate={selectedDate}
-                            selectedSlot={selectedSlot}
-                            onSlotSelect={setSelectedSlot}
-                          />
-                        </ScrollArea>
-                      </div>
-                      
-                      {/* Payment Selection */}
-                      <div className="space-y-4">
-                        <h3 className="font-semibold">Select Payment Method</h3>
-                        <div className="flex gap-4">
-                          <Button 
-                            variant={paymentMethod === 'card' ? 'default' : 'outline'}
-                            onClick={() => setPaymentMethod('card')}
-                          >
-                            Pay with Card
-                          </Button>
-                          <Button
-                            variant={paymentMethod === 'cash' ? 'default' : 'outline'}
-                            onClick={() => setPaymentMethod('cash')}
-                          >
-                            Pay in Cash
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Price Summary */}
-                      <div className="space-y-2 border-t pt-4">
-                        <div className="flex justify-between items-center">
-                          <span>Treatment Fee:</span>
-                          <span>Rs. {treatmentAmount}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span>Service Charge:</span>
-                          <span>Rs. 500</span>
-                        </div>
-                        <div className="flex justify-between items-center font-bold">
-                          <span>Total Amount:</span>
-                          <span>Rs. {treatmentAmount + 500}</span>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  
-                  <div className="flex justify-between">
-                    <Button
-                      variant="outline"
-                      onClick={() => setStep(1)}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      onClick={handleSubmitRequest}
-                      disabled={!selectedDoctor || !selectedSlot || isLoading}
-                    >
-                      {isLoading ? "Submitting..." : "Submit Request"}
-                    </Button>
+                  {/* Price Summary */}
+                  <div className="space-y-2 border-t pt-4">
+                    <div className="flex justify-between items-center">
+                      <span>Treatment Fee:</span>
+                      <span>Rs. {treatmentAmount}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Service Charge:</span>
+                      <span>Rs. 500</span>
+                    </div>
+                    <div className="flex justify-between items-center font-bold">
+                      <span>Total Amount:</span>
+                      <span>Rs. {treatmentAmount + 500}</span>
+                    </div>
                   </div>
                 </>
-              ) : (
-                <>
-                  <Dialog>
-                  <DialogHeader>
-                    <DialogTitle>Complete Payment</DialogTitle>
-                    <p className="text-muted-foreground">
-                      Total Amount: Rs. {treatmentAmount + 500}
-                    </p>
-                  </DialogHeader>
-
-                  <StripePaymentForm
-                    clientSecret={clientSecret}
-                    amount={treatmentAmount + 500}
-                    onSuccess={handlePaymentSuccess}
-                    onCancel={() => setPaymentStep('selection')}
-                    orderDetails={{
-                      name: user?.name || "",
-                      address: user?.address || "",
-                      phone: user?.phone || ""
-                    }}
-                  />
-                </Dialog>
-                </>
               )}
+              
+              <div className="flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={handleSubmitRequest}
+                  disabled={!selectedNurse || !selectedSlot || isLoading}
+                >
+                  {isLoading ? "Submitting..." : "Submit Request"}
+                </Button>
+              </div>
             </div>
           )}
         </div>

@@ -11,8 +11,6 @@ import { auth } from "@/auth";
 export async function Header() {
   const session = await auth()
 
-
-
   const renderActionButton = () => {
     if (!session?.user) return null
     
@@ -30,7 +28,14 @@ export async function Header() {
     if (session.user.role === 'PATIENT') {
       return (
         <Button variant="outline" className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" asChild>
-          <Link href="/patient/dashboard">Pateint StatusBoard</Link>
+          <Link href="/patient/dashboard">Patient Dashboard</Link>
+        </Button>
+      )
+    }
+    if (session.user.role === 'NURSE') {
+      return (
+        <Button variant="outline" className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" asChild>
+          <Link href="/nurse/dashboard">Nurse Dashboard</Link>
         </Button>
       )
     }

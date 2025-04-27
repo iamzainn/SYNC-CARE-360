@@ -1,8 +1,10 @@
-// components/doctor/dashboard/sections/specialized-treatment/TreatmentList.tsx
 "use client"
 
 import { useEffect, useState } from "react"
-import { getSpecializedTreatments, updateTreatmentStatus } from "@/lib/actions/specialized-treatment"
+import { getSpecializedTreatmentsForNurse, updateTreatmentStatus } from "@/lib/actions/specialized-treatment"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
@@ -10,8 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,18 +22,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { MessageSquare, FileText, CheckCircle, XCircle } from "lucide-react"
-import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
+import { CheckCircle, XCircle, CalendarIcon, MapPinIcon, PhoneIcon } from "lucide-react"
+import { format } from "date-fns"
 
-interface TreatmentListProps {
-  doctorId: string
-  onSelectTreatment: (treatment: any) => void
+interface SpecializedTreatmentListProps {
+  nurseId: string
 }
 
-export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProps) {
+export function SpecializedTreatmentList({ 
+  nurseId
+}: SpecializedTreatmentListProps) {
   const [treatments, setTreatments] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTreatment, setSelectedTreatment] = useState<any>(null)
@@ -42,11 +41,11 @@ export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProp
 
   useEffect(() => {
     fetchTreatments()
-  }, [doctorId])
+  }, [nurseId])
 
   async function fetchTreatments() {
     try {
-      const data = await getSpecializedTreatments(doctorId)
+      const data = await getSpecializedTreatmentsForNurse(nurseId)
       setTreatments(data)
     } catch (error) {
       toast({
@@ -67,10 +66,10 @@ export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProp
       
       toast({
         title: "Status Updated",
-        description: `Treatment request ${statusAction.toLowerCase()}`
+        description: `Treatment ${statusAction.toLowerCase()}`
       })
       
-      fetchTreatments()
+      await fetchTreatments()
     } catch (error) {
       toast({
         variant: "destructive",
@@ -84,11 +83,21 @@ export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProp
   }
 
   if (isLoading) {
-    return <TreatmentListSkeleton />
+    return <div>Loading treatments...</div>
+  }
+
+  if (treatments.length === 0) {
+    return <div>No specialized treatments found.</div>
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-300px)]">
+    <>
+    <div className="mb-4">
+      <h2 className="text-xl font-bold">Treatment Requests</h2>
+      <p className="text-muted-foreground">Review and manage incoming treatment requests</p>
+    </div>
+    
+    <ScrollArea className="h-[600px]">
       <div className="space-y-4">
         {treatments.map((treatment) => (
           <Card key={treatment.id} className="hover:shadow-md transition-shadow">
@@ -97,7 +106,7 @@ export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProp
                 <div>
                   <CardTitle className="text-lg">{treatment.patient.name}</CardTitle>
                   <CardDescription>
-                    Requested on: {format(new Date(treatment.createdAt), "PPp")}
+                    Requested: {format(new Date(treatment.createdAt), "PPp")}
                   </CardDescription>
                 </div>
                 <Badge
@@ -113,46 +122,63 @@ export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProp
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                {/* Patient Contact Info */}
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Contact:</p>
-                    <p>{treatment.patient.phone}</p>
+                    <p className="flex items-center gap-1">
+                      <PhoneIcon className="h-3 w-3" />
+                      {treatment.patient.phone}
+                    </p>
                     <p>{treatment.patient.email}</p>
                   </div>
                   <div>
-                    {treatment.treatmentDetails && (
+                    {treatment.scheduledDate && (
                       <>
-                        <p className="text-muted-foreground">Treatment Details:</p>
-                        <p className="line-clamp-2">{treatment.treatmentDetails}</p>
+                        <p className="text-muted-foreground">Appointment:</p>
+                        <p className="flex items-center">
+                          <CalendarIcon className="h-4 w-4 mr-1" />
+                          {format(new Date(treatment.scheduledDate), "PPp")}
+                        </p>
                       </>
                     )}
+                    <p className="text-muted-foreground mt-2">Payment:</p>
+                    <p>Cash on Treatment</p>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-2">
-                  <div className="flex gap-2">
-                    {treatment.prescriptionUrl && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(treatment.prescriptionUrl, '_blank')}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        View Prescription
-                      </Button>
-                    )}
-                    {treatment.status === 'ACCEPTED' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onSelectTreatment(treatment)}
-                      >
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Chat
-                      </Button>
-                    )}
+                {/* Patient Details */}
+                {treatment.patientDetails && (
+                  <div className="border-t pt-3 space-y-3">
+                    <div className="grid grid-cols-1 gap-2 text-sm">
+                      <div>
+                        <p className="text-muted-foreground font-medium">Address:</p>
+                        <p className="flex items-center gap-1">
+                          <MapPinIcon className="h-3 w-3" />
+                          {treatment.patientDetails.address}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-muted-foreground font-medium">Issue Details:</p>
+                        <p>{treatment.patientDetails.issueDetails}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-muted-foreground font-medium">Medical Condition:</p>
+                        <p>{treatment.patientDetails.medicalCondition}</p>
+                      </div>
+                    </div>
                   </div>
+                )}
 
+                {/* Treatment Amount */}
+                <div className="border-t pt-3 flex justify-between items-center text-sm">
+                  <div>
+                    <p className="text-muted-foreground font-medium">Treatment Amount:</p>
+                    <p>Rs. {treatment.totalAmount}</p>
+                  </div>
+                  
                   {treatment.status === 'PENDING' && (
                     <div className="flex gap-2">
                       <Button
@@ -198,7 +224,6 @@ export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProp
             <AlertDialogTitle>Confirm Action</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to {statusAction?.toLowerCase()} this treatment request?
-              {statusAction === 'ACCEPTED' && " You'll be able to chat with the patient after accepting."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -210,43 +235,6 @@ export function TreatmentList({ doctorId, onSelectTreatment }: TreatmentListProp
         </AlertDialogContent>
       </AlertDialog>
     </ScrollArea>
+    </>
   )
-}
-
-function TreatmentListSkeleton() {
-  return (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <Card key={i} className="p-6">
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-40" />
-                <Skeleton className="h-4 w-32" />
-              </div>
-              <Skeleton className="h-6 w-20" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-4 w-40" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </div>
-            <div className="flex justify-between pt-2">
-              <Skeleton className="h-9 w-28" />
-              <div className="flex gap-2">
-                <Skeleton className="h-9 w-24" />
-                <Skeleton className="h-9 w-24" />
-              </div>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
-  )
-}
+} 

@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
 import { HomeServiceBookingList } from "./bookings/HomeServiceBookingList"
 import { OnlineBookingList } from "./bookings/OnlineBookingList"
-import { SpecializedTreatmentList } from "./bookings/SpecializedTreatmentList"  // New import
 import { ChatWindow } from "./bookings/ChatWindow"
 
 interface BookingsSectionProps {
@@ -22,10 +21,9 @@ export function BookingsSection({ doctorId }: BookingsSectionProps) {
       <div className="lg:col-span-2">
         <Card className="p-6">
           <Tabs defaultValue="home-services" className="space-y-4">
-            <TabsList className="grid grid-cols-3 sm:grid-cols-3">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-2">
               <TabsTrigger value="home-services">Home Service</TabsTrigger>
               <TabsTrigger value="online">Online</TabsTrigger>
-              <TabsTrigger value="specialized">Specialized</TabsTrigger>
             </TabsList>
 
             <TabsContent value="home-services">
@@ -42,19 +40,7 @@ export function BookingsSection({ doctorId }: BookingsSectionProps) {
               <OnlineBookingList
                 doctorId={doctorId}
                 onSelectBooking={(booking) => {
-                  // Only handle video call, no chat selection
-                }}
-              />
-            </TabsContent>
-
-            <TabsContent value="specialized">
-              <SpecializedTreatmentList
-                doctorId={doctorId}
-                onSelectBooking={(treatment) => {
-                  if (treatment.status === 'ACCEPTED') {
-                   
-                  }
-                }}
+                                }}
               />
             </TabsContent>
           </Tabs>
