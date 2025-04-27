@@ -24,10 +24,10 @@ interface SpecializedTreatmentCardProps {
     amount?: number
     serviceCharge?: number
     totalAmount?: number
-    doctor: {
+    nurse: {
       id: string
       name: string
-      specialization: string
+     
       email: string
       phone: string
     }
@@ -80,11 +80,11 @@ export function SpecializedTreatmentCard({
               <User className="h-4 w-4" /> Doctor Information
             </h4>
             <div className="rounded-md border bg-slate-50 p-3">
-              <p className="font-medium">{treatment.doctor.name}</p>
-              <p className="text-muted-foreground text-sm">{treatment.doctor.specialization}</p>
+              <p className="font-medium">{treatment.nurse.name}</p>
+             
               <div className="mt-2 text-sm">
-                <p>Email: {treatment.doctor.email}</p>
-                <p>Phone: {treatment.doctor.phone}</p>
+                <p>Email: {treatment.nurse.email}</p>
+                <p>Phone: {treatment.nurse.phone}</p>
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@ export function SpecializedTreatmentCard({
 
           <div className="flex justify-between mt-4 items-center">
             <Badge variant={treatment.paymentStatus === "COMPLETED" ? "default" : "outline"}>
-              Payment: {treatment.paymentStatus}
+              Payment: {treatment.paymentStatus}  
             </Badge>
             
             <div>

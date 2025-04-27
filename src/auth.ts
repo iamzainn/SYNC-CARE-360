@@ -70,8 +70,28 @@ export const {
             role: "DOCTOR",
             image: "/default-avatar.png",
             isVerifiedDoctor: doctor.isVerifiedDoctor
-            
-            
+          }
+        } else if (role === 'NURSE') {
+          const nurse = await db.nurse.findUnique({
+            where: { email }
+          })
+    
+          if (!nurse || !nurse.password) return null
+    
+          const isPasswordValid = await compare(
+            credentials.password as string,
+            nurse.password
+          )
+    
+          if (!isPasswordValid) return null
+    
+          return {
+            id: nurse.id,
+            email: nurse.email,
+            name: nurse.name,
+            role: "NURSE",
+            image: "/default-avatar.png",
+            isVerifiedDoctor: false
           }
         } else {
           const patient = await db.patient.findUnique({
@@ -93,7 +113,7 @@ export const {
             name: patient.name,
             role: "PATIENT",
             image: "/default-avatar.png",
-            isVerifiedDoctor:false
+            isVerifiedDoctor: false
           }
         }
       }
@@ -112,9 +132,6 @@ export const {
         token.name = user.name as string
         token.picture = user.image as string
         token.isVerifiedDoctor = user.isVerifiedDoctor
-        
-        
-
       }
       return token
     },

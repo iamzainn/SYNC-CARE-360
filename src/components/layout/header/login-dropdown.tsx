@@ -24,6 +24,11 @@ import {
               Doctor
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/nurse/auth" className="cursor-pointer">
+              Nurse
+            </Link>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     )

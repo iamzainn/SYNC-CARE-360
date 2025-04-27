@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 import { SpecializedTreatmentCard } from "./SpecializedTreatmentCard"
+import { getSpecializedTreatmentsForPatient } from "@/lib/actions/specialized-treatment"
 
 interface SpecializedTreatmentsSectionProps {
   patientId: string
@@ -16,13 +17,11 @@ export function SpecializedTreatmentsSection({ patientId }: SpecializedTreatment
   useEffect(() => {
     async function fetchTreatments() {
       try {
-        setIsLoading(true)
-        const res = await fetch(`/api/patient/treatments/specialized?patientId=${patientId}`)
-        if (!res.ok) throw new Error('Failed to fetch treatments')
-        const data = await res.json()
+        const data = await getSpecializedTreatmentsForPatient(patientId)
         setTreatments(data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch treatments')
+      } catch (error) {
+        console.error("Error fetching treatments:", error)
+        setError(error instanceof Error ? error.message : 'Failed to fetch treatments')
       } finally {
         setIsLoading(false)
       }
@@ -47,19 +46,18 @@ export function SpecializedTreatmentsSection({ patientId }: SpecializedTreatment
     )
   }
 
+  const handleStatusUpdate = (treatment: any) => {
+    // Just a placeholder function since we're only showing status
+    console.log("Treatment status updated:", treatment.id)
+  }
+
   return (
     <div className="space-y-4">
       {treatments.map((treatment) => (
         <SpecializedTreatmentCard
           key={treatment.id}
           treatment={treatment}
-          onStatusUpdate={(updatedTreatment) => {
-            setTreatments(prevTreatments => 
-              prevTreatments.map(t => 
-                t.id === updatedTreatment.id ? updatedTreatment : t
-              )
-            )
-          }}
+          onStatusUpdate={handleStatusUpdate}
         />
       ))}
       {treatments.length === 0 && (

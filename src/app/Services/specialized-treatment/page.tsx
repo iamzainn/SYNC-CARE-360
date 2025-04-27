@@ -7,7 +7,7 @@ import { TreatmentRequestForm } from "@/components/services/treatment-request-fo
 
 export const metadata = {
   title: "Specialized Medical Treatment",
-  description: "Request specialized medical treatments from qualified doctors",
+  description: "Request specialized medical treatments from qualified nurses",
 }
 
 export default function SpecializedTreatmentPage() {
@@ -19,7 +19,7 @@ export default function SpecializedTreatmentPage() {
             Specialized Medical Treatment
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Upload your prescription and connect with specialized doctors for treatment
+            Request specialized medical treatments from qualified nurses
           </p>
         </div>
 

@@ -5,7 +5,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string
-      role: "DOCTOR" | "PATIENT"
+      role: "DOCTOR" | "PATIENT" | "NURSE"
       email: string
       name: string
       image?: string
@@ -16,7 +16,7 @@ declare module "next-auth" {
 
   interface User extends DefaultUser {
     id: string
-    role: "DOCTOR" | "PATIENT"
+    role: "DOCTOR" | "PATIENT" | "NURSE"
     email: string
     name: string
     image?: string
@@ -27,7 +27,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string
-    role: "DOCTOR" | "PATIENT"
+    role: "DOCTOR" | "PATIENT" | "NURSE"
     email: string
     name: string
     isVerifiedDoctor: boolean

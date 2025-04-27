@@ -5,11 +5,12 @@ import { db } from "@/lib/db"
 import { SpecializedTreatmentStatus } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
-export async function getSpecializedTreatments(doctorId: string) {
+// Function to get treatments for a nurse
+export async function getSpecializedTreatmentsForNurse(nurseId: string) {
   try {
     const treatments = await db.specializedTreatment.findMany({
       where: {
-        doctorId,
+        nurseId: nurseId
       },
       include: {
         patient: {
@@ -18,33 +19,69 @@ export async function getSpecializedTreatments(doctorId: string) {
             name: true,
             email: true,
             phone: true,
-          },
+            city: true,
+          }
         },
-        patientMedicalRecord: true,
+        slots: true,
       },
       orderBy: {
-        createdAt: 'desc',
-      },
+        createdAt: 'desc'
+      }
     })
+
     return treatments
   } catch (error) {
     console.error("Error fetching specialized treatments:", error)
-    throw new Error("Failed to fetch specialized treatments")
+    throw new Error("Failed to fetch treatments")
   }
 }
 
-export async function updateTreatmentStatus(
-  treatmentId: string,
-  status: SpecializedTreatmentStatus
-) {
+// Function to get treatments for a patient
+export async function getSpecializedTreatmentsForPatient(patientId: string) {
   try {
-    const treatment = await db.specializedTreatment.update({
-      where: { id: treatmentId },
-      data: { status },
+    const treatments = await db.specializedTreatment.findMany({
+      where: {
+        patientId: patientId
+      },
+      include: {
+        nurse: {
+          select: {
+            id: true,
+            name: true,
+            
+            email: true,
+            phone: true,
+          }
+        },
+        slots: true,
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
     })
 
-    revalidatePath("/doctor-dashboard")
-    return { success: true, treatment }
+    return treatments
+  } catch (error) {
+    console.error("Error fetching specialized treatments for patient:", error)
+    throw new Error("Failed to fetch treatments")
+  }
+}
+
+// Function to update treatment status (accept/reject)
+export async function updateTreatmentStatus(
+  treatmentId: string, 
+  status: 'ACCEPTED' | 'REJECTED'
+) {
+  try {
+    await db.specializedTreatment.update({
+      where: { id: treatmentId },
+      data: { 
+        status: status as SpecializedTreatmentStatus
+      }
+    })
+    
+    revalidatePath('/nurse/dashboard')
+    return { success: true }
   } catch (error) {
     console.error("Error updating treatment status:", error)
     throw new Error("Failed to update treatment status")

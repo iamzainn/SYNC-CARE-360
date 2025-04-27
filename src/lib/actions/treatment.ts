@@ -3,13 +3,17 @@
 
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
-import { PaymentMethod } from "@prisma/client"
+import { revalidatePath } from "next/cache"
 
-
- export interface CreateTreatmentRequestParams {
-  doctorId: string
-  
-  patientMedicalRecordId?: string
+export interface CreateTreatmentRequestParams {
+  nurseId: string
+  patientDetails: {
+    fullName: string
+    contactNumber: string
+    address: string
+    issueDetails: string
+    medicalCondition: string
+  }
   slot: {
     id: string
     dayOfWeek: string
@@ -17,171 +21,80 @@ import { PaymentMethod } from "@prisma/client"
     endTime: string
     date: Date
   }
-  paymentMethod: 'card' | 'cash'
+  paymentMethod: "cash" | "card"
   amount: number
   serviceCharge: number
   totalAmount: number
 }
 
-export async function createTreatmentRequest(data: CreateTreatmentRequestParams) {
+export async function createTreatmentRequest(params: CreateTreatmentRequestParams) {
   try {
-    const session = await auth()
+    // Log the received parameters for debugging
+    console.log("Creating treatment request with params:", JSON.stringify(params, null, 2))
     
-    if (!session?.user?.id) {
+    const session = await auth()
+
+    if (!session?.user) {
       return {
         success: false,
-        error: "Authentication required",
-        requiresAuth: true
+        requiresAuth: true,
+        error: "Authentication required"
       }
     }
 
-    console.log("Slot data received:", data.slot); // Debug the slot data
+    // Get patient from session
+    const patient = await db.patient.findUnique({
+      where: { id: session.user.id }
+    })
 
-    // Use transaction to ensure slot reservation and treatment creation happen together
-    const result = await db.$transaction(async (tx) => {
-      // First, create the treatment request
-      const treatment = await tx.specializedTreatment.create({
-        data: {
-          patientId: session.user.id,
-          doctorId: data.doctorId,
-       
-          status: "PENDING",
-          scheduledDate: data.slot.date,
-          paymentMethod: data.paymentMethod === 'card' ? PaymentMethod.CARD : null,
-          paymentStatus: data.paymentMethod === 'cash' ? 'PENDING' : 'PENDING',
-          amount: data.amount,
-          patientMedicalRecordId: data.patientMedicalRecordId,
-          serviceCharge: data.serviceCharge,
-          totalAmount: data.totalAmount
-        }
-      });
-
-      // Instead of updating a specialized slot, we need to mark the home service slot as reserved
-      // Since we're using home service slots for specialized treatments
-      try {
-        await tx.homeServiceSlot.update({
-          where: { 
-            id: data.slot.id 
-          },
-          data: { 
-            isReserved: true 
-          }
-        });
-      } catch (error) {
-        console.error("Error updating slot:", error);
-        // If updating the slot fails, we should still create the treatment
-        // but log the error for administrators to handle
+    if (!patient) {
+      return {
+        success: false,
+        error: "Patient account required"
       }
+    }
 
-      return treatment;
-    });
-
-    return {
-      success: true,
-      data: result
-    };
-  } catch (error) {
-    console.error("Failed to create treatment request:", error);
-    return {
-      success: false,
-      error: "Failed to create treatment request"
-    };
-  }
-}
-
-export async function getVerifiedDoctors() {
-  try {
-    const doctors = await db.doctor.findMany({
-      where: {
-        isVerifiedDoctor: true
-      },
-      select: {
-        id: true,
-        title: true,
-        name: true,
-        specialization: true,
-        city: true,
-        verification: {
-          select: {
-            experienceYears: true,
-            profilePhoto: true
-          }
-        },
-        // Include home service slots to convert to specialized slots
-        Services: {
-          include: {
-            homeService: {
-              include: {
-                slots: true
-              }
-            }
+    // Create the specialized treatment with simplified payment handling
+    const specializedTreatment = await db.specializedTreatment.create({
+      data: {
+        patientId: patient.id,
+        nurseId: params.nurseId,
+        scheduledDate: params.slot.date,
+        amount: params.amount,
+        serviceCharge: params.serviceCharge,
+        totalAmount: params.totalAmount,
+        paymentMethod: params.paymentMethod === "card" ? "CARD" : "CASH_ON_DELIVERY",
+        // Always set payment status to COMPLETED for simplicity
+        paymentStatus: "COMPLETED",
+        // Store patient details in the JSON field
+        patientDetails: params.patientDetails,
+        // Create the slot for this treatment
+        slots: {
+          create: {
+            dayOfWeek: params.slot.dayOfWeek as any,
+            startTime: params.slot.startTime,
+            endTime: params.slot.endTime,
           }
         }
       }
     })
 
-    // Process doctors to add specialized slots
-    const doctorsWithSlots = await Promise.all(
-      doctors.map(async (doctor) => {
-        // Check if doctor already has specialized slots
-        const existingSpecializedSlots = await db.specializedTreatmentSlot.findMany({
-          where: {
-            specializedTreatment: {
-              doctorId: doctor.id
-            }
-          }
-        })
-
-        if (existingSpecializedSlots.length > 0) {
-          return {
-            ...doctor,
-            specializedSlots: existingSpecializedSlots
-          }
-        }
-
-        // If no specialized slots, but home service slots exist, create equivalent ones
-        const homeSlots = doctor.Services?.homeService?.slots || []
-        
-        if (homeSlots.length > 0) {
-          const newSpecializedSlots = await Promise.all(
-            homeSlots.map(async (slot) => {
-              return await db.specializedTreatmentSlot.create({
-                data: {
-                  dayOfWeek: slot.dayOfWeek,
-                  startTime: slot.startTime,
-                  endTime: slot.endTime,
-                  isReserved: false
-                }
-              })
-            })
-          )
-          
-          return {
-            ...doctor,
-            specializedSlots: newSpecializedSlots
-          }
-        }
-
-        // No slots available
-        return {
-          ...doctor,
-          specializedSlots: []
-        }
-      })
-    )
-
+    revalidatePath("/Services/specialized-treatment")
+    
     return {
       success: true,
-      data: doctorsWithSlots
+      data: specializedTreatment
     }
   } catch (error) {
-    console.error("Failed to fetch doctors:", error)
+    console.error("Error creating treatment request:", error)
     return {
       success: false,
-      error: "Failed to fetch doctors"
+      error: "Failed to create treatment request"
     }
   }
 }
+
+
 
 // Add new function to update payment status
 export async function updateTreatmentPaymentStatus({
@@ -191,21 +104,44 @@ export async function updateTreatmentPaymentStatus({
 }: {
   treatmentId: string
   stripePaymentId?: string
-  paymentMethod: 'card' | 'cash'
+  paymentMethod: "card" | "cash"
 }) {
   try {
+    const session = await auth()
+
+    if (!session?.user) {
+      return {
+        success: false,
+        requiresAuth: true,
+        error: "Authentication required"
+      }
+    }
+
+    const updateData: any = {
+      paymentStatus: "COMPLETED"
+    }
+    
+    // Only add stripePaymentId if it's provided (for card payments)
+    if (stripePaymentId) {
+      updateData.stripePaymentId = stripePaymentId
+    }
+
     const updatedTreatment = await db.specializedTreatment.update({
       where: { id: treatmentId },
-      data: {
-        paymentStatus: paymentMethod === 'card' ? 'COMPLETED' : 'PENDING',
-        stripePaymentId: stripePaymentId || null,
-        updatedAt: new Date()
-      }
+      data: updateData
     })
 
-    return { success: true, treatment: updatedTreatment }
+    revalidatePath("/Services/specialized-treatment")
+    
+    return {
+      success: true,
+      data: updatedTreatment
+    }
   } catch (error) {
-    console.error('Payment status update error:', error)
-    return { success: false, error: "Failed to update payment status" }
+    console.error("Error updating treatment payment:", error)
+    return {
+      success: false,
+      error: "Failed to update payment status"
+    }
   }
 }

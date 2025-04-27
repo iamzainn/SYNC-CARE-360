@@ -162,22 +162,7 @@ export async function deleteMedicalRecord(recordId: string) {
       }
     }
     
-    // Check if this record is being used in active treatments
-    const activeRelatedTreatments = await db.specializedTreatment.count({
-      where: {
-        patientMedicalRecordId: recordId,
-        status: {
-          in: ["PENDING", "ACCEPTED", "COMPLETED"]
-        }
-      }
-    })
     
-    if (activeRelatedTreatments > 0) {
-      return {
-        success: false,
-        error: "This record is currently being used in active treatments and cannot be deleted"
-      }
-    }
 
     // Delete the record
     await db.patientMedicalRecord.delete({
