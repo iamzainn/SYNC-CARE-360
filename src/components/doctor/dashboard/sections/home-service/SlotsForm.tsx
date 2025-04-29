@@ -23,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Loader2, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { useHomeServiceStore } from "@/store/useHomeServiceStore"
+import { ServiceSlot, useHomeServiceStore } from "@/store/useHomeServiceStore"
 import * as z from "zod"
 import { DAYS } from "@/lib/constants/home-services"
 import { getHomeService, updateHomeService } from "@/lib/actions/home-service"
@@ -111,7 +111,7 @@ export function HomeServiceSlotsForm({
       return
     }
 
-    store.addSlot(values)
+    store.addSlot(values as ServiceSlot)
     const currentdayOfWeek=values.dayOfWeek
     const currentstartTime=values.startTime
     const currentendTime=values.endTime

@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, X } from "lucide-react"
 
-import { useSpecializedServiceStore } from "@/store/useSpecializedServiceStore"
+import { SpecializedServiceSlot, useSpecializedServiceStore } from "@/store/useSpecializedServiceStore"
 import { useToast } from "@/hooks/use-toast"
 import * as z from "zod"
 import { getSpecializedService, updateSpecializedService } from "@/lib/actions/specialized-service"
@@ -130,7 +130,7 @@ export function SpecializedServiceForm({ onComplete }: SpecializedServiceFormPro
 
     // Just update the store
     store.setFee(fee)
-    store.addSlot(slotData)
+    store.addSlot(slotData as SpecializedServiceSlot)
 
     // Reset the form except fee
     form.reset({
