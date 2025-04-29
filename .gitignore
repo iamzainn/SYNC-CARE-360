@@ -29,7 +29,9 @@ yarn-error.log*
 .env*.local
 
 
+
 *.mkv
+*.mp3
 *.mp4
 *.avi
 *.mov
