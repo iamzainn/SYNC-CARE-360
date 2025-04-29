@@ -3,7 +3,7 @@
 import { hash } from "bcryptjs"
 import { db } from "@/lib/db"
 import { nurseSignUpSchema } from "@/lib/schemas/nurse"
-import { Prisma } from "@prisma/client"
+import { Nurse, Prisma } from "@prisma/client"
 import { z } from "zod"
 import { auth } from "@/auth"
 
@@ -33,8 +33,8 @@ export async function nurseSignUp(data: z.infer<typeof nurseSignUpSchema>) {
         ...validatedFields.data,
         email: email.toLowerCase(),
         password: hashedPassword,
-      }
-    })
+      } as Nurse
+    }) 
 
     return { 
       success: true,

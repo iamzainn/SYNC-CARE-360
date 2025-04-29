@@ -1,4 +1,4 @@
-// src/app/(auth)/doctor/auth/page.tsx
+// src/app/(auth)/doctor/auth/page.tsx 
 'use client'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"

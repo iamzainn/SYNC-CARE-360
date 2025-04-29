@@ -3,7 +3,7 @@
 import { hash } from "bcryptjs"
 import { db } from "@/lib/db"
 import { doctorSignUpSchema } from "@/lib/schemas/doctor"
-import { Prisma } from "@prisma/client"
+import { Doctor, Prisma } from "@prisma/client"
 import { z } from "zod"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
@@ -34,10 +34,10 @@ export async function doctorSignUp(data: z.infer<typeof doctorSignUpSchema>) {
     
     const newDoctor = await db.doctor.create({
       data: {
-        ...validatedFields.data,
+        ...validatedFields.data ,
         email: email.toLowerCase(),
         password: hashedPassword,
-      }
+      } as Doctor
     })
 
     return { 

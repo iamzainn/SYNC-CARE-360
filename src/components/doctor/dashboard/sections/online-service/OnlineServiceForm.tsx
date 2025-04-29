@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, X } from "lucide-react"
 
-import { useOnlineServiceStore } from "@/store/useOnlineServiceStore"
+import { OnlineServiceSlot, useOnlineServiceStore } from "@/store/useOnlineServiceStore"
 import { useToast } from "@/hooks/use-toast"
 import * as z from "zod"
 import { getOnlineService, updateOnlineService } from "@/lib/actions/online-service"
@@ -130,7 +130,7 @@ export function OnlineServiceForm({ onComplete }: OnlineServiceFormProps) {
 
     // Just update the store
     store.setFee(fee)
-    store.addSlot(slotData)
+    store.addSlot(slotData as OnlineServiceSlot)
 
     // Reset the form except fee
     form.reset({
