@@ -21,7 +21,7 @@ export async function POST(
       data: {
         messageId,
         userId: session.user.id,
-        userRole: session.user.role as "DOCTOR" | "PATIENT" | "NURSE",
+        userRole: session.user.role,
       },
       include: {
         message: {

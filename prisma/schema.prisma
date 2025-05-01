@@ -534,6 +534,7 @@ enum AppointmentStatus {
 enum Role {
   DOCTOR
   PATIENT
+  NURSE
 }
 
 enum MessageStatus {
