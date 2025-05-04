@@ -48,7 +48,6 @@ export async function getSpecializedTreatmentsForPatient(patientId: string) {
           select: {
             id: true,
             name: true,
-            
             email: true,
             phone: true,
           }

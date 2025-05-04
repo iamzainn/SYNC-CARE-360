@@ -24,6 +24,7 @@ interface SpecializedTreatmentCardProps {
     amount?: number
     serviceCharge?: number
     totalAmount?: number
+    numberOfDays?: number
     nurse: {
       id: string
       name: string
@@ -127,6 +128,7 @@ export function SpecializedTreatmentCard({
             <div className="rounded-md border p-3">
               <p className="text-muted-foreground">Treatment Fee</p>
               <p className="font-medium">Rs. {treatment.amount || 0}</p>
+              <p className="text-xs text-muted-foreground mt-1">Days: {treatment.numberOfDays || 1}</p>
             </div>
             <div className="rounded-md border p-3">
               <p className="text-muted-foreground">Service Charge</p>

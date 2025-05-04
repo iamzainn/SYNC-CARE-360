@@ -14,6 +14,7 @@ export interface CreateTreatmentRequestParams {
     issueDetails: string
     medicalCondition: string
   }
+  numberOfDays: number
   slot: {
     id: string
     dayOfWeek: string
@@ -66,6 +67,7 @@ export async function createTreatmentRequest(params: CreateTreatmentRequestParam
         paymentMethod: params.paymentMethod === "card" ? "CARD" : "CASH_ON_DELIVERY",
         // Always set payment status to COMPLETED for simplicity
         paymentStatus: "COMPLETED",
+        numberOfDays: params.numberOfDays,
         // Store patient details in the JSON field
         patientDetails: params.patientDetails,
         // Create the slot for this treatment

@@ -578,6 +578,7 @@ model SpecializedTreatment {
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
   scheduledDate    DateTime?                  // Scheduled date for the treatment
+  numberOfDays     Int                        @default(1)  // Number of days patient books nurse for
   paymentStatus    PaymentStatus              @default(PENDING)
   paymentMethod    PaymentMethod?
   stripePaymentId  String?

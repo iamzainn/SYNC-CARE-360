@@ -1,8 +1,6 @@
 // app/Services/specialized-treatment/page.tsx
 
-import { ServiceBreadcrumb } from "@/app/components/services/service-breadcrumb";
-import { ServiceHero } from "@/components/services/specialized-treatment/hero";
-import { HowItWorks } from "@/components/services/specialized-treatment/how-it-works";
+
 import { TreatmentRequestForm } from "@/components/services/treatment-request-form";
 
 export const metadata = {

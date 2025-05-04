@@ -96,22 +96,13 @@ export function UserNav({ user }: UserNavProps) {
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
-            {user.role && (
-              <p className="text-xs leading-none text-muted-foreground mt-1">
-                Role: {user.role}
-              </p>
-            )}
+            
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {renderDashboardLink()}
-          <DropdownMenuItem asChild>
-            <Link href={`/${session?.user?.role?.toLowerCase() || 'user'}/profile`}>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
-            </Link>
-          </DropdownMenuItem>
+         
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem 

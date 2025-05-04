@@ -41,7 +41,7 @@ export function SpecializedTreatmentList({
 
   useEffect(() => {
     fetchTreatments()
-  }, [nurseId])
+  }, [nurseId ])
 
   async function fetchTreatments() {
     try {
@@ -175,8 +175,9 @@ export function SpecializedTreatmentList({
                 {/* Treatment Amount */}
                 <div className="border-t pt-3 flex justify-between items-center text-sm">
                   <div>
-                    <p className="text-muted-foreground font-medium">Treatment Amount:</p>
-                    <p>Rs. {treatment.totalAmount}</p>
+                    <p className="text-muted-foreground font-medium">Treatment Details:</p>
+                    <p>Number of Days: {treatment.numberOfDays || 1}</p>
+                    <p>Total Amount: Rs. {treatment.totalAmount}</p>
                   </div>
                   
                   {treatment.status === 'PENDING' && (

@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 import "./globals.css";
 import { NextAuthProvider } from "@/providers/next-auth-provider";
 import { auth } from "@/auth";
@@ -21,8 +22,11 @@ export default async function RootLayout({
 
       <body className={inter.className}>
         <NextAuthProvider session={session}>
-          <Header />
-          <main>{children}</main>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
           <Toaster />
         </NextAuthProvider>
       </body>

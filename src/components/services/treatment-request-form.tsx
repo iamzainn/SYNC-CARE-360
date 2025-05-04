@@ -22,7 +22,6 @@ import { getNurseById } from "@/lib/actions/nurseForTreatment"
 
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -35,6 +34,7 @@ const patientDetailsSchema = z.object({
   address: z.string().min(5, { message: "Address is required" }),
   issueDetails: z.string().min(5, { message: "Please describe when the issue started" }),
   medicalCondition: z.string().min(5, { message: "Brief medical condition details are required" }),
+  numberOfDays: z.coerce.number().min(1, { message: "At least 1 day is required" }).max(30, { message: "Maximum 30 days allowed" }),
 })
 
 type PatientDetailsFormValues = z.infer<typeof patientDetailsSchema>
@@ -43,7 +43,6 @@ export function TreatmentRequestForm() {
   const [step, setStep] = useState(1)
   const [selectedNurse, setSelectedNurse] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedSlots, setSelectedSlots] = useState<any[]>([])
   const [patientDetails, setPatientDetails] = useState<PatientDetailsFormValues | null>(null)
   
   // Add new states for slot booking
@@ -59,10 +58,11 @@ export function TreatmentRequestForm() {
   
   // Using only cash payment
   const [treatmentAmount, setTreatmentAmount] = useState(1500) // Default amount
+  const [numberOfDays, setNumberOfDays] = useState(1) // Store number of days
 
   const { toast } = useToast()
   const router = useRouter()
-  const { user, isAuthenticated } = useAuthPatient()
+  const { user,  } = useAuthPatient()
 
   // Form setup
   const form = useForm<PatientDetailsFormValues>({
@@ -73,6 +73,7 @@ export function TreatmentRequestForm() {
       address: "",
       issueDetails: "",
       medicalCondition: "",
+      numberOfDays: 1,
     },
   })
 
@@ -102,6 +103,7 @@ export function TreatmentRequestForm() {
 
   const onSubmitPatientDetails = (data: PatientDetailsFormValues) => {
     setPatientDetails(data)
+    setNumberOfDays(data.numberOfDays)
     setStep(2)
   }
 
@@ -161,7 +163,8 @@ export function TreatmentRequestForm() {
         paymentMethod: "cash", // Set to cash only
         amount: treatmentAmount,
         serviceCharge: 500, // Fixed service charge
-        totalAmount: treatmentAmount + 500
+        totalAmount: (treatmentAmount * patientDetails.numberOfDays) + 500,
+        numberOfDays: patientDetails.numberOfDays
       }
 
       console.log(treatmentData)
@@ -290,6 +293,26 @@ export function TreatmentRequestForm() {
                         )}
                       />
                     </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="numberOfDays"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Number of Days*</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Number of days required" 
+                              min="1" 
+                              max="30" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     
                     <FormField
                       control={form.control}
@@ -437,8 +460,16 @@ export function TreatmentRequestForm() {
                   {/* Price Summary */}
                   <div className="space-y-2 border-t pt-4">
                     <div className="flex justify-between items-center">
-                      <span>Treatment Fee:</span>
+                      <span>Treatment Fee (per day):</span>
                       <span>Rs. {treatmentAmount}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Number of Days:</span>
+                      <span>{patientDetails?.numberOfDays}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Total Treatment Fee:</span>
+                      <span>Rs. {treatmentAmount * (patientDetails?.numberOfDays || 1)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span>Service Charge:</span>
@@ -446,7 +477,7 @@ export function TreatmentRequestForm() {
                     </div>
                     <div className="flex justify-between items-center font-bold">
                       <span>Total Amount:</span>
-                      <span>Rs. {treatmentAmount + 500}</span>
+                      <span>Rs. {(treatmentAmount * (patientDetails?.numberOfDays || 1)) + 500}</span>
                     </div>
                   </div>
                 </>
@@ -474,5 +505,5 @@ export function TreatmentRequestForm() {
   )
 }
 
-// Doctor list component
+
 
