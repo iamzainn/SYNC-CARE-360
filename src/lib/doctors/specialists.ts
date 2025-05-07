@@ -97,5 +97,11 @@ export const SPECIALTIES: Specialty[] = [
     title: 'Dentist',
     urlPath: 'dentist',
     icon: FaTooth
+  },
+  {
+    id: '15',
+    title: 'Dermatologist',
+    urlPath: 'dermatologist',
+    icon: FaBrain
   }
 ]

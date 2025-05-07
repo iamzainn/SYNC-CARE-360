@@ -23,6 +23,7 @@ export async function generateMetadata({
   const city = params.city.charAt(0).toUpperCase() + params.city.slice(1)
   const specialization = urlToSpecialization(params.specialist)
   
+  
 
   return {
     title: `Best ${specialization} Doctors in ${city} | Book Appointment`,
@@ -32,6 +33,8 @@ export async function generateMetadata({
 
 export default async function DoctorsPage({ params, searchParams }: PageProps) {
   const { city, specialist } = params
+  console.log(city + " city in page")
+  console.log(specialist + " specialist in page")
 
 
 
