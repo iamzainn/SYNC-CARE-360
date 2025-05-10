@@ -68,14 +68,15 @@ export function OnlineBookingList({
               <div className="flex gap-2">
                 {booking.status === "CONFIRMED" && (
                   <Button
+                    disabled
                     variant="default"
                     size="sm"
                     onClick={() => {
                       // Handle video call
                     }}
                   >
-                    <Video className="h-4 w-4 mr-2" />
-                    Start Call
+                    <Video  className="h-4 w-4 mr-2" />
+                    Start Call will be implemented soon
                   </Button>
                 )}
               </div>

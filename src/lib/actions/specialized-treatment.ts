@@ -29,7 +29,32 @@ export async function getSpecializedTreatmentsForNurse(nurseId: string) {
       }
     })
 
-    return treatments
+    // Parse patientDetails for each treatment to extract required services
+    return treatments.map(treatment => {
+      // Safely parse the patientDetails JSON if it exists
+      const patientDetails = treatment.patientDetails ? 
+        (typeof treatment.patientDetails === 'string' ? 
+          JSON.parse(treatment.patientDetails as string) : 
+          treatment.patientDetails) : 
+        {};
+      
+      // Safely parse the servicePrices JSON if it exists
+      const servicePrices = treatment.patientDetails && (patientDetails.servicePrices || treatment.totalAmount) ?
+        (typeof treatment.totalAmount === 'string' ? 
+          JSON.parse(treatment.totalAmount as string) : 
+          treatment.totalAmount) : 
+        {};
+      
+      // Get requested services array
+      const requiredServices = patientDetails.requiredServices || [];
+      
+      return {
+        ...treatment,
+        patientDetails,
+        requiredServices,
+        servicePrices
+      };
+    });
   } catch (error) {
     console.error("Error fetching specialized treatments:", error)
     throw new Error("Failed to fetch treatments")
@@ -59,7 +84,32 @@ export async function getSpecializedTreatmentsForPatient(patientId: string) {
       }
     })
 
-    return treatments
+    // Parse patientDetails for each treatment
+    return treatments.map(treatment => {
+      // Safely parse the patientDetails JSON if it exists
+      const patientDetails = treatment.patientDetails ? 
+        (typeof treatment.patientDetails === 'string' ? 
+          JSON.parse(treatment.patientDetails as string) : 
+          treatment.patientDetails) : 
+        {};
+      
+      // Safely parse the servicePrices JSON if it exists
+      const servicePrices = treatment.patientDetails && (patientDetails.servicePrices || treatment.totalAmount) ?
+        (typeof treatment.totalAmount === 'string' ? 
+          JSON.parse(treatment.totalAmount as string) : 
+          treatment.totalAmount) : 
+        {};
+      
+      // Get requested services array
+      const requiredServices = patientDetails.requiredServices || [];
+      
+      return {
+        ...treatment,
+        patientDetails,
+        requiredServices,
+        servicePrices
+      };
+    });
   } catch (error) {
     console.error("Error fetching specialized treatments for patient:", error)
     throw new Error("Failed to fetch treatments")

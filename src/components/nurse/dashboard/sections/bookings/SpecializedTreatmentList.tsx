@@ -41,7 +41,7 @@ export function SpecializedTreatmentList({
 
   useEffect(() => {
     fetchTreatments()
-  }, [nurseId ])
+  }, [nurseId])
 
   async function fetchTreatments() {
     try {

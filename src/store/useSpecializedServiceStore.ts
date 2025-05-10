@@ -1,40 +1,60 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { DayOfWeek } from "@prisma/client"
+import { devtools } from 'zustand/middleware'
 
+// Represents a time slot when the nurse is available
 export interface SpecializedServiceSlot {
   id?: string
-  dayOfWeek: DayOfWeek
+  dayOfWeek: string
   startTime: string
   endTime: string
   isReserved?: boolean
 }
 
-interface SpecializedServiceState {
+// Represents a service offering with individual price
+export interface ServiceOffering {
+  
+  serviceName: string
+  price: number
   isActive: boolean
-  fee: number
+  description?: string
+}
+
+interface SpecializedServiceState {
+  // Master activation state for the entire service
+  isActive: boolean
+  
+  // Available time slots
   slots: SpecializedServiceSlot[]
-  setIsActive: (status: boolean) => void
-  setFee: (fee: number) => void
-  addSlot: (slot: SpecializedServiceSlot) => void
-  removeSlot: (dayOfWeek: DayOfWeek, startTime: string) => void
+
+  // Individual service offerings with prices
+  serviceOfferings: ServiceOffering[]
+
+  // Actions
+  setIsActive: (isActive: boolean) => void
   setSlots: (slots: SpecializedServiceSlot[]) => void
+  addSlot: (slot: SpecializedServiceSlot) => void
+  removeSlot: (dayOfWeek: string, startTime: string) => void
+  
+  // Service offering actions
+  setServiceOfferings: (offerings: ServiceOffering[]) => void
+  addServiceOffering: (offering: ServiceOffering) => void
+  updateServiceOffering: (serviceName: string, updates: Partial<ServiceOffering>) => void
+  removeServiceOffering: (serviceName: string) => void
+  
+  // Reset
   resetStore: () => void
 }
 
-const initialState = {
-  isActive: false,
-  fee: 0,
-  slots: []
-}
-
 export const useSpecializedServiceStore = create<SpecializedServiceState>()(
-  persist(
+  devtools(
     (set) => ({
-      ...initialState,
+      isActive: false,
+      slots: [],
+      serviceOfferings: [],
+
+      setIsActive: (isActive) => set({ isActive }),
       
-      setIsActive: (status) => set({ isActive: status }),
-      setFee: (fee) => set({ fee }),
+      setSlots: (slots) => set({ slots }),
       
       addSlot: (slot) => set((state) => ({
         slots: [...state.slots, slot]
@@ -42,16 +62,35 @@ export const useSpecializedServiceStore = create<SpecializedServiceState>()(
       
       removeSlot: (dayOfWeek, startTime) => set((state) => ({
         slots: state.slots.filter(
-          s => !(s.dayOfWeek === dayOfWeek && s.startTime === startTime)
+          (slot) => !(slot.dayOfWeek === dayOfWeek && slot.startTime === startTime)
         )
       })),
 
-      setSlots: (slots) => set({ slots }),
+      setServiceOfferings: (serviceOfferings) => set({ serviceOfferings }),
       
-      resetStore: () => set(initialState)
-    }),
-    {
-      name: 'specialized-service-storage'
-    }
+      addServiceOffering: (offering) => set((state) => ({
+        serviceOfferings: [...state.serviceOfferings, offering]
+      })),
+      
+      updateServiceOffering: (serviceName, updates) => set((state) => ({
+        serviceOfferings: state.serviceOfferings.map(offering => 
+          offering.serviceName === serviceName 
+            ? { ...offering, ...updates } 
+            : offering
+        )
+      })),
+      
+      removeServiceOffering: (serviceName) => set((state) => ({
+        serviceOfferings: state.serviceOfferings.filter(
+          (offering) => offering.serviceName !== serviceName
+        )
+      })),
+      
+      resetStore: () => set({
+        isActive: false,
+        slots: [],
+        serviceOfferings: []
+      })
+    })
   )
 )

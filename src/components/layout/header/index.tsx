@@ -3,7 +3,7 @@ import { DesktopNav } from "./desktop-nav"
 import { AuthStatus } from "./auth-status"
 import { MobileNav } from "./mobile-nav"
 import Image from 'next/image';
-import { headers } from "next/headers"
+
 import { Button } from "@/components/ui/button"
 import { Phone } from "lucide-react"
 import { auth } from "@/auth";
@@ -33,9 +33,13 @@ export async function Header() {
       )
     }
     if (session.user.role === 'NURSE') {
-      return (
+      return session.user.isVerifiedNurse ? (
         <Button variant="outline" className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" asChild>
           <Link href="/nurse/dashboard">Nurse Dashboard</Link>
+        </Button>
+      ) : (
+        <Button variant="outline" className="whitespace-nowrap text-sm font-medium bg-transparent hover:bg-transparent border-none" asChild>
+          <Link href="/join-as-nurse">Join As Nurse</Link>
         </Button>
       )
     }

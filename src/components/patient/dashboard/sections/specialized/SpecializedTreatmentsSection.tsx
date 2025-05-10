@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, RefreshCw } from "lucide-react"
 import { SpecializedTreatmentCard } from "./SpecializedTreatmentCard"
 import { getSpecializedTreatmentsForPatient } from "@/lib/actions/specialized-treatment"
+import { Button } from "@/components/ui/button"
 
 interface SpecializedTreatmentsSectionProps {
   patientId: string
@@ -12,23 +13,37 @@ interface SpecializedTreatmentsSectionProps {
 export function SpecializedTreatmentsSection({ patientId }: SpecializedTreatmentsSectionProps) {
   const [treatments, setTreatments] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function fetchTreatments() {
-      try {
-        const data = await getSpecializedTreatmentsForPatient(patientId)
-        setTreatments(data)
-      } catch (error) {
-        console.error("Error fetching treatments:", error)
-        setError(error instanceof Error ? error.message : 'Failed to fetch treatments')
-      } finally {
-        setIsLoading(false)
+  const fetchTreatments = async (showRefreshing = false) => {
+    try {
+      if (showRefreshing) {
+        setIsRefreshing(true)
+      } else {
+        setIsLoading(true)
       }
+      
+      const data = await getSpecializedTreatmentsForPatient(patientId)
+      setTreatments(data)
+      setError(null)
+    } catch (error) {
+      console.error("Error fetching treatments:", error)
+      setError(error instanceof Error ? error.message : 'Failed to fetch treatments')
+    } finally {
+      setIsLoading(false)
+      setIsRefreshing(false)
     }
+  }
 
+  // Initial fetch
+  useEffect(() => {
     fetchTreatments()
   }, [patientId])
+
+  const handleRefresh = () => {
+    fetchTreatments(true)
+  }
 
   if (isLoading) {
     return (
@@ -38,33 +53,65 @@ export function SpecializedTreatmentsSection({ patientId }: SpecializedTreatment
     )
   }
 
-  if (error) {
-    return (
-      <div className="text-center p-8 text-red-500">
-        {error}
-      </div>
-    )
-  }
-
-  const handleStatusUpdate = (treatment: any) => {
-    // Just a placeholder function since we're only showing status
-    console.log("Treatment status updated:", treatment.id)
-  }
-
   return (
-    <div className="space-y-4">
-      {treatments.map((treatment) => (
-        <SpecializedTreatmentCard
-          key={treatment.id}
-          treatment={treatment}
-          onStatusUpdate={handleStatusUpdate}
-        />
-      ))}
-      {treatments.length === 0 && (
-        <div className="text-center p-8 text-muted-foreground">
-          No specialized treatment requests found
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Your Treatment Requests</h2>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh} 
+          disabled={isRefreshing}
+          className="flex items-center gap-1"
+        >
+          {isRefreshing ? (
+            <>
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>Refreshing...</span>
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-3 w-3" />
+              <span>Refresh</span>
+            </>
+          )}
+        </Button>
+      </div>
+
+      {error && (
+        <div className="text-center p-4 mb-4 border border-red-200 rounded-md bg-red-50 text-red-600">
+          {error}
+          <Button 
+            variant="link" 
+            className="ml-2 text-red-700 underline p-0" 
+            onClick={() => fetchTreatments()}
+          >
+            Try again
+          </Button>
         </div>
       )}
+
+      <div className="space-y-4">
+        {treatments.map((treatment) => (
+          <SpecializedTreatmentCard
+            key={treatment.id}
+            treatment={treatment}
+            onStatusUpdate={() => fetchTreatments(true)}
+          />
+        ))}
+        
+        {treatments.length === 0 && !isLoading && !error && (
+          <div className="text-center p-8 border rounded-md bg-slate-50">
+            <p className="text-muted-foreground mb-2">No specialized treatment requests found</p>
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.href = "/Services/specialized-treatment"}
+            >
+              Request New Treatment
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   )
 } 

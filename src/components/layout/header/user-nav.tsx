@@ -42,44 +42,7 @@ export function UserNav({ user }: UserNavProps) {
     }
   }
 
-  const renderDashboardLink = () => {
-    if (!session?.user?.role) return null
-
-    if (session.user.role === 'DOCTOR') {
-      return (
-        <DropdownMenuItem asChild>
-          <Link href="/doctor/dashboard">
-            <Layout className="mr-2 h-4 w-4" />
-            <span>Doctor Dashboard</span>
-          </Link>
-        </DropdownMenuItem>
-      )
-    }
-    
-    if (session.user.role === 'PATIENT') {
-      return (
-        <DropdownMenuItem asChild>
-          <Link href="/patient/dashboard">
-            <Layout className="mr-2 h-4 w-4" />
-            <span>Patient Dashboard</span>
-          </Link>
-        </DropdownMenuItem>
-      )
-    }
-    
-    if (session.user.role === 'NURSE') {
-      return (
-        <DropdownMenuItem asChild>
-          <Link href="/nurse/dashboard">
-            <Layout className="mr-2 h-4 w-4" />
-            <span>Nurse Dashboard</span>
-          </Link>
-        </DropdownMenuItem>
-      )
-    }
-    
-    return null
-  }
+ 
 
   return (
     <DropdownMenu>
@@ -101,7 +64,7 @@ export function UserNav({ user }: UserNavProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {renderDashboardLink()}
+          
          
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

@@ -43,15 +43,7 @@ export function SpecializedServiceDetails() {
 
   return (
     <div className="space-y-6">
-      {/* Treatment Fee Section */}
-      <Card className="p-4">
-        <div className="flex justify-between items-center">
-          <h3 className="font-medium">Treatment Fee</h3>
-          <Badge variant="secondary" className="text-lg px-4 py-1">
-            Rs. {data.fee}
-          </Badge>
-        </div>
-      </Card>
+     
 
       {/* Time Slots Section */}
       <Card className="p-4">

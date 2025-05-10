@@ -69,7 +69,8 @@ export const {
             name: doctor.name,
             role: "DOCTOR",
             image: "/default-avatar.png",
-            isVerifiedDoctor: doctor.isVerifiedDoctor
+            isVerifiedDoctor: doctor.isVerifiedDoctor,
+            isVerifiedNurse: false
           }
         } else if (role === 'NURSE') {
           const nurse = await db.nurse.findUnique({
@@ -91,7 +92,8 @@ export const {
             name: nurse.name,
             role: "NURSE",
             image: "/default-avatar.png",
-            isVerifiedDoctor: false
+            isVerifiedDoctor: false,
+            isVerifiedNurse: nurse.isVerifiedNurse
           }
         } else {
           const patient = await db.patient.findUnique({
@@ -113,7 +115,8 @@ export const {
             name: patient.name,
             role: "PATIENT",
             image: "/default-avatar.png",
-            isVerifiedDoctor: false
+            isVerifiedDoctor: false,
+            isVerifiedNurse: false
           }
         }
       }
@@ -132,6 +135,7 @@ export const {
         token.name = user.name as string
         token.picture = user.image as string
         token.isVerifiedDoctor = user.isVerifiedDoctor
+        token.isVerifiedNurse = user.isVerifiedNurse
       }
       return token
     },
@@ -145,7 +149,9 @@ export const {
           name: token.name,
           image: token.picture,
           emailVerified: "no",
-          isVerifiedDoctor: token.isVerifiedDoctor   }
+          isVerifiedDoctor: token.isVerifiedDoctor,
+          isVerifiedNurse: token.isVerifiedNurse
+        }
       }
     }
   }

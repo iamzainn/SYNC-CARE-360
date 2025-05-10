@@ -1,9 +1,10 @@
 // src/components/nurse/dashboard/NurseDashboardContent.tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { BookingsSection } from "./sections/BookingsSection"
-import { User, CalendarDays, CheckCircle } from "lucide-react"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SpecializedServicesSection } from "./sections/specialized-service/SpecializedServicesSection"
+import { NurseProfileSection } from "./sections/NurseProfileSection"
 
 interface NurseDashboardContentProps {
   nurseId: string
@@ -20,12 +21,16 @@ export function NurseDashboardContent({ nurseId, nurseName = "Nurse" }: NurseDas
         </div>
       </div>
 
-      <Tabs defaultValue="specialized-services" className="space-y-6">
+      <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="bg-white border">
+          <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="specialized-services">Specialized Services</TabsTrigger>
           <TabsTrigger value="bookings">My Bookings</TabsTrigger>
         </TabsList>
         
+        <TabsContent value="profile">
+          <NurseProfileSection nurseId={nurseId} nurseName={nurseName} />
+        </TabsContent>
         <TabsContent value="specialized-services">
           <SpecializedServicesSection />
         </TabsContent>

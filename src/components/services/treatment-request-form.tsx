@@ -12,7 +12,7 @@ import { NurseList } from "./nurse-list"
 import { TimeSlotsGrid } from "@/components/slots/TimeSlotsGrid"
 import { format, addDays, startOfToday } from "date-fns"
 
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, X, Info } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
@@ -22,10 +22,14 @@ import { getNurseById } from "@/lib/actions/nurseForTreatment"
 
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "@/components/ui/form"
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form, FormDescription } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { NURSING_SERVICES } from "@/lib/constants/nursing-services"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // Define the form schema for patient details
 const patientDetailsSchema = z.object({
@@ -35,6 +39,7 @@ const patientDetailsSchema = z.object({
   issueDetails: z.string().min(5, { message: "Please describe when the issue started" }),
   medicalCondition: z.string().min(5, { message: "Brief medical condition details are required" }),
   numberOfDays: z.coerce.number().min(1, { message: "At least 1 day is required" }).max(30, { message: "Maximum 30 days allowed" }),
+  requiredServices: z.array(z.string()).min(1, { message: "Please select at least one service" }),
 })
 
 type PatientDetailsFormValues = z.infer<typeof patientDetailsSchema>
@@ -44,6 +49,7 @@ export function TreatmentRequestForm() {
   const [selectedNurse, setSelectedNurse] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [patientDetails, setPatientDetails] = useState<PatientDetailsFormValues | null>(null)
+  const [selectedServices, setSelectedServices] = useState<string[]>([])
   
   // Add new states for slot booking
   const [startDate, setStartDate] = useState(startOfToday())
@@ -59,10 +65,11 @@ export function TreatmentRequestForm() {
   // Using only cash payment
   const [treatmentAmount, setTreatmentAmount] = useState(1500) // Default amount
   const [numberOfDays, setNumberOfDays] = useState(1) // Store number of days
+  const [selectedServicePrices, setSelectedServicePrices] = useState<Record<string, number>>({})
 
   const { toast } = useToast()
   const router = useRouter()
-  const { user,  } = useAuthPatient()
+  const { user } = useAuthPatient()
 
   // Form setup
   const form = useForm<PatientDetailsFormValues>({
@@ -74,6 +81,7 @@ export function TreatmentRequestForm() {
       issueDetails: "",
       medicalCondition: "",
       numberOfDays: 1,
+      requiredServices: [],
     },
   })
 
@@ -87,6 +95,17 @@ export function TreatmentRequestForm() {
       form.setValue("contactNumber", user.phone || "")
     }
   }, [user, form])
+
+  // Update selected services when form values change
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'requiredServices') {
+        setSelectedServices(value.requiredServices as string[] || [])
+      }
+    })
+    
+    return () => subscription.unsubscribe()
+  }, [form.watch])
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date)
@@ -104,7 +123,47 @@ export function TreatmentRequestForm() {
   const onSubmitPatientDetails = (data: PatientDetailsFormValues) => {
     setPatientDetails(data)
     setNumberOfDays(data.numberOfDays)
+    setSelectedServices(data.requiredServices)
     setStep(2)
+  }
+
+  // Toggle a service selection
+  const toggleService = (service: string) => {
+    const currentServices = form.getValues("requiredServices")
+    
+    if (currentServices.includes(service)) {
+      form.setValue(
+        "requiredServices", 
+        currentServices.filter(s => s !== service),
+        { shouldValidate: true }
+      )
+    } else {
+      form.setValue(
+        "requiredServices", 
+        [...currentServices, service],
+        { shouldValidate: true }
+      )
+    }
+  }
+
+  // Calculate total treatment amount based on selected services and nurse prices
+  const calculateTotalAmount = () => {
+    let total = 0
+    
+    if (selectedNurse && selectedServices.length > 0) {
+      // Sum the prices of all selected services for this nurse
+      selectedServices.forEach(service => {
+        total += selectedServicePrices[service] || 0
+      })
+    }
+    
+    // Multiply by number of days
+    total = total * (patientDetails?.numberOfDays || 1)
+    
+    // Add service charge
+    total += 500 // Fixed service charge
+    
+    return total
   }
 
   // Simplified treatment request submission
@@ -149,10 +208,15 @@ export function TreatmentRequestForm() {
         return
       }
 
-      // Update the treatment request with simplified data
+      const totalAmount = calculateTotalAmount()
+
+      // Update the treatment request with specialized services
       const treatmentData = {
         nurseId: selectedNurse,
-        patientDetails: patientDetails,
+        patientDetails: {
+          ...patientDetails,
+          requiredServices: selectedServices
+        },
         slot: {
           id: selectedSlot.id,
           dayOfWeek: selectedSlot.dayOfWeek,
@@ -163,8 +227,9 @@ export function TreatmentRequestForm() {
         paymentMethod: "cash", // Set to cash only
         amount: treatmentAmount,
         serviceCharge: 500, // Fixed service charge
-        totalAmount: (treatmentAmount * patientDetails.numberOfDays) + 500,
-        numberOfDays: patientDetails.numberOfDays
+        totalAmount,
+        numberOfDays: patientDetails.numberOfDays,
+        servicePrices: selectedServicePrices
       }
 
       console.log(treatmentData)
@@ -223,8 +288,20 @@ export function TreatmentRequestForm() {
   const [nurseSlots, setNurseSlots] = useState<any[]>([])
 
   // When selecting a nurse
-  const handleNurseSelect = async (nurseId: string) => {
+  const handleNurseSelect = async (nurseId: string, servicePrices: Record<string, number>) => {
     setSelectedNurse(nurseId)
+    setSelectedServicePrices(servicePrices)
+    
+    // Filter out services that this nurse doesn't offer
+    const availableServices = Object.keys(servicePrices)
+    
+    if (availableServices.length < selectedServices.length) {
+      toast({
+        title: "Notice",
+        description: `This nurse offers ${availableServices.length} of your ${selectedServices.length} selected services.`,
+        variant: "default"
+      })
+    }
     
     try {
       const response = await getNurseById(nurseId)
@@ -232,11 +309,6 @@ export function TreatmentRequestForm() {
       if (response.success && response.data) {
         console.log("Nurse slots:", response.data.slots) // Debugging
         setNurseSlots(response.data.slots || []) // Ensure we default to empty array
-        
-        // Update the treatment amount based on the nurse's fee
-        if (response.data.fee) {
-          setTreatmentAmount(response.data.fee)
-        }
       } else {
         setNurseSlots([])
       }
@@ -264,6 +336,69 @@ export function TreatmentRequestForm() {
                 
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmitPatientDetails)} className="space-y-4">
+                    {/* Required Nursing Services */}
+                    <div className="space-y-3">
+                      <Alert variant="default" className="bg-blue-50 border-blue-200">
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>Multiple Services</AlertTitle>
+                        <AlertDescription>
+                          You can select multiple specialized nursing services that you require.
+                        </AlertDescription>
+                      </Alert>
+                      
+                      <FormField
+                        control={form.control}
+                        name="requiredServices"
+                        render={() => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold">Required Nursing Services*</FormLabel>
+                            <FormDescription>
+                              Select the specialized nursing services you need
+                            </FormDescription>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
+                              {NURSING_SERVICES.map((service) => (
+                                <div key={service} className="flex items-start space-x-2">
+                                  <Checkbox
+                                    id={`service-${service}`}
+                                    checked={form.watch("requiredServices").includes(service)}
+                                    onCheckedChange={() => toggleService(service)}
+                                  />
+                                  <label
+                                    htmlFor={`service-${service}`}
+                                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                  >
+                                    {service}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="mt-3">
+                              <FormLabel className="text-sm font-medium">Selected Services:</FormLabel>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {form.watch("requiredServices").length > 0 ? (
+                                  form.watch("requiredServices").map((service) => (
+                                    <Badge key={service} variant="secondary" className="flex items-center gap-1">
+                                      {service}
+                                      <button 
+                                        type="button" 
+                                        onClick={() => toggleService(service)}
+                                        className="text-muted-foreground hover:text-foreground"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </button>
+                                    </Badge>
+                                  ))
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">No services selected</span>
+                                )}
+                              </div>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -384,10 +519,23 @@ export function TreatmentRequestForm() {
             <div className="space-y-6">
               <h3 className="text-lg font-medium">Step 2: Select Nurse & Appointment</h3>
               
-              <ScrollArea className="h-[250px] rounded-md border p-4">
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4" />
+                <AlertTitle>Selected Services</AlertTitle>
+                <AlertDescription className="flex flex-wrap gap-1 mt-1">
+                  {selectedServices.map((service) => (
+                    <Badge key={service} variant="secondary">
+                      {service}
+                    </Badge>
+                  ))}
+                </AlertDescription>
+              </Alert>
+              
+              <ScrollArea className="h-[350px] rounded-md border p-4">
                 <div className="space-y-4">
                   <NurseList
                     selectedNurse={selectedNurse}
+                    requiredServices={selectedServices}
                     onSelect={handleNurseSelect}
                   />
                 </div>
@@ -459,17 +607,23 @@ export function TreatmentRequestForm() {
 
                   {/* Price Summary */}
                   <div className="space-y-2 border-t pt-4">
-                    <div className="flex justify-between items-center">
-                      <span>Treatment Fee (per day):</span>
-                      <span>Rs. {treatmentAmount}</span>
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Services Breakdown:</h4>
+                      {selectedServices.map(service => (
+                        <div key={service} className="flex justify-between items-center text-sm">
+                          <span>{service}</span>
+                          <span>Rs. {selectedServicePrices[service] || 0}</span>
+                        </div>
+                      ))}
                     </div>
+                    <Separator className="my-2" />
                     <div className="flex justify-between items-center">
                       <span>Number of Days:</span>
                       <span>{patientDetails?.numberOfDays}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span>Total Treatment Fee:</span>
-                      <span>Rs. {treatmentAmount * (patientDetails?.numberOfDays || 1)}</span>
+                      <span>Total Service Fee:</span>
+                      <span>Rs. {Object.values(selectedServicePrices).reduce((sum, price) => sum + price, 0) * (patientDetails?.numberOfDays || 1)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span>Service Charge:</span>
@@ -477,7 +631,7 @@ export function TreatmentRequestForm() {
                     </div>
                     <div className="flex justify-between items-center font-bold">
                       <span>Total Amount:</span>
-                      <span>Rs. {(treatmentAmount * (patientDetails?.numberOfDays || 1)) + 500}</span>
+                      <span>Rs. {calculateTotalAmount()}</span>
                     </div>
                   </div>
                 </>

@@ -1,7 +1,7 @@
 "use client"
 
 import { format } from "date-fns"
-import { CalendarIcon, Clock, CreditCard, User, BadgeInfo } from "lucide-react"
+import { CalendarIcon, Clock, CreditCard, User, BadgeInfo, Stethoscope } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -25,10 +25,11 @@ interface SpecializedTreatmentCardProps {
     serviceCharge?: number
     totalAmount?: number
     numberOfDays?: number
+    patientDetails?: any
+    requiredServices?: string[]
     nurse: {
       id: string
       name: string
-     
       email: string
       phone: string
     }
@@ -53,8 +54,8 @@ export function SpecializedTreatmentCard({
 
   const statusText: Record<SpecializedTreatmentStatus, string> = {
     PENDING: "Pending approval",
-    ACCEPTED: "Accepted by doctor",
-    REJECTED: "Rejected by doctor",
+    ACCEPTED: "Accepted by nurse",
+    REJECTED: "Rejected by nurse",
     COMPLETED: "Treatment completed"
   }
 
@@ -74,15 +75,32 @@ export function SpecializedTreatmentCard({
         </div>
       </CardHeader>
       <CardContent className="pb-6">
+        {/* Services Section */}
+        <div className="mb-4">
+          <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+            <Stethoscope className="h-4 w-4" /> Requested Services
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {treatment.requiredServices && treatment.requiredServices.length > 0 ? (
+              treatment.requiredServices.map((service, index) => (
+                <Badge key={index} variant="secondary">
+                  {service}
+                </Badge>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No specific services listed</p>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Doctor Info */}
+          {/* Nurse Info */}
           <div>
             <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-              <User className="h-4 w-4" /> Doctor Information
+              <User className="h-4 w-4" /> Nurse Information
             </h4>
             <div className="rounded-md border bg-slate-50 p-3">
               <p className="font-medium">{treatment.nurse.name}</p>
-             
               <div className="mt-2 text-sm">
                 <p>Email: {treatment.nurse.email}</p>
                 <p>Phone: {treatment.nurse.phone}</p>
@@ -156,6 +174,12 @@ export function SpecializedTreatmentCard({
                 >
                   Request New Treatment
                 </Button>
+              )}
+              
+              {(treatment.status === "ACCEPTED" && treatment.paymentStatus === "COMPLETED") && (
+                <div className="text-sm text-green-600 font-medium">
+                  Your request has been accepted
+                </div>
               )}
             </div>
           </div>

@@ -409,8 +409,10 @@ model Nurse {
   resetTokenExpiry     DateTime?
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
+  isVerifiedNurse      Boolean                @default(false)
   specializedService   SpecializedService?
   SpecializedTreatment SpecializedTreatment[]
+  verification         NurseVerification?
 
   @@map("nurses")
 }
@@ -418,13 +420,12 @@ model Nurse {
 model SpecializedService {
   id               String                @id @default(cuid())
   nurseId          String                @unique
-  isActive         Boolean               @default(false)
-  fee              Float                 @default(1500)
-  
+  isActive         Boolean               @default(false)  // Master switch for the entire service
   createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt
   nurse            Nurse                 @relation(fields: [nurseId], references: [id], onDelete: Cascade)
   slots            SpecializedServiceSlot[]
+  serviceOfferings NurseServiceOffering[] // Relation to service offerings with individual pricing
 
   @@map("specialized_services")
 }
@@ -442,6 +443,19 @@ model SpecializedServiceSlot {
 
   @@index([specializedServiceId])
   @@map("specialized_service_slots")
+}
+
+model NurseVerification {
+  id              String             @id @default(cuid())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  status          VerificationStatus @default(PENDING)
+  services        String[]           // Services the nurse provides
+  nurseId         String             @unique
+  nurse           Nurse              @relation(fields: [nurseId], references: [id], onDelete: Cascade)
+
+  @@index([nurseId])
+  @@map("nurse_verifications")
 }
 
 enum VerificationStatus {
@@ -597,4 +611,21 @@ model SpecializedTreatment {
   @@index([status])
   @@index([createdAt])
   @@map("specialized_treatments")
+}
+
+// New model to store individual service offerings with prices
+model NurseServiceOffering {
+  id                    String            @id @default(cuid())
+  specializedServiceId  String            // Reference to the specialized service
+  serviceName           String            // Name of the service
+  price                 Float             // Individual price for this service
+  isActive              Boolean           @default(true) // Whether this particular service is active
+  description           String?           // Optional description of the service
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  specializedService    SpecializedService @relation(fields: [specializedServiceId], references: [id], onDelete: Cascade)
+
+  @@unique([specializedServiceId, serviceName]) // A nurse can't offer the same service twice
+  @@index([specializedServiceId])
+  @@map("nurse_service_offerings")
 }

@@ -11,6 +11,7 @@ declare module "next-auth" {
       image?: string
       emailVerified: Date | null
       isVerifiedDoctor: boolean
+      isVerifiedNurse: boolean
     }
   }
 
@@ -21,6 +22,7 @@ declare module "next-auth" {
     name: string
     image?: string
     isVerifiedDoctor: boolean
+    isVerifiedNurse: boolean
   }
 }
 
@@ -32,5 +34,6 @@ declare module "next-auth/jwt" {
     name: string
     isVerifiedDoctor: boolean
     picture?: string
+    isVerifiedNurse: boolean
   }
 }

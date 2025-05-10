@@ -24,7 +24,21 @@ export async function getNurseById(nurseId: string): Promise<GetApiResult<any>> 
                 endTime: true,
                 isReserved: true
               }
+            },
+            serviceOfferings: {
+              select: {
+                id: true,
+                serviceName: true,
+                price: true,
+                isActive: true,
+                description: true
+              }
             }
+          }
+        },
+        verification: {
+          select: {
+            services: true
           }
         },
         SpecializedTreatment: {
@@ -47,14 +61,19 @@ export async function getNurseById(nurseId: string): Promise<GetApiResult<any>> 
     // Use actual slots from the specializedService
     const slots = nurse.specializedService?.slots || [];
     
-    // Only return active nurses with available slots
-    if (!nurse.specializedService?.isActive || slots.length === 0) {
+    // Get service offerings
+    const serviceOfferings = nurse.specializedService?.serviceOfferings.filter(
+      offering => offering.isActive
+    ) || [];
+    
+    // Only return active nurses with available slots and services
+    if (!nurse.specializedService?.isActive || slots.length === 0 || serviceOfferings.length === 0) {
       return {
         success: true,
         data: {
           ...nurse,
           slots: [],
-          fee: nurse.specializedService?.fee || 1500
+          serviceOfferings: []
         }
       }
     }
@@ -64,7 +83,8 @@ export async function getNurseById(nurseId: string): Promise<GetApiResult<any>> 
       data: { 
         ...nurse,
         slots: slots,
-        fee: nurse.specializedService?.fee || 1500 
+        serviceOfferings: serviceOfferings,
+        expertise: nurse.verification?.services || []
       }
     }
   } catch (error) {
