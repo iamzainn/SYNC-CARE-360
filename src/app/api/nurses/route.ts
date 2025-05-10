@@ -1,8 +1,12 @@
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Get the selected services from the URL query params
+    const { searchParams } = new URL(request.url);
+    const selectedServices = searchParams.get('services')?.split(',') || [];
+    
     // Fetch nurses with their specializations and service offerings
     const nurses = await db.nurse.findMany({
       where: {
@@ -88,14 +92,33 @@ export async function GET() {
     // Filter nurses to only include those with:
     // 1. Has a specialized service
     // 2. Has at least one active service offering
-    const availableNurses = enhancedNurses.filter(nurse => 
-      nurse.hasSpecializedService && 
-      nurse.isActive && 
-      nurse.hasServiceOfferings
-    );
+    // 3. Offers ALL of the selected services (if any are selected)
+    const availableNurses = enhancedNurses.filter(nurse => {
+      // Basic availability checks
+      const basicAvailability = nurse.hasSpecializedService && 
+                                nurse.isActive && 
+                                nurse.hasServiceOfferings;
+      
+      // If no services were selected, just return based on basic availability
+      if (selectedServices.length === 0) {
+        return basicAvailability;
+      }
+      
+      // Check if nurse offers ALL selected services
+      const nurseServiceNames = nurse.serviceOfferings.map(offering => offering.serviceName);
+      const hasAllSelectedServices = selectedServices.every(
+        service => nurseServiceNames.includes(service)
+      );
+      
+      return basicAvailability && hasAllSelectedServices;
+    });
 
     // Log count of nurses before and after filtering (for debugging)
-    console.log(`Found ${nurses.length} nurses, ${availableNurses.length} with active service offerings`);
+    console.log(`Found ${nurses.length} nurses, ${availableNurses.length} with the requested services`);
+    
+    if (selectedServices.length > 0) {
+      console.log(`Filtered for services: ${selectedServices.join(', ')}`);
+    }
 
     return NextResponse.json({
       success: true,

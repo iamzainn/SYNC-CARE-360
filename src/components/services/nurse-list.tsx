@@ -25,7 +25,14 @@ export function NurseList({ selectedNurse, requiredServices, onSelect }: NurseLi
     async function fetchNurses() {
       try {
         setIsLoading(true)
-        const response = await fetch('/api/nurses')
+        
+        // Create URL with query parameters for required services
+        let url = '/api/nurses';
+        if (requiredServices.length > 0) {
+          url = `/api/nurses?services=${requiredServices.join(',')}`;
+        }
+        
+        const response = await fetch(url)
         const data = await response.json()
 
         if (data.success) {
@@ -42,31 +49,13 @@ export function NurseList({ selectedNurse, requiredServices, onSelect }: NurseLi
     }
 
     fetchNurses()
-  }, [])
+  }, [requiredServices])
 
   // Filter nurses based on required services
   useEffect(() => {
-    if (nurses.length === 0 || requiredServices.length === 0) {
-      setFilteredNurses([])
-      return
-    }
-
-    // Filter nurses that provide AT LEAST ONE of the required services
-    const filteredResults = nurses.filter(nurse => {
-      // Skip nurses without specialized services
-      if (!nurse.serviceOfferings || nurse.serviceOfferings.length === 0) {
-        return false
-      }
-
-      // Check if nurse offers at least one of the required services
-      const nurseServiceNames = nurse.serviceOfferings.map((service: any) => service.serviceName)
-      
-      // Check for at least one match instead of requiring all
-      return requiredServices.some(service => nurseServiceNames.includes(service))
-    })
-
-    setFilteredNurses(filteredResults)
-  }, [nurses, requiredServices])
+    // We can simply use the nurses directly since the API now filters for ALL required services
+    setFilteredNurses(nurses);
+  }, [nurses]);
 
   if (isLoading) {
     return (
@@ -101,8 +90,13 @@ export function NurseList({ selectedNurse, requiredServices, onSelect }: NurseLi
         const servicePrices: Record<string, number> = {}
         const availableServices: string[] = []
         
+        // Track both active and inactive services
+        const activeServices: string[] = []
+        const inactiveServices: string[] = []
+        
         // Make sure serviceOfferings is an array and populated
         if (Array.isArray(nurse.serviceOfferings)) {
+          // First populate active services for required ones
           requiredServices.forEach(serviceName => {
             const serviceOffering = nurse.serviceOfferings.find(
               (offering: any) => offering.serviceName === serviceName && offering.isActive
@@ -110,6 +104,16 @@ export function NurseList({ selectedNurse, requiredServices, onSelect }: NurseLi
             if (serviceOffering) {
               servicePrices[serviceName] = serviceOffering.price
               availableServices.push(serviceName)
+              activeServices.push(serviceName)
+            }
+          })
+          
+          // Now get all services this nurse offers (both active and inactive)
+          nurse.serviceOfferings.forEach((offering: any) => {
+            if (offering.isActive && !activeServices.includes(offering.serviceName)) {
+              activeServices.push(offering.serviceName)
+            } else if (!offering.isActive) {
+              inactiveServices.push(offering.serviceName)
             }
           })
         }
@@ -146,11 +150,11 @@ export function NurseList({ selectedNurse, requiredServices, onSelect }: NurseLi
               </div>
             </CardHeader>
             <CardContent className="px-4 pb-4 pt-0">
-              {/* Display service prices */}
+              {/* Display requested services with prices */}
               <div className="mb-3">
                 <p className="text-sm font-medium mb-1 flex items-center">
                   <DollarSign className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                  Available Services:
+                  Requested Services:
                 </p>
                 {availableServices.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
@@ -168,14 +172,39 @@ export function NurseList({ selectedNurse, requiredServices, onSelect }: NurseLi
               
               <Separator className="my-2" />
               
-              {/* Display expertise */}
-              {Array.isArray(nurse.expertise) && nurse.expertise.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {nurse.expertise.map((skill: string, index: number) => (
-                    <Badge key={index} variant="outline" className="bg-background">
-                      {skill}
+              {/* Display all services offered by the nurse */}
+              <div className="mb-3">
+                <p className="text-sm font-medium mb-1">All Registered Services:</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {activeServices.filter(s => !availableServices.includes(s)).map(service => (
+                    <Badge key={service} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+                      {service} (Active)
                     </Badge>
                   ))}
+                  {inactiveServices.map(service => (
+                    <Badge key={service} variant="outline" className="bg-gray-50 text-gray-500 border-gray-200">
+                      {service} (Inactive)
+                    </Badge>
+                  ))}
+                </div>
+                {activeServices.length === 0 && inactiveServices.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No additional services registered</p>
+                )}
+              </div>
+              
+              <Separator className="my-2" />
+              
+              {/* Display expertise */}
+              {Array.isArray(nurse.expertise) && nurse.expertise.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-1">Verified Skills:</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {nurse.expertise.map((skill: string, index: number) => (
+                      <Badge key={index} variant="outline" className="bg-background">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>
